@@ -103,7 +103,7 @@ if [ -S /tmp/ospd.sock ]; then
 fi
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /var/run/openvassd.sock --log-level INFO
+ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /tmp/ospd.sock --log-level INFO
 
 while  [ ! -S /tmp/ospd.sock ]; do
 	sleep 1
@@ -112,7 +112,7 @@ done
 chmod 666 /tmp/ospd.sock
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd" gvm
+su -c "gvmd" gvm --osp-vt-update=/tmp/ospd.sock
 
 until su -c "gvmd --get-users" gvm; do
 	sleep 1
