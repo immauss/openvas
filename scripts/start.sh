@@ -48,6 +48,14 @@ if [ ! -L /var/lib/postgresql/10/main ]; then
 	chown postgres:postgres -R /data/database
 fi
 
+if [ ! -L /usr/local/var/lib/gvm  ]; then
+	echo "Fixing gvm directory... "
+	mkdir /data/gvm
+	mv /usr/local/var/lib/gvm/* /data/gvm
+	rmdir /usr/local/var/lib/gvm
+	ln -s /data/gvm /usr/local/var/lib/gvm
+fi
+
 echo "Starting PostgreSQL..."
 /usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start
 
@@ -112,7 +120,7 @@ done
 chmod 666 /tmp/ospd.sock
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd" gvm --osp-vt-update=/tmp/ospd.sock
+su -c "gvmd --osp-vt-update=/tmp/ospd.sock" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	sleep 1
