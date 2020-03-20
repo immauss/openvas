@@ -48,12 +48,19 @@ if [ ! -L /var/lib/postgresql/10/main ]; then
 	chown postgres:postgres -R /data/database
 fi
 
-if [ ! -L /usr/local/var/lib/gvm  ]; then
-	echo "Fixing gvm directory... "
-	mkdir /data/gvm
-	mv /usr/local/var/lib/gvm/* /data/gvm
-	rmdir /usr/local/var/lib/gvm
-	ln -s /data/gvm /usr/local/var/lib/gvm
+if [ ! -L /usr/local/var/lib  ]; then
+	echo "Fixing local/var/lib ... "
+	if [ ! -d /data/var-lib ]; then  mkdir /data/var-lib; fi
+	cp -rf /usr/local/var/lib/* /data/var-lib
+	rm -rf /usr/local/var/lib
+	ln -s /data/var-lib /usr/local/var/lib
+fi
+if [ ! -L /usr/local/share ]; then
+	echo "Fixing local/share ... "
+	if [ ! -d /data/local-share ]; then mkdir /data/local-share; fi
+	cp -rf /usr/local/share/* /data/local-share/
+	rm -rf /usr/local/share 
+	ln -s /data/local-share /usr/local/share 
 fi
 
 echo "Starting PostgreSQL..."
@@ -66,7 +73,10 @@ if [ ! -f "/firstrun" ]; then
 	useradd --home-dir /usr/local/share/openvas openvas-sync
 	chown openvas-sync:openvas-sync -R /usr/local/share/openvas
 	chown openvas-sync:openvas-sync -R /usr/local/var/lib/openvas
-
+	#if [ -d /usr/local/var/lib/gvm/cert-data ]; then echo "creating cert-dir" ;mkdir -p /usr/local/var/lib/gvm/cert-data; fi
+	#if [ -d /usr/local/var/lib/gvm/scap-data ]; then echo "creating scap-dir" ;mkdir -p /usr/local/var/lib/gvm/scap-data; fi
+        #chown openvas-sync:openvas-sync -R /usr/local/var/lib/gvm/cert-data
+        #chown openvas-sync:openvas-sync -R /usr/local/var/lib/gvm/scap-data
 	echo "Creating Greenbone Vulnerability system user..."
 	useradd --home-dir /usr/local/share/gvm gvm
 	chown gvm:gvm -R /usr/local/share/gvm
