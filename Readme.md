@@ -1,10 +1,25 @@
 
 
-NOTE: This was shamelesy copied from: https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker 
+#NOTE:
+The original source of this was  copied from: https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker 
 I liked how they did things, but needed to make a few tweaks so I could import my old openvas DB from v7 -> v8 - v9. 
-The only major change in the end was adding "locales-all" to the list of installed packages so I wouldn't have to rebuild the database .... again." 
+The only initial major change was adding "locales-all" to the list of installed packages so I wouldn't have to rebuild the database .... again." 
 
-In the future, I want to rewrite some of the build scripts to build from git pull, but for now, a stable build was more important. 
+Other Changes:
+- Added '/usr/local/var/lib' and '/usr/local/share' to the /data directory via soft links. This prevents downloading of all the NVT, CERT,  & scap data if the image is replaced/updated.
+- changed some of the "if" statemens in start.sh to look for softlinks vs directories to prevent re-running every time. ( 'if [ -L' <dir> ] vs 'if [ -d' <dir> ] )
+- images are availabe on docker hub : docker.io/immauss/openvas
+
+#ToDo
+
+- Finish cleaning up this doc to match my build (code below still references the orignials)
+- Add an option to build from current source tree instead of releases.
+- Split the postgres db into it's own container.
+- Find a reasonable way to backup the db.
+- Find a simple way to maintain valid TLS certs. (Hopefully with let's encrypt)
+- Hard coded the sockets ... (This is still giving me some trouble. I've resolved with soft link from where it expects the socket to where it actually is located. )
+- Something else really cool !
+
 
 -Scott
 
@@ -22,7 +37,7 @@ Currently the GVM reporting does not allow you to export reports containing more
 
 To implement this fix, run the following command AFTER you finished the rest of the setup.
 ```bash
-docker exec -it gvm bash -exec "/reportFix.sh"
+docker exec -it openvas bash -exec "/reportFix.sh"
 ```
 Note: we have used the container name gvm to be consistent with the rest of the documentation. Modify the command accordingly.
 
@@ -51,15 +66,20 @@ This command will pull, create, and start the container:
 Without persistent volume:
 
 ```shell
-docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --name gvm securecompliance/gvm
+docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --name openvas immauss/openvas
 ```
+create a volume to start persistent data. 
+```shell
+docker volume create openvas
+```
+
 With persistent volume:
 
 ```shell
-docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --volume gvm-data:/data --name gvm securecompliance/gvm
+docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --volume openvas:/data --name openvas immauss/openvas
 ```
 
-You can use whatever `--name` you'd like but for the sake of this guide we're using gvm.
+You can use whatever `--name` you'd like but for the sake of this guide we're using openvas.
 
 The `-p 8080:9392` switch will port forward `8080` on the host to `9392` (the container web interface port) in the docker container. Port `8080` was chosen only to avoid conflicts with any existing OpenVAS/GVM installation. You can change `8080` to any available port that you'd like.
 
@@ -69,7 +89,7 @@ Depending on your hardware, it can take anywhere from a few seconds to 10 minute
 
 There is no easy way to estimate the remaining NVT loading time, but you can check if the NVTs have finished loading by running:
 ```
-docker logs gvm
+docker logs openvas
 ```
 
 If you see "Your GVM 11 container is now ready to use!" then, you guessed it, your container is ready to use.
@@ -88,19 +108,24 @@ Password: admin
 
 This command will show you the GVM processes running inside the container:
 ```
-docker top gvm
+docker top openvas
 ```
 
 ## Checking the GVM Logs
 
 All the logs from /usr/local/var/log/gvm/* can be viewed by running:
 ```
-docker logs gvm
+docker logs openvas
 ```
+Or you can follow the logs (like tail -f ) with:
+```
+docker logs -f openvas
+```
+
 
 ## Updating the NVTs
 
 The NVTs will update every time the container starts. Even if you leave your container running 24/7, the easiest way to update your NVTs is to restart the container.
 ```
-docker restart gvm
+docker restart openvas
 ```
