@@ -12,7 +12,7 @@ The only initial major change was adding "locales-all" to the list of installed 
 
 # ToDo
 
-- Finish cleaning up this doc to match my build (code below still references the orignials)
+- ~~Finish cleaning up this doc to match my build (code below still references the orignials)~~
 - Add an option to build from current source tree instead of releases.
 - Split the postgres db into it's own container.
 - Find a reasonable way to backup the db.
