@@ -73,14 +73,10 @@ if [ ! -f "/firstrun" ]; then
 	useradd --home-dir /usr/local/share/openvas openvas-sync
 	chown openvas-sync:openvas-sync -R /usr/local/share/openvas
 	chown openvas-sync:openvas-sync -R /usr/local/var/lib/openvas
-	#if [ -d /usr/local/var/lib/gvm/cert-data ]; then echo "creating cert-dir" ;mkdir -p /usr/local/var/lib/gvm/cert-data; fi
-	#if [ -d /usr/local/var/lib/gvm/scap-data ]; then echo "creating scap-dir" ;mkdir -p /usr/local/var/lib/gvm/scap-data; fi
-        #chown openvas-sync:openvas-sync -R /usr/local/var/lib/gvm/cert-data
-        #chown openvas-sync:openvas-sync -R /usr/local/var/lib/gvm/scap-data
 	echo "Creating Greenbone Vulnerability system user..."
 	useradd --home-dir /usr/local/share/gvm gvm
 	chown gvm:gvm -R /usr/local/share/gvm
-	mkdir /usr/local/var/lib/gvm/cert-data
+	if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then mkdir -p /usr/local/var/lib/gvm/cert-data; fi
 	chown gvm:gvm -R /usr/local/var/lib/gvm
 	chmod 770 -R /usr/local/var/lib/gvm
 	chown gvm:gvm -R /usr/local/var/log/gvm
@@ -126,6 +122,14 @@ ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /t
 while  [ ! -S /tmp/ospd.sock ]; do
 	sleep 1
 done
+
+# This is cludgy and needs a better fix. namely figure out how to hard code alllll of the scoket references in the startup process.
+# It's possible this is a problem with my DB as I only see it when using my DB. 
+if [ ! -L /var/run/openvassd.sock ]; then
+	echo "Fixing the ospd socket ..."
+	rm -f /var/run/openvassd.sock
+	ln -s /tmp/ospd.sock /var/run/openvassd.sock
+fi
 
 chmod 666 /tmp/ospd.sock
 
