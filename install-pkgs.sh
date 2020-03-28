@@ -31,12 +31,14 @@ libsnmp-dev
 libssh-gcrypt-dev
 libxml2-dev
 locales-all
+mailutils
 net-tools
 nmap
 nsis
 openssh-client
 perl-base
 pkg-config
+postfix
 postgresql
 postgresql-contrib
 postgresql-server-dev-all

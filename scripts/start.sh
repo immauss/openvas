@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
+RELAYHOST=${RELAYHOST:-172.17.0.1}
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -115,6 +116,12 @@ fi
 if [ -S /tmp/ospd.sock ]; then
   rm /tmp/ospd.sock
 fi
+echo "Starting Postfix for report delivery by email"
+# Configure postfix
+sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}/" /etc/postfix/main.cf
+# Start the postfix  bits
+/usr/lib/postfix/sbin/master -w
+
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /tmp/ospd.sock --log-level INFO
