@@ -10,7 +10,14 @@ The only initial major change was adding "locales-all" to the list of installed 
 - changed some of the "if" statemens in start.sh to look for softlinks vs directories to prevent re-running every time. ( 'if [ -L' <dir> ] vs 'if [ -d' <dir> ] )
 - images are availabe on docker hub : docker.io/immauss/openvas
 - Hard coded the sockets ... (This is still giving me some trouble. I've resolved with soft link from where it expects the socket to where it actually is located. )
-  
+- Added postfix and mailutils to the image. There are now two more options that can be passed to the containger on start:
+  RELAYHOST - IP address or fqdn of the mailhost to forward to.
+  SMTPPORT - Port the mailhost is listening on. 
+  I'm using this to forward to the host running the image, where I already have postfix configured. The defaults for these are
+  172.17.0.1 and port 25. If you use this, make sure the firewall (iptables) is not blocking the connection from the container. 
+  ```shell
+  -e RELAYHOST="mail.host.com" -e SMTPPORT="25"
+  ```
 # ToDo
 
 - ~~Finish cleaning up this doc to match my build (code below still references the orignials)~~
