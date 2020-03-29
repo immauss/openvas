@@ -4,6 +4,7 @@ set -Eeuo pipefail
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
+SMTPPORT=${SMTPPORT:-25}
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -118,7 +119,7 @@ if [ -S /tmp/ospd.sock ]; then
 fi
 echo "Starting Postfix for report delivery by email"
 # Configure postfix
-sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}/" /etc/postfix/main.cf
+sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main.cf
 # Start the postfix  bits
 /usr/lib/postfix/sbin/master -w
 
