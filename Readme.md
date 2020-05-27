@@ -46,7 +46,7 @@ To implement this fix, run the following command AFTER you finished the rest of 
 ```bash
 docker exec -it openvas bash -exec "/reportFix.sh"
 ```
-Note: we have used the container name gvm to be consistent with the rest of the documentation. Modify the command accordingly.
+Note: we have used the container name openvas to be consistent with the rest of the documentation. Modify the command accordingly.
 
 
 
