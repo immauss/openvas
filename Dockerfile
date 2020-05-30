@@ -139,14 +139,14 @@ RUN cd /build && \
     #
     # Install GVM-Tools
     #
-    
-RUN cd /build && \
-    wget --no-verbose https://github.com/greenbone/gvm-tools/archive/$gvm_tools_version.tar.gz && \
-    tar -zxf $gvm_tools_version.tar.gz && \
-    cd /build/*/ && \
-    python3 setup.py install && \
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && ldconfig && cd / && rm -rf /build
-
+RUN python3 -m pip install gvm-tools    
+#RUN cd /build && \
+    #wget --no-verbose https://github.com/greenbone/gvm-tools/archive/$gvm_tools_version.tar.gz && \
+    #tar -zxf $gvm_tools_version.tar.gz && \
+    #cd /build/*/ && \
+    #python3 setup.py install && \
+    #echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && ldconfig && cd / && rm -rf /build
+#
 COPY scripts/* /
 
 CMD '/start.sh'
