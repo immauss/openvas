@@ -149,10 +149,11 @@ RUN python3 -m pip install gvm-tools
 #
 
     # 
-    # Make sure all libraries are linked
+    # Make sure all libraries are linked and add a random directory suddenly needed by ospd :/
     #
 
-RUN ldconfig 
+RUN ldconfig && \
+    mkdir /var/run/ospd
 
 COPY scripts/* /
 
