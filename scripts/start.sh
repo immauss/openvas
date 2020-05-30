@@ -140,7 +140,8 @@ if [ ! -L /var/run/openvassd.sock ]; then
 fi
 
 chmod 666 /tmp/ospd.sock
-
+echo "Migrating database if needed"
+su -c "gvmd -m" gvm
 echo "Starting Greenbone Vulnerability Manager..."
 su -c "gvmd --osp-vt-update=/tmp/ospd.sock" gvm
 
