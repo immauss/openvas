@@ -147,6 +147,13 @@ RUN python3 -m pip install gvm-tools
     #python3 setup.py install && \
     #echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && ldconfig && cd / && rm -rf /build
 #
+
+    # 
+    # Make sure all libraries are linked
+    #
+
+RUN ldconfig 
+
 COPY scripts/* /
 
 CMD '/start.sh'
