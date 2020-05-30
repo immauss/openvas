@@ -102,14 +102,15 @@ RUN cd /build && \
     #
     # Install Greenbone Vulnerability Management Python Library
     #
+RUN python3 -m pip install python-gvm
     
-RUN cd /build && \
-    wget --no-verbose https://github.com/greenbone/python-gvm/archive/$python_gvm_version.tar.gz && \
-    tar -zxf $python_gvm_version.tar.gz && \
-    cd /build/*/ && \
-    python3 setup.py install && \
-    cd /build && \
-    rm -rf *
+#RUN cd /build && \
+    #wget --no-verbose https://github.com/greenbone/python-gvm/archive/$python_gvm_version.tar.gz && \
+    #tar -zxf $python_gvm_version.tar.gz && \
+    #cd /build/*/ && \
+    #python3 setup.py install && \
+    #cd /build && \
+    #rm -rf *
     
     #
     # Install Open Scanner Protocol daemon (OSPd)
