@@ -121,7 +121,8 @@ echo "Starting Postfix for report delivery by email"
 # Configure postfix
 sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main.cf
 # Start the postfix  bits
-/usr/lib/postfix/sbin/master -w
+#/usr/lib/postfix/sbin/master -w
+service postfix start
 
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
