@@ -146,6 +146,12 @@ su -c "gvmd -m" gvm
 echo "Starting Greenbone Vulnerability Manager..."
 su -c "gvmd --osp-vt-update=/tmp/ospd.sock" gvm
 
+if [ ! -L /var/run/gvmd.sock ]; then
+	echo "Fixing the gvmd socket ..."
+	rm -f /var/run/gvmd.sock
+	ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
+fi
+
 until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
