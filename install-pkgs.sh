@@ -60,6 +60,7 @@ uuid-dev
 wapiti
 wget
 whiptail
+xml-twig-tools
 xsltproc
 EOF
 } | xargs apt-get install -yq --no-install-recommends
