@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
-
+EXPOSE 9392
 COPY install-pkgs.sh /install-pkgs.sh
 
 RUN bash /install-pkgs.sh
