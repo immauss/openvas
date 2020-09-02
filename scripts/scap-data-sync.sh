@@ -6,7 +6,7 @@ FEED_HOME="https://community.greenbone.net/t/about-greenbone-community-feed-gcf/
 SCAP_DIR="/usr/local/var/lib/gvm/scap-data"
 TIMESTAMP="$SCAP_DIR/timestamp"
 
-rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet --delete --exclude feed.xml rsync://feed.openvas.org:/scap-data $SCAP_DIR
+rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet --delete --exclude feed.xml rsync://feed.community.greenbone.net:/scap-data $SCAP_DIR
 
 if [ -r "$TIMESTAMP" ]; then
   FEED_VERSION=$(cat "$TIMESTAMP")
