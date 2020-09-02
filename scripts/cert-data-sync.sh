@@ -6,7 +6,7 @@ FEED_HOME="https://community.greenbone.net/t/about-greenbone-community-feed-gcf/
 CERT_DIR="/usr/local/var/lib/gvm/cert-data"
 TIMESTAMP="$CERT_DIR/timestamp"
 
-rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet --delete --exclude feed.xml rsync://feed.openvas.org:/cert-data $CERT_DIR
+rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet --delete --exclude feed.xml rsync://feed.community.greenbone.net:/cert-data $CERT_DIR
 
 if [ -r "$TIMESTAMP" ]; then
   FEED_VERSION=$(cat "$TIMESTAMP")
