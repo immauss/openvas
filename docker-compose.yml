@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  openvas:
+    ports:
+      - "8080:9392"
+    environment:
+      - "PASSWORD=Your admin password here"
+    volumes:
+      - "openvas:/data"
+    container_name: openvas
+    image: immauss/openvas
