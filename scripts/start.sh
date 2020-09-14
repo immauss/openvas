@@ -118,6 +118,11 @@ fi
 if [ -S /tmp/ospd.sock ]; then
   rm /tmp/ospd.sock
 fi
+
+# Force fix /usr/local/var/lib/run
+chown root:root /usr/local/var/lib/run
+chmod 777 /usr/local/var/lib/run 
+
 echo "Starting Postfix for report delivery by email"
 # Configure postfix
 sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main.cf
