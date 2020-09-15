@@ -6,6 +6,16 @@ PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
 
+echo "Setup / Fix the /usr/local/var/run"
+if [ -d /usr/local/var/run ]; then
+	echo "linking to '/run'"
+	rm -rf /usr/local/var/run
+	ln -s /run /usr/local/var/run
+	chmod 777 /run
+else
+	echo "already linked to '/run'"
+fi
+
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
 fi
@@ -100,9 +110,13 @@ if [ ! -f "/data/firstrun" ]; then
 fi
 
 # Force fix /usr/local/var/lib/run
-chown root:root /usr/local/var/lib/run
-chmod 777 /usr/local/var/lib/run 
+#chown root:root /usr/local/var/lib/run
+#chmod 777 /usr/local/var/lib/run 
 
+echo "Fixing sync script options ... "
+sed -i "s/ltvrP/ltrP/" /usr/local/bin/greenbone-nvt-sync
+sed -i "s/ltvrP/ltrP/" /usr/local/sbin/greenbone-scapdata-sync
+sed -i "s/ltvrP/ltrP/" /usr/local/sbin/greenbone-certdata-sync
 
 echo "Updating NVTs..."
 #su -c "rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet rsync://feed.community.greenbone.net:/nvt-feed /usr/local/var/lib/openvas/plugins" openvas-sync
