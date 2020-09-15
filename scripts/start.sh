@@ -7,14 +7,15 @@ RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
 
 echo "Setup / Fix the /usr/local/var/run"
-if [ -d /usr/local/var/run ]; then
-	echo "linking to '/run'"
-	rm -rf /usr/local/var/run
-	ln -s /run /usr/local/var/run
-	chmod 777 /run
-else
-	echo "already linked to '/run'"
-fi
+#if [ -d /usr/local/var/run ]; then
+	#echo "linking to '/run'"
+	#rm -rf /usr/local/var/run
+	#ln -s /run /usr/local/var/run
+	#chmod 777 /run
+#else
+	#echo "already linked to '/run'"
+#fi
+chmod 777 /usr/local/var/run
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
