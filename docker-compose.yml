@@ -9,3 +9,5 @@ services:
       - "openvas:/data"
     container_name: openvas
     image: immauss/openvas
+volumes:
+  openvas:
