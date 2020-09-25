@@ -120,6 +120,11 @@ sed -i "s/ltvrP/ltrP/" /usr/local/sbin/greenbone-scapdata-sync
 sed -i "s/ltvrP/ltrP/" /usr/local/sbin/greenbone-certdata-sync
 
 echo "Updating NVTs..."
+if [ -f /usr/local/var/run/feed-update.lock ]; then
+        # If NVT updater crashes it does not clear this up without intervention
+        echo "Removing feed-update.lock"
+	rm /usr/local/var/run/feed-update.lock
+fi
 #su -c "rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet rsync://feed.community.greenbone.net:/nvt-feed /usr/local/var/lib/openvas/plugins" openvas-sync
 su -c "/usr/local/bin/greenbone-nvt-sync" openvas-sync
 sleep 5
