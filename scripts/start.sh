@@ -5,6 +5,8 @@ USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
+REDISDBS=${REDISDBS:-128}
+
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -12,7 +14,7 @@ fi
 if  [ -S /run/redis/redis.sock ]; then
         rm /run/redis/redis.sock
 fi
-redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 --timeout 0 --databases 128 --maxclients 512 --daemonize yes --port 6379 --bind 0.0.0.0
+redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 --timeout 0 --databases $REDISDBS --maxclients 512 --daemonize yes --port 6379 --bind 0.0.0.0
 
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
@@ -77,13 +79,13 @@ if [ ! -f "/firstrun" ]; then
 	chown openvas-sync:openvas-sync -R /usr/local/var/lib/openvas
 	echo "Creating Greenbone Vulnerability system user..."
 	useradd --home-dir /usr/local/share/gvm gvm
+	echo "umask 0002" >> /usr/local/share/.profile
 	chown gvm:gvm -R /usr/local/share/gvm
 	if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then mkdir -p /usr/local/var/lib/gvm/cert-data; fi
 	chown gvm:gvm -R /usr/local/var/lib/gvm
 	chmod 770 -R /usr/local/var/lib/gvm
 	chown gvm:gvm -R /usr/local/var/log/gvm
 	chown gvm:gvm -R /usr/local/var/run
-
 	adduser openvas-sync gvm
 	adduser gvm openvas-sync
 	touch /firstrun
@@ -96,19 +98,32 @@ if [ ! -f "/data/firstrun" ]; then
 	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
 	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
 	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
 	touch /data/firstrun
 fi
-
-echo "Updating NVTs..."
-su -c "rsync --compress-level=9 --links --times --omit-dir-times --recursive --partial --quiet rsync://feed.openvas.org:/nvt-feed /usr/local/var/lib/openvas/plugins" openvas-sync
+#sleep 1d
+echo "Updating NVTs and other data"
+echo "This could take a while if you are not using persistent storage for your NVTs"
+echo " or this is the first time pulling to your persistent storage."
+echo " the time will be mostly dependent on your available bandwidth."
+echo " We sleep for 5 seconds between sync command to make sure everything closes"
+echo " and it doesnt' look like we are connecting more than once."
+# Fix perms on var/run for the sync to function
+chmod 777 /usr/local/var/run/
+# And it should be empty. (Thanks felimwhiteley )
+if [ -f /usr/local/var/run/feed-update.lock ]; then
+        # If NVT updater crashes it does not clear this up without intervention
+        echo "Removing feed-update.lock"
+	rm /usr/local/var/run/feed-update.lock
+fi
+echo " Pulling NVTs from greenbone" 
+su -c "/usr/local/bin/greenbone-nvt-sync" openvas-sync
 sleep 5
-
-echo "Updating CERT data..."
-su -c "/cert-data-sync.sh" openvas-sync
+echo " Pulling cert-data from greenbone"
+su -c "/usr/local/sbin/greenbone-certdata-sync" openvas-sync
 sleep 5
-
-echo "Updating SCAP data..."
-su -c "/scap-data-sync.sh" openvas-sync
+echo " Pulling scapdata from greenboon"
+su -c "/usr/local/sbin/greenbone-scapdata-sync" openvas-sync 
 
 if [ -f /var/run/ospd.pid ]; then
   rm /var/run/ospd.pid
@@ -128,6 +143,7 @@ service postfix start
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /tmp/ospd.sock --log-level INFO
 
+# wait for ospd to start by looking for the socket creation.
 while  [ ! -S /tmp/ospd.sock ]; do
 	sleep 1
 done

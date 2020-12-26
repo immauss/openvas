@@ -3,15 +3,15 @@ export LANG="C.UTF-8"
 
 bash ./install-pkgs.sh
 
-gvm_libs_version="v11.0.1" \
-openvas_scanner_version="v7.0.1" \
-gvmd_version="v9.0.1" \
-gsa_version="v9.0.1" \
+gvm_libs_version="v20.08.0" \
+openvas_scanner_version="v20.08.0" \
+gvmd_version="v20.08.0" \
+gsa_version="v20.08.0" \
 gvm_tools_version="v2.1.0" \
 openvas_smb="v1.0.5" \
-open_scanner_protocol_daemon="v2.0.1" \
-ospd_openvas="v1.0.1" \
-python_gvm_version="v1.5.0"
+open_scanner_protocol_daemon="v20.08.0" \
+ospd_openvas="v20.08.0" \
+python_gvm_version="v1.6.0"
 
 echo "Starting Build..." && mkdir /build
 

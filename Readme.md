@@ -18,6 +18,10 @@ The only initial major change was adding "locales-all" to the list of installed 
   ```shell
   -e RELAYHOST="mail.host.com" -e SMTPPORT="25"
   ```
+- Added environment variable for number of redis databases. In some environments running larger or more scans may need addtional redis databases. REDISDBS. The default is 128.
+```
+-e REDISDBS=256
+```
 # ToDo
 
 - ~~Finish cleaning up this doc to match my build (code below still references the orignials)~~
