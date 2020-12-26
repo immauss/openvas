@@ -17,6 +17,7 @@ The only initial major change was adding "locales-all" to the list of installed 
   172.17.0.1 and port 25. If you use this, make sure the firewall (iptables) is not blocking the connection from the container. 
   ```shell
   -e RELAYHOST="mail.host.com" -e SMTPPORT="25"
+- Removed scap and cert data sync scripts from the 'scripts' directory and changed start.sh to call the nvt, scap, and cert sync scripts from the install in /usr/local.  
   ```
 - Added environment variable for number of redis databases. In some environments running larger or more scans may need addtional redis databases. REDISDBS. The default is 128.
 ```
@@ -34,7 +35,7 @@ The only initial major change was adding "locales-all" to the list of installed 
 
 -Scott
 
-This also lives at: 
+This lives as a docker container at: 
 https://hub.docker.com/repository/docker/immauss/openvas
 
 
@@ -70,7 +71,7 @@ You can also use the docker install script by running:
 curl https://get.docker.com | sh
 ```
 
-**Run our container**
+**Run the container**
 
 This command will pull, create, and start the container:
 

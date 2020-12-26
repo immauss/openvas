@@ -8,6 +8,17 @@ SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-128}
 
 
+echo "Setup / Fix the /usr/local/var/run"
+#if [ -d /usr/local/var/run ]; then
+	#echo "linking to '/run'"
+	#rm -rf /usr/local/var/run
+	#ln -s /run /usr/local/var/run
+	#chmod 777 /run
+#else
+	#echo "already linked to '/run'"
+#fi
+chmod 777 /usr/local/var/run
+
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
 fi
@@ -101,6 +112,7 @@ if [ ! -f "/data/firstrun" ]; then
 	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
 	touch /data/firstrun
 fi
+
 #sleep 1d
 echo "Updating NVTs and other data"
 echo "This could take a while if you are not using persistent storage for your NVTs"
