@@ -1,6 +1,12 @@
 #!/bin/bash
+apt-get update
+apt-get install -y gnupg curl
+
+echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 apt-get update
+apt-get upgrade -y
 
 { cat <<EOF
 bison
@@ -21,8 +27,9 @@ libgnutls28-dev
 libgpgme11-dev
 libgpgme-dev
 libhiredis-dev
-libical2-dev
+libical-dev
 libksba-dev
+libldap2-dev
 libmicrohttpd-dev
 libnet-snmp-perl
 libpcap-dev
@@ -36,12 +43,12 @@ net-tools
 nmap
 nsis
 openssh-client
+openssh-server
 perl-base
 pkg-config
 postfix
-postgresql
-postgresql-contrib
-postgresql-server-dev-all
+postgresql-12
+postgresql-server-dev-12
 python3-defusedxml
 python3-dialog
 python3-lxml
@@ -54,6 +61,7 @@ redis-server
 redis-tools
 rsync
 smbclient
+sshpass
 texlive-fonts-recommended
 texlive-latex-extra
 uuid-dev
