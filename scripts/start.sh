@@ -227,7 +227,7 @@ if [ -S /tmp/ospd.sock ]; then
 fi
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
-             --unix-socket /tmp/ospd.sock --log-level INFO
+             --unix-socket /tmp/ospd.sock --log-level INFO --socket-mode 666
 
 # wait for ospd to start by looking for the socket creation.
 while  [ ! -S /tmp/ospd.sock ]; do
@@ -241,15 +241,12 @@ done
 # suspect it would have worked fine if using the --osp-vt-update=/tmp/ospd.sock
 if [ ! -L /var/run/openvassd.sock ]; then
 	echo "Fixing the ospd socket ..."
-	rm -f /var/run/openvassd.sock
-	ln -s /tmp/ospd.sock /var/run/openvassd.sock
+	#rm -f /var/run/openvassd.sock
+	#ln -s /tmp/ospd.sock /var/run/openvassd.sock
 	ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
 fi
 
-# I think this could be handled with ospd-openvas options.
-# and likely only needs 660. Or mabye 600 since everything is now owned by gvm.
-# need to test.
-chmod 666 /tmp/ospd.sock
+
 
 
 

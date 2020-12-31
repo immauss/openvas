@@ -1,4 +1,10 @@
+# 20.08 is FINALLY here! 
+# NOTE:
+- If you think it does work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly. If you have slow storage, or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
 
+https://github.com/immauss/gvm-var-lib
+
+## There were quite a few changes including some new options that still need to be added here. I'll get those in as soon as possible. I've also not had a chance to find out what this will do with my old pre 20.08 database. The 20.08 image has moved to a Postgres 12, which should not make a difference ... but ..... YMMV. 
 
 # NOTE:
 The original source of this was  copied from: https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker 
