@@ -1,6 +1,8 @@
 # 20.08 is FINALLY here! 
-# NOTE:
-- If you think it does work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly. If you have slow storage, or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
+# NOTE: DO NOT USE THIS WITH YOUR OLD PRE-20.08 database. 
+I'm working on a migration fix.... because I need it too!
+
+- If you think it doesn't work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly. If you have slow storage, or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
 
 https://github.com/immauss/gvm-var-lib
 
