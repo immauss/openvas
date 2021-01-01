@@ -1,17 +1,27 @@
 # 20.08 is FINALLY here! 
 # NOTE: DO NOT USE THIS WITH YOUR OLD PRE-20.08 database. 
+
+yet.
+
 I'm working on a migration fix.... because I need it too!
 
 - If you think it doesn't work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly. If you have slow storage, or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
 
 https://github.com/immauss/gvm-var-lib
 
-## There were quite a few changes including some new options that still need to be added here. I'll get those in as soon as possible. I've also not had a chance to find out what this will do with my old pre 20.08 database. The 20.08 image has moved to a Postgres 12, which should not make a difference ... but ..... YMMV. 
+## There were quite a few changes including some new options that still need to be added here. I'll get those in as soon as possible. 
 
 # NOTE:
 The original source of this was  copied from: https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker 
 I liked how they did things, but needed to make a few tweaks so I could import my old openvas DB from v7 -> v8 - v9. 
 The only initial major change was adding "locales-all" to the list of installed packages so I wouldn't have to rebuild the database .... again." 
+
+# New with the 20.08 image.
+- Added an environment var for quitening the feed syncs.
+  - QUIET="true" will send the output of the sync scripts on startup to /dev/null
+- Added an environment var for increasing redis DBs. 
+  - REDISDBS="<number of DBs>"   default is 512.
+- This is only what I've added. There are tons of other changes with 20.08 itself.
 
 # Other Changes:
 - Added '/usr/local/var/lib' and '/usr/local/share' to the /data directory via soft links. This prevents downloading of all the NVT, CERT,  & scap data if the image is replaced/updated.
