@@ -124,13 +124,15 @@ chmod 770 -R /usr/local/var/lib/gvm
 chown gvm:gvm -R /usr/local/var/log/gvm
 chown gvm:gvm -R /usr/local/var/run	
 
-if [ -d /usr/local/var/lib/gvm/data-objects/gvmd/20.08/report_formats ]; then
+if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/20.08/report_formats ]; then
 	echo "Creating dir structure for feed sync"
 	for dir in configs port_lists report_formats; do 
 		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/20.08/${dir}" gvm
 	done
 fi
 
+mkdir -p /usr/local/var/lib/openvas/plugins
+chown -R gvm:gvm /usr/local/var/lib/openvas 
 
 su -c "gvmd --migrate" gvm
 
