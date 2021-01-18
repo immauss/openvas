@@ -90,16 +90,17 @@ echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
 
 
-if [ ! -f "/setup" ]; then
-	echo "Running first start configuration..."
+echo "Running first start configuration..."
+if !  grep -qs gvm /etc/passwd ; then 
+	echo "Adding gvm user"
 	useradd --home-dir /usr/local/share/gvm gvm
-	chown gvm:gvm -R /usr/local/share/gvm
-	if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
-		mkdir -p /usr/local/var/lib/gvm/cert-data; 
-	fi
-
-
 fi
+chown gvm:gvm -R /usr/local/share/gvm
+if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
+	mkdir -p /usr/local/var/lib/gvm/cert-data; 
+fi
+
+
 if [ ! -f "/data/setup" ]; then
 	echo "Creating Greenbone Vulnerability Manager database"
 	su -c "createuser -DRS gvm" postgres
@@ -247,10 +248,12 @@ done
 # Update ... I think this is no longer needed.
 # Need to test. Added this back when gvmd --rebuild failed from command line.
 # suspect it would have worked fine if using the --osp-vt-update=/tmp/ospd.sock
+# It might even work just fine if I remove ALL of the socket refs 
+# as they should use the same default
+
 if [ ! -L /var/run/ospd/ospd.sock ]; then
+	mkdir -p /var/run/ospd
 	echo "Fixing the ospd socket ..."
-	#rm -f /var/run/openvassd.sock
-	#ln -s /tmp/ospd.sock /var/run/openvassd.sock
 	rm -f /var/run/ospd/ospd.sock
 	ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
 fi
