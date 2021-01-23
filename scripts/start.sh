@@ -258,9 +258,14 @@ if [ ! -L /var/run/ospd/ospd.sock ]; then
 	ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
 fi
 
-
-
-
+# Used by gvm-pyshell socket access:
+# docker exec -u gvm -it openvas /usr/local/bin/gvm-pyshell --gmp-username admin --gmp-password admin_password socket
+if [ ! -S /var/run/gvmd.sock ]; then 
+	if [ -L /var/run/gvmd.sock ]; then
+		rm /var/run/gvmd.sock
+	fi
+	ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
+fi
 
 echo "Starting Greenbone Security Assistant..."
 su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
