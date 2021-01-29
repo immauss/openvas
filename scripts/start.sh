@@ -7,6 +7,8 @@ RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
+BASEDB=${BASEDB:-false}
+NEWDB=false
 
 
 
@@ -42,6 +44,8 @@ if  [ ! -d /data/database ]; then
 	ln -s /data/database /var/lib/postgresql/12/main
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
+	#Use this later to import the base DB or not
+	NEWDB=true
 fi
 
 # These are  needed for a first run WITH a new container image
@@ -88,6 +92,12 @@ fi
 
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
+
+if [ $BASEDB = "true" ] && [ $NEWDB = "true" ] ; then
+	xzcat /usr/lib/base-db.xz > /data/base-db.sql
+	chown postgres /data/base-db.sql
+	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres
+fi
 
 
 echo "Running first start configuration..."
