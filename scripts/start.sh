@@ -37,11 +37,13 @@ echo "Redis ready."
 
 # This is for a first run with no existing database.
 if  [ ! -d /data/database ]; then
+	mkdir -p /data/database
 	echo "Creating Data and database folder..."
-	mv /var/lib/postgresql/12/main /data/database
+	mv /var/lib/postgresql/12/main/* /data/database
 	ln -s /data/database /var/lib/postgresql/12/main
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
+	chmod 700 /data/database
 fi
 
 # These are  needed for a first run WITH a new container image
