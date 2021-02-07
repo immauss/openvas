@@ -1,6 +1,6 @@
 # Stage 0: Start with a squashed fully updated ubuntu:20.04
 # This is created seperately.
-FROM ubuntu:20.04.u
+FROM immauss/ovas-base:20.04u
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,9 +11,9 @@ COPY build-gvm.sh /build-gvm.sh
 RUN bash /build-gvm.sh
 
 # Stage 1: Start again with the squashed fully updated ubuntu:20.04
-FROM ubuntu:20.04.u
+FROM immauss/ovas-base:20.04u
 LABEL maintainer="scott@immauss.com" \
-      version="20.08.02.3" \
+      version="20.08.4" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
