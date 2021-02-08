@@ -33,7 +33,10 @@ ldconfig
 
 
 COPY scripts/* /
-COPY *.xz /usr/lib/
+COPY .base-ts /
+curl -L --url https://github.com/immauss/gvm-var-lib/raw/main/base.sql.xz -o /usr/lib/base.sql.xz
+curl -L --url https://github.com/immauss/gvm-var-lib/raw/main/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+# COPY *.xz /usr/lib/
 # Setting the start-period to 20 minutes should give enough time to sync the NVTs
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || exit 1
