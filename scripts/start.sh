@@ -126,6 +126,8 @@ fi
 if [ $NEWDB = "true" ] ; then
 	echo "########################################"
 	echo "Restore a base DB from /usr/lib/base-db.xz"
+	echo "base data from:"
+	cat /.base-ts
 	echo "########################################"
 	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
 	chown postgres /data/base-db.sql
