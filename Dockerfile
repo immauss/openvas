@@ -30,8 +30,8 @@ RUN apt-get update && apt-get install -yq --no-install-recommends xz-utils ca-ce
 apt-get clean && \
 echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig && \
-curl -L --url https://github.com/immauss/gvm-var-lib/raw/main/base.sql.xz -o /usr/lib/base.sql.xz && \
-curl -L --url https://github.com/immauss/gvm-var-lib/raw/main/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.sql.xz && \
+curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
 
 
 COPY scripts/* /
