@@ -129,12 +129,16 @@ if [ $NEWDB = "true" ] ; then
 	echo "base data from:"
 	cat /.base-ts
 	echo "########################################"
+	ls -l /usr/lib/*.xz
 	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
 	chown postgres /data/base-db.sql
-	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres
+	su -c "/usr/lib/postgresql/12/bin/psql -q < /data/base-db.sql " postgres
 	rm /data/base-db.sql
 	cd /data 
-	tar xvf /usr/lib/var-lib.tar.xz 
+	echo "###########################################"
+	echo "Extracting /usr/lib/var-lib.tar.xz to /data"
+	echo "###########################################"
+	tar xf /usr/lib/var-lib.tar.xz 
 fi
 
 
@@ -155,8 +159,9 @@ fi
 mkdir -p /usr/local/var/lib/openvas/plugins
 chown -R gvm:gvm /usr/local/var/lib/openvas 
 
-echo "Migrating the database to the latest version of needed."
+echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
+echo "Migration complete"
 # Fix perms on var/run for the sync to function
 chmod 777 /usr/local/var/run/
 # And it should be empty. (Thanks felimwhiteley )
