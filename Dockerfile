@@ -60,4 +60,5 @@ COPY scripts/* /
 # Setting the start-period to 20 minutes should give enough time to sync the NVTs
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || exit 1
-CMD [ "/start.sh" ]
+#CMD [ "/start.sh" ]
+ENTRYPOINT [ "/start.sh" ]

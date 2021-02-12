@@ -308,4 +308,6 @@ echo ""
 echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
-tail -F /usr/local/var/log/gvm/*
+tail -F /usr/local/var/log/gvm/* &
+
+wait $!
