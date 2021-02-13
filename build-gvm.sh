@@ -91,15 +91,14 @@ apt-get install yarn -yq --no-install-recommends
 
 
 gvm_libs_version="v20.8.0" \
-openvas_scanner_version="v20.8.0" \
-gvmd_version="v20.8.0" \
-gsa_version="v20.8.0" \
+openvas_scanner_version="v20.8.1" \
+gvmd_version="v20.8.1" \
+gsa_version="v20.8.1" \
 open_scanner_protocol_daemon="v20.8.1" \
-ospd_openvas="v20.8.0" \
-gvm_tools_version="v2.1.0" \
+ospd_openvas="v20.8.1" \
+gvm_tools_version="v21.1.0" \
 openvas_smb="v1.0.5" \
-python_gvm_version="v1.6.0"
-
+python_gvm_version="v21.1.3"
 
 
     #
