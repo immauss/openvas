@@ -58,7 +58,6 @@ python3-lxml
 python3-paramiko
 python3-pip
 python3-polib
-python3-psutil
 python3-setuptools
 redis-server
 redis-tools
@@ -76,6 +75,9 @@ xsltproc
 EOF
 } | xargs apt-get install -yq --no-install-recommends
 
+# ospd needs a newer version of python psutil than available in ubuntu
+python3 -m pip install psutil
+
 echo "Install nodejs"
 # Install Node.js
 curl -sL https://deb.nodesource.com/setup_10.x | bash -
@@ -90,11 +92,11 @@ apt-get install yarn -yq --no-install-recommends
 
 
 
-gvm_libs_version="v20.8.0" \
+gvm_libs_version="v20.8.1" \
 openvas_scanner_version="v20.8.1" \
 gvmd_version="v20.8.1" \
 gsa_version="v20.8.1" \
-open_scanner_protocol_daemon="v20.8.1" \
+open_scanner_protocol_daemon="v20.8.0" \
 ospd_openvas="v20.8.1" \
 gvm_tools_version="v21.1.0" \
 openvas_smb="v1.0.5" \
