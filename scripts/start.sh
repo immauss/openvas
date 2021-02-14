@@ -7,6 +7,8 @@ RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
+NEWDB=false
+SKIPSYNC=${SKIPSYNC:-false}
 
 
 
@@ -44,6 +46,11 @@ if  [ ! -d /data/database ]; then
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
+<<<<<<< HEAD
+=======
+	#Use this later to import the base DB or not
+	NEWDB=true
+>>>>>>> 20.08-basedb.01
 fi
 
 # These are  needed for a first run WITH a new container image
@@ -91,7 +98,6 @@ fi
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
 
-
 echo "Running first start configuration..."
 if !  grep -qs gvm /etc/passwd ; then 
 	echo "Adding gvm user"
@@ -120,6 +126,21 @@ if [ ! -f "/data/setup" ]; then
 	touch /data/setup
 fi
 
+if [ $NEWDB = "true" ] ; then
+	echo "########################################"
+	echo "Restore a base DB from /usr/lib/base-db.xz"
+	echo "base data from:"
+	cat /.base-ts
+	echo "########################################"
+	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
+	chown postgres /data/base-db.sql
+	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres
+	rm /data/base-db.sql
+	cd /data 
+	tar xvf /usr/lib/var-lib.tar.xz 
+fi
+
+
 # Always make sure these are right.
 
 chown gvm:gvm -R /usr/local/var/lib/gvm
@@ -137,14 +158,8 @@ fi
 mkdir -p /usr/local/var/lib/openvas/plugins
 chown -R gvm:gvm /usr/local/var/lib/openvas 
 
+echo "Migrating the database to the latest version of needed."
 su -c "gvmd --migrate" gvm
-
-echo "Updating NVTs and other data"
-echo "This could take a while if you are not using persistent storage for your NVTs"
-echo " or this is the first time pulling to your persistent storage."
-echo " the time will be mostly dependent on your available bandwidth."
-echo " We sleep for 5 seconds between sync command to make sure everything closes"
-echo " and it doesnt' look like we are connecting more than once."
 # Fix perms on var/run for the sync to function
 chmod 777 /usr/local/var/run/
 # And it should be empty. (Thanks felimwhiteley )
@@ -153,41 +168,50 @@ if [ -f /usr/local/var/run/feed-update.lock ]; then
         echo "Removing feed-update.lock"
 	rm /usr/local/var/run/feed-update.lock
 fi
-
-# This will make the feed syncs a little quieter
-if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
-	QUIET="true"
-	echo " Fine, ... we'll be quiet, but we warn you if there are errors"
-	echo " syncing the feeds, you'll miss them."
-else
-	QUIET="false"
-fi
-
-if [ $QUIET == "true" ]; then 
-	echo " Pulling NVTs from greenbone" 
-	su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
-	sleep 2
-	echo " Pulling scapdata from greenbone"
-	su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm 2&> /dev/null
-	sleep 2
-	echo " Pulling cert-data from greenbone"
-	su -c "/usr/local/sbin/greenbone-certdata-sync" gvm 2&> /dev/null
-	sleep 2
-	echo " Pulling latest GVMD Data from greenbone" 
-	su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
-
-else
-	echo " Pulling NVTs from greenbone" 
-	su -c "/usr/local/bin/greenbone-nvt-sync" gvm
-	sleep 2
-	echo " Pulling scapdata from greenboon"
-	su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
-	sleep 2
-	echo " Pulling cert-data from greenbone"
-	su -c "/usr/local/sbin/greenbone-certdata-sync" gvm
-	sleep 2
-	echo " Pulling latest GVMD Data from Greenbone" 
-	su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
+if [ $SKIPSYNC == "false" ]; then
+   echo "Updating NVTs and other data"
+   echo "This could take a while if you are not using persistent storage for your NVTs"
+   echo " or this is the first time pulling to your persistent storage."
+   echo " the time will be mostly dependent on your available bandwidth."
+   echo " We sleep for 5 seconds between sync command to make sure everything closes"
+   echo " and it doesnt' look like we are connecting more than once."
+   
+   # This will make the feed syncs a little quieter
+   if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
+	   QUIET="true"
+	   echo " Fine, ... we'll be quiet, but we warn you if there are errors"
+	   echo " syncing the feeds, you'll miss them."
+   else
+	   QUIET="false"
+   fi
+   
+   if [ $QUIET == "true" ]; then 
+	   echo " Pulling NVTs from greenbone" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
+	   sleep 2
+	   echo " Pulling scapdata from greenbone"
+	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm 2&> /dev/null
+	   sleep 2
+	   echo " Pulling cert-data from greenbone"
+	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm 2&> /dev/null
+	   sleep 2
+	   echo " Pulling latest GVMD Data from greenbone" 
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
+   
+   else
+	   echo " Pulling NVTs from greenbone" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
+	   sleep 2
+	   echo " Pulling scapdata from greenboon"
+	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
+	   sleep 2
+	   echo " Pulling cert-data from greenbone"
+	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm
+	   sleep 2
+	   echo " Pulling latest GVMD Data from Greenbone" 
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
+   
+   fi
 
 fi
 
