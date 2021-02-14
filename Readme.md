@@ -1,27 +1,59 @@
-# 20.08 is FINALLY here! 
+3 Feb 2021
+# Big News !
+
+The latest image, tag 20.08.04 includes a baseline database and feed sync. No more waiting for the feeds to sync and then waiting for gvmd to build the database. This means you can login and start running scans about a minute after running the container!
+
+The downside is the USER and PASSWORD environment variables no longer work as they default (admin:admin) is part of the baseline database. I think I can work around this, but that will have to wait for 20.08.05.
+
+There is also a new environment variable: SKIPSYNC . This does exactly what it says, it bypasses the feed sync on container start to speed you along. 
+
+
+
+Jan 2021
+# 20.08 
 # NOTE: DO NOT USE THIS WITH YOUR OLD PRE-20.08 database. 
 
-yet.
+# New with the 20.08 images.
+- Added an environment var for quietening the feed syncs.
+  - QUIET="true" will send the output of the sync scripts on startup to /dev/null
+- Added an environment var for increasing redis DBs. 
+  - REDISDBS="<number of DBs>"   default is 512.
+- This is only what I've added. There are tons of other changes with 20.08 itself.
+- New multistage build makes for a MUCH smaller image. Down by more than 1 Gig. Same functionality! 
 
-I'm working on a migration fix.... because I need it too!
+## Tags available:
+- latest,20.08.04 : This is a working ubuntu 20.04 with Postgresql 12 and gvm 20.08 with a baseline database and feeds synced.
+- pre-20.08 :  The image before the upgrade to 20.08. Ubuntu 18.02 , gvm 11 & Postgresql 10. 
+- v1.0 .... Yes. The first.... Don't use this one. It's there for historical reasons. 
 
-- If you think it doesn't work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly. If you have slow storage, or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
+## Beta Tags
+- As you might have guessed, these iare built on a Raspberry Pi 4.  This has had NO real testing yet. If you run this and have good results, please let me know. 
+  - armh-20.08.03: 
+  - aarch64-20.08.03
 
+## Tags coming
+- 20.08.05 : Fix the USER and PASSWORD environment variables.
+- 20.08-pg10.1 : This will be gvm 20.08 with Postgres 10. This should be easier to migrate to from the pre 20.08 images.  If you have need of this in a hurry, please let me know via issues on github.
+
+
+
+If you still need the old image, use immauss/openvas:pre-20.08
+
+- If you think your 20.08 doesn't work, just wait. No ... really. Give it some time. gvmd needs time to import all the data from the feeds before anything really works correctly.
+
+- If you have slow storage or a slow machine in general, this can take a lot longer than you would expect. In order to help move things a long, ON A NEW BUILD ONLY, check out:
 https://github.com/immauss/gvm-var-lib
 
-## There were quite a few changes including some new options that still need to be added here. I'll get those in as soon as possible. 
+### For more up to date information on this image and where it's going or to report any issues, please go to the github page.
 
+https://github.com/immauss/openvas
+
+## There were quite a few changes including some new options that still need to be added here. I'll get those in as soon as possible. 
 # NOTE:
 The original source of this was  copied from: https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker 
 I liked how they did things, but needed to make a few tweaks so I could import my old openvas DB from v7 -> v8 - v9. 
 The only initial major change was adding "locales-all" to the list of installed packages so I wouldn't have to rebuild the database .... again." 
 
-# New with the 20.08 image.
-- Added an environment var for quitening the feed syncs.
-  - QUIET="true" will send the output of the sync scripts on startup to /dev/null
-- Added an environment var for increasing redis DBs. 
-  - REDISDBS="<number of DBs>"   default is 512.
-- This is only what I've added. There are tons of other changes with 20.08 itself.
 
 # Other Changes:
 - Added '/usr/local/var/lib' and '/usr/local/share' to the /data directory via soft links. This prevents downloading of all the NVT, CERT,  & scap data if the image is replaced/updated.
