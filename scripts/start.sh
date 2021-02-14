@@ -46,11 +46,8 @@ if  [ ! -d /data/database ]; then
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
-<<<<<<< HEAD
-=======
 	#Use this later to import the base DB or not
 	NEWDB=true
->>>>>>> 20.08-basedb.01
 fi
 
 # These are  needed for a first run WITH a new container image
