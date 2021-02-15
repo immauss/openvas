@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+#Define  proper shutdown 
+cleanup() {
+    echo "Container stopped, performing shutdown"
+    su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+}
+
+#Trap SIGTERM
+trap 'cleanup' SIGTERM
+
 
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
@@ -303,4 +312,6 @@ echo ""
 echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
-tail -F /usr/local/var/log/gvm/*
+tail -F /usr/local/var/log/gvm/* &
+
+wait $!
