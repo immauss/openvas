@@ -18,7 +18,7 @@ REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
 NEWDB=false
 SKIPSYNC=${SKIPSYNC:-false}
-
+RESTORE=${RESTORE:-false}
 
 
 if [ ! -d "/run/redis" ]; then
@@ -134,7 +134,7 @@ fi
 
 if [ $NEWDB = "true" ] ; then
 	echo "########################################"
-	echo "Restore a base DB from /usr/lib/base-db.xz"
+	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
 	cat /.base-ts
 	echo "########################################"
@@ -143,9 +143,27 @@ if [ $NEWDB = "true" ] ; then
 	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres
 	rm /data/base-db.sql
 	cd /data 
-	tar xvf /usr/lib/var-lib.tar.xz 
+	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+	tar xf /usr/lib/var-lib.tar.xz 
 fi
-
+# if RESTORE is true, hopefully the user has mounted thier database in the right place.
+if [ $NEWDB = "true" ] ; then
+        echo "########################################"
+        echo "Restoring  from /usr/lib/db-backup.sql"
+        echo "########################################"
+	if ! [ -x /usr/lib/db-backup.sql ]; then
+		echo "You have set the RESTORE env varible to true, but there is no db to restore from"
+		echo "Make sure you include \" -v <path to your backup.sql>:/usr/lib/db-backup.sql\""
+		echo "on the command line to start the container."
+		exit 
+	fi
+        chown postgres /usr/lib/db-backup.sql
+	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
+	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres
+        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres
+        rm /data/base-db.sql
+        cd /data
+fi
 
 # Always make sure these are right.
 
