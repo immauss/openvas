@@ -59,8 +59,23 @@ docker restart openvas
 ```
 # Database backup
 
+If you are running the container on a continuing basis, it is a good idea to make a backup of the database at regular intervals. The container is setup to properly shutdown the database to prevent corruption, but if the process is killed unexpectedly, or the host machine loses power, then it is still possible for the database to become corrupt. To make a backup of the current database in the container:
+
+docker exec -it <container name> su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > db-backup-file.sql
 
 # Database restoral
+
+Restoral is a bit more difficult. This assumes you are using a volume named "openvas". No other container should be accessing this volume at the time of restoral. This could be an empty container or a previously used container. The below command will:
+1. Start a temporary container
+2. Perform initial setup for gvm
+3. Setup and start postgresql
+4. Restore from the backup file
+5. Shutdown postgresql
+6. Stop and remove the temporary container.
+
+```
+docker run -it -v <path to backupfile>:/usr/lib/db-backup.sql --rm -v openvas:/data immauss/openvas
+```
 
 # Full backup 
 - shutdown db and gvmd
@@ -70,13 +85,13 @@ docker restart openvas
 # Options
 The following options can be set as environement variables when starting the container. To set an environement variable use "-e": 
 
-- USERNAME : Use a different default username.
+- USERNAME : Use a different default username. Default = admin
 ``` 
--e USERNAME=<username> Default = admin
+-e USERNAME=<username> 
 ```
-- PASSWORD : password for default user.
+- PASSWORD : password for default user. Default = admin
 ```
- -e PASSWORD='<password>' Default = admin
+ -e PASSWORD='<password>'
 ```
 - RELAYHOST : The IP address or hostname of the email relay to send emails through. Default = 172.17.01 (This is default for the docker host. If you are running the mail relay on your docker host, this should work, but you will need to make sure you allow the conections through the host`s firewall/iptables)
 ```
@@ -98,4 +113,8 @@ The following options can be set as environement variables when starting the con
 ```
 -e SKIPSYNC=true
 ```
-- RESTORE : Set this to true to in order to use the database restore function. After the db is restored, the container will exit. This is to prevent the possiblity of container restart with the RESTORE option still set which would again restore the DB from the backup file. (See Restore section above for more details)
+- RESTORE : Set this to true to in order to use the database restore function. After the db is restored, the container will exit. This is to prevent the possiblity of container restart with the RESTORE option still set which would again restore the DB from the backup file. (See Restore section above for more details) Default = false
+```
+-e RESTORE=true
+```
+
