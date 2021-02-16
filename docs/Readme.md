@@ -76,7 +76,7 @@ Restoral is a bit more difficult. This assumes you are using a volume named "ope
 6. Stop and remove the temporary container.
 
 ```
-docker run -it -v <path to backupfile>:/usr/lib/db-backup.sql --rm -v openvas:/data immauss/openvas
+docker run -it -e RESTORE=true -v <path to backupfile>:/usr/lib/db-backup.sql --rm -v openvas:/data immauss/openvas
 ```
 
 # Full backup 
@@ -89,15 +89,26 @@ docker stop openvas-prod
 ```
 **Start a temporary container to create the backup.**
 ```
-docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine -c "cd /opt; tar -cJvf * /mnt/openvas.full.tar.xz" 
+docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /opt; tar -cJvf * /mnt/openvas.full.tar.xz" 
 ```
 **Restart the production container**
 ```
 docker start openvas-prod
 ```
+* Note: alpine is very lightweight linux container which is well suited for this purpose.
 
 # Full restoral
-- Needs new options in start.sh
+
+The restoral is similar to the backup process in that we use the alpine container to perform this function. The restoral should be to an empty volume, so start by creating that new volume. 
+
+```
+docker volume create new-openvas-volume
+```
+Then extract the backup into the volume with alpine.
+```
+docker run --rm -it -v <path to backup file>:/backup.tar.xz -v openvas:/mnt alpine /bin/sh -c "cd /mnt; tar xvf /backup.tar.xz"
+```
+
 # Options
 The following options can be set as environement variables when starting the container. To set an environement variable use "-e": 
 
