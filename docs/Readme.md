@@ -98,7 +98,7 @@ docker stop openvas-prod
 ```
 **Start a temporary container to create the backup.**
 ```
-docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /opt; tar -cjvf * /mnt/openvas.full.tar.gz" 
+docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /opt; tar -cjvf /mnt/openvas.full.tar.gz *" 
 ```
 **Restart the production container**
 ```
