@@ -14,6 +14,7 @@ This docker image is based on GVM 20.08.1 and started as a clone of https://gith
 - A copy of the baseline data feeds and associated database
 - Option to restore from existing postgresql database dump
 - Option to skip the data sync on startup
+- Proper database shutdown on container stop to prevent db corruption. (This was added in 20.08.04.4) 
 
 ## Deployment
 
@@ -35,7 +36,7 @@ These commands will pull, create, and start the container:
 ```
 docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --name openvas immauss/openvas
 ```
-** To create a volume to store persistent data. **
+**To create a volume to store persistent data.**
 ```
 docker volume create openvas
 ```
@@ -48,51 +49,30 @@ docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" -
 
 You can use whatever `--name` you'd like but for the sake of this guide we're using openvas.
 
-The `-p 8080:9392` switch will port forward `8080` on the host to `9392` (the container web interface port) in the docker container. Port `8080` was chosen only to avoid conflicts with any existing OpenVAS/GVM installation. You can change `8080` to any available port that you'd like.
+The `--publish 8080:9392` option will port forward `8080` on the host to `9392` (the container web interface port) in the docker container. Port `8080` was chosen only to avoid conflicts with any existing OpenVAS/GVM installation. You can change `8080` to any available port that you`d like.
 
-Depending on your hardware, it can take anywhere from a few seconds to 10 minutes while the NVTs are scanned and the database is rebuilt. **The default admin user account is created after this process has completed. If you are unable to access the web interface, it means it is still loading (be patient).**
-
-**Checking Deployment Progress**
-
-There is no easy way to estimate the remaining NVT loading time, but you can check if the NVTs have finished loading by running:
-```
-docker logs openvas
-```
-
-If you see "Your GVM 11 container is now ready to use!" then, you guessed it, your container is ready to use.
-
-## Accessing Web Interface
-
-Access web interface using the IP address of the docker host on port 8080 - `http://<IP address>:8080`
-
-Default credentials:
-```
-Username: admin
-Password: admin
-```
-
-## Monitoring Scan Progress
-
-This command will show you the GVM processes running inside the container:
-```
-docker top openvas
-```
-
-## Checking the GVM Logs
-
-All the logs from /usr/local/var/log/gvm/* can be viewed by running:
-```
-docker logs openvas
-```
-Or you can follow the logs (like tail -f ) with:
-```
-docker logs -f openvas
-```
-
-
-## Updating the NVTs
+Depending on your hardware, it can take anywhere from a few seconds to 30 minutes while the NVTs are scanned and the database is rebuilt. 
 
 The NVTs will update every time the container starts. Even if you leave your container running 24/7, the easiest way to update your NVTs is to restart the container.
 ```
 docker restart openvas
 ```
+
+# Options
+The following options can be set as environement variables when starting the container. To set an environement variable use "-e": 
+- USERNAME : Use a different default username.
+``` 
+-e USERNAME=<username>
+```
+Default = admin
+- PASSWORD : password for default user.
+```
+ -e PASSWORD='<password>'
+```
+Default = admin
+- RELAYHOST=${RELAYHOST:-172.17.0.1}
+- SMTPPORT=${SMTPPORT:-25}
+- REDISDBS=${REDISDBS:-512}
+- QUIET=${QUIET:-false}
+- SKIPSYNC=${SKIPSYNC:-false}
+- RESTORE=${RESTORE:-false}
