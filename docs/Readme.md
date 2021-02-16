@@ -23,23 +23,24 @@ If you have Kali or Ubuntu you can use the docker.io package.
 ```
 apt install docker.io
 ```
-
+For other distros, please check with docker for the latest on installation options.
+https://docs.docker.com/engine/install/
 
 **Run the container**
 
-This command will pull, create, and start the container:
+These commands will pull, create, and start the container:
 
-Without persistent volume:
+**Without persistent volume:**
 
 ```
 docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --name openvas immauss/openvas
 ```
-create a volume to start persistent data. 
-```shell
+** To create a volume to store persistent data. **
+```
 docker volume create openvas
 ```
 
-With persistent volume:
+**Start the container with a persistent volume:**
 
 ```shell
 docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --volume openvas:/data --name openvas immauss/openvas
