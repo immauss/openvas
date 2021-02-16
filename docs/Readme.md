@@ -98,7 +98,7 @@ docker stop openvas-prod
 ```
 **Start a temporary container to create the backup.**
 ```
-docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /opt; tar -cJvf * /mnt/openvas.full.tar.xz" 
+docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /opt; tar -cjvf * /mnt/openvas.full.tar.gz" 
 ```
 **Restart the production container**
 ```
@@ -115,7 +115,7 @@ docker volume create new-openvas-volume
 ```
 Then extract the backup into the volume with alpine.
 ```
-docker run --rm -it -v <path to backup file>:/backup.tar.xz -v openvas:/mnt alpine /bin/sh -c "cd /mnt; tar xvf /backup.tar.xz"
+docker run --rm -it -v <path to backup file>:/backup.tar.gz -v openvas:/mnt alpine /bin/sh -c "cd /mnt; tar xvf /backup.tar.gz"
 ```
 
 # Options
