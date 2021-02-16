@@ -61,7 +61,9 @@ docker restart openvas
 
 If you are running the container on a continuing basis, it is a good idea to make a backup of the database at regular intervals. The container is setup to properly shutdown the database to prevent corruption, but if the process is killed unexpectedly, or the host machine loses power, then it is still possible for the database to become corrupt. To make a backup of the current database in the container:
 
+```
 docker exec -it <container name> su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > db-backup-file.sql
+```
 
 # Database restoral
 
@@ -78,8 +80,22 @@ docker run -it -v <path to backupfile>:/usr/lib/db-backup.sql --rm -v openvas:/d
 ```
 
 # Full backup 
-- shutdown db and gvmd
-- tar all of /data  
+
+There are a number of crucial items not stored in the database such as encryption keys for credentials, SSL certificates etc. All of these will however be stored on the persitent volume located in /data of the container filesystem. The easiest way to backup the entireity of the volume is shutdown the openvas container and use a new container to create the backup. This is the safest way to create the backup to ensure no files are changed during the backup process. The below commands assume a container name of openvas-prod and a volume name of openvas. 
+
+**Stop the running container**
+```
+docker stop openvas-prod
+```
+**Start a temporary container to create the backup.**
+```
+docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine -c "cd /opt; tar -cJvf * /mnt/openvas.full.tar.xz" 
+```
+**Restart the production container**
+```
+docker start openvas-prod
+```
+
 # Full restoral
 - Needs new options in start.sh
 # Options
