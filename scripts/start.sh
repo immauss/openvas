@@ -19,7 +19,7 @@ QUIET=${QUIET:-false}
 NEWDB=false
 SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
-
+DEBUG=${DEBUG:-false}
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -147,12 +147,12 @@ if [ $NEWDB = "true" ] ; then
 	tar xf /usr/lib/var-lib.tar.xz 
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
-if [ $NEWDB = "true" ] ; then
+if [ $RESTORE = "true" ] ; then
         echo "########################################"
         echo "Restoring  from /usr/lib/db-backup.sql"
         echo "########################################"
-	if ! [ -x /usr/lib/db-backup.sql ]; then
-		echo "You have set the RESTORE env varible to true, but there is no db to restore from"
+	if ! [ -f /usr/lib/db-backup.sql ]; then
+		echo "You have set the RESTORE env varible to true, but there is no db to restore from."
 		echo "Make sure you include \" -v <path to your backup.sql>:/usr/lib/db-backup.sql\""
 		echo "on the command line to start the container."
 		exit 
@@ -161,8 +161,11 @@ if [ $NEWDB = "true" ] ; then
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
 	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres
         su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres
-        rm /data/base-db.sql
-        cd /data
+	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
+	echo " You should NOT keep the container running with the RESTORE env var set"
+	echo " as a restart of the container will overwrite the database again." 
+	exit
 fi
 
 # Always make sure these are right.
@@ -184,6 +187,7 @@ chown -R gvm:gvm /usr/local/var/lib/openvas
 
 echo "Migrating the database to the latest version of needed."
 su -c "gvmd --migrate" gvm
+
 # Fix perms on var/run for the sync to function
 chmod 777 /usr/local/var/run/
 # And it should be empty. (Thanks felimwhiteley )
