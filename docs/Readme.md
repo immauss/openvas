@@ -5,7 +5,8 @@
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
 
 # A Greenbone Vulnerability Management docker image
-Brought to you by [Immauss Cybersecurity](https://immauss.com "Immauss Cybersecurity")
+Brought to you by [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
+
 
 This lives as a docker container at: 
 [docker hub](https://hub.docker.com/repository/docker/immauss/openvas)
