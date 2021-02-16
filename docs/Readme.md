@@ -57,9 +57,18 @@ The NVTs will update every time the container starts. Even if you leave your con
 ```
 docker restart openvas
 ```
+# Database backup
 
+# Database restoral
+
+# Full backup 
+- shutdown db and gvmd
+- tar all of /data  
+# Full restoral
+- Needs new options in start.sh
 # Options
 The following options can be set as environement variables when starting the container. To set an environement variable use "-e": 
+
 - USERNAME : Use a different default username.
 ``` 
 -e USERNAME=<username>
@@ -70,9 +79,29 @@ Default = admin
  -e PASSWORD='<password>'
 ```
 Default = admin
-- RELAYHOST=${RELAYHOST:-172.17.0.1}
-- SMTPPORT=${SMTPPORT:-25}
-- REDISDBS=${REDISDBS:-512}
-- QUIET=${QUIET:-false}
-- SKIPSYNC=${SKIPSYNC:-false}
-- RESTORE=${RESTORE:-false}
+- RELAYHOST : The IP address or hostname of the email relay to send emails through
+```
+-e RELAYHOST=mail.example.com 
+```
+Default = 172.17.01 (This is default for the docker host. If you are running the mail relay on your docker host, this should work, but you will need to make sure you allow the conections through the host`s firewall/iptables)
+- SMTPPORT : The TCP port for the RELAYHOST.
+```
+-e RELAYHOST=25
+```
+Default = 25
+- REDISDBS : Number or redis databases to allow. (This was specific user request. In somecases, when running scans against a large number of targets, the default can be low and increasing the nubmer of redis databases can improve scan performance.)
+```
+-e REDISDBS=512
+```
+Default = 512
+- QUIET : During container start, the data feed synchronization can be quite noisy. Setting this to 'true' will silence all of that output. 
+```
+-e QUIET=true
+```
+Default = false
+- SKIPSYNC : If you would prefer to skip the data feed synchronizations on container start, then set this to true. Thils will get the scanner operational faster, at the cost of using what might be slightly out of date NVTs. 
+```
+-e SKIPSYNC=true
+```
+Default = false
+- RESTORE : Set this to true to in order to use the database restore function. After the db is restored, the container will exit. This is to prevent the possiblity of container restart with the RESTORE option still set which would again restore the DB from the backup file. (See Restore section above for more details)
