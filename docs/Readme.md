@@ -2,7 +2,10 @@ This lives as a docker container at:
 https://hub.docker.com/repository/docker/immauss/openvas
 
 
+
+
 # A Greenbone Vulnerability Management docker image
+Brought to you by [Immauss Cybersecurity](https://immauss.com "Immauss Cybersecurity")
 
 This docker image is based on GVM 20.08.1 and started as a clone of https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker. However, it has undergone significant transformation from that base. It runs all the components needed to create a scanner including:
 - gvmd - the Greenbone Vulnerability Managedment daemon
