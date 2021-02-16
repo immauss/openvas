@@ -1,13 +1,17 @@
-This lives as a docker container at: 
-https://hub.docker.com/repository/docker/immauss/openvas
-
-
-
+[![Docker Pulls](https://img.shields.io/docker/pulls/immauss/openvas.svg)](https://hub.docker.com/r/immauss/openvas/)
+[![Docker Stars](https://img.shields.io/docker/stars/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
+[![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/docker-openvas/issues)
+[![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
+[![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
 
 # A Greenbone Vulnerability Management docker image
 Brought to you by [Immauss Cybersecurity](https://immauss.com "Immauss Cybersecurity")
 
-This docker image is based on GVM 20.08.1 and started as a clone of https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker. However, it has undergone significant transformation from that base. It runs all the components needed to create a scanner including:
+This lives as a docker container at: 
+[docker hub](https://hub.docker.com/repository/docker/immauss/openvas)
+
+
+This docker image is based on GVM 20.08.1 and started as a clone of [Secure Compliance Solutions](https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker) container image. However, it has undergone significant transformation from that base. It runs all the components needed to create a scanner including:
 - gvmd - the Greenbone Vulnerability Managedment daemon
 - openvas scanner - the scanner component of GVM
 - ospd - the openvas scanner protocal daemon
