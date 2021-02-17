@@ -6,10 +6,11 @@
 # to github.
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="15m" # time between resync and archiving.
+STIME="30m" # time between resync and archiving.
 
 echo "Starting container for an update"
 docker run -d --rm --name updater immauss/openvas
+date
 echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
 
@@ -25,7 +26,7 @@ docker stop updater
 
 echo "Compress and archive the data"
 tar cJf var-lib.tar.xz var-lib
-xz base.sql
+xz -1 base.sql
 scp *.xz push@www.immauss.com:/var/www/html/openvas/
 
 git clone git+ssh://git@github.com/immauss/openvas.git
@@ -33,6 +34,7 @@ cd openvas
 
 date > update.ts
 
+git commit -a -m "Data update for $Date"
 echo "Cleaning up"
 cd ..
 rm -rf openvas var-lib *.xz
@@ -40,5 +42,4 @@ rm -rf openvas var-lib *.xz
 echo "All done"
 
 
-git commit -a -m "Data update for $Date"
 git push
