@@ -35,6 +35,7 @@ cd openvas
 date > update.ts
 
 git commit -a -m "Data update for $Date"
+git push 
 echo "Cleaning up"
 cd ..
 rm -rf openvas var-lib *.xz
@@ -42,4 +43,3 @@ rm -rf openvas var-lib *.xz
 echo "All done"
 
 
-git push
