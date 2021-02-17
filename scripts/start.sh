@@ -114,6 +114,12 @@ if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
 fi
 
+if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
+	echo "Fixing feed rsync options"
+	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
+	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
+fi
+
 
 if [ ! -f "/data/setup" ]; then
 	echo "Creating Greenbone Vulnerability Manager database"
