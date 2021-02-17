@@ -37,7 +37,7 @@ curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib
 
 
 COPY scripts/* /
-COPY .base-ts /
+COPY update.ts /
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || exit 1
 CMD [ "/start.sh" ]
