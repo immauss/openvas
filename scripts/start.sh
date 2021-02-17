@@ -142,7 +142,7 @@ if [ $NEWDB = "true" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
-	cat /.base-ts
+	cat /update.ts
 	echo "########################################"
 	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
 	chown postgres /data/base-db.sql
