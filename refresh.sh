@@ -3,11 +3,13 @@
 # It will include a new db dump and the contents of /data/var-lib
 # This should run from a cron with a long enough sleep to make sure
 # the gvmd has updated the DB before creating the archive and pushing
-# to github.
+# to github. It's probably not going to be useful to anyone but me
+# but the output will benefit all. 
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="30m" # time between resync and archiving.
-
+STIME="2m" # time between resync and archiving.
+# Force a pull of the latest image.
+docker pull immauss/openvas:latest
 echo "Starting container for an update"
 docker run -d --rm --name updater immauss/openvas
 date
@@ -33,13 +35,12 @@ git clone git+ssh://git@github.com/immauss/openvas.git
 cd openvas
 
 date > update.ts
-
-git commit -a -m "Data update for $Date"
+git commit update.ts -m "Data update for $Date"
+echo "And pushing to github"
 git push 
 echo "Cleaning up"
 cd ..
 rm -rf openvas var-lib *.xz
-
 echo "All done"
 
 
