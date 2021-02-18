@@ -145,8 +145,9 @@ if [ $NEWDB = "true" ] ; then
 	cat /update.ts
 	echo "########################################"
 	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
-	chown postgres /data/base-db.sql
-	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres
+	touch /usr/local/var/log/db-restore.log
+	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -163,10 +164,11 @@ if [ $RESTORE = "true" ] ; then
 		echo "on the command line to start the container."
 		exit 
 	fi
+	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
-	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres
-        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres
+	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
+        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
 	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
 	echo " You should NOT keep the container running with the RESTORE env var set"
@@ -236,7 +238,7 @@ if [ $SKIPSYNC == "false" ]; then
 	   echo " Pulling NVTs from greenbone" 
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
 	   sleep 2
-	   echo " Pulling scapdata from greenboon"
+	   echo " Pulling scapdata from greenbone"
 	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
