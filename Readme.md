@@ -1,7 +1,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/immauss/openvas.svg)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/stars/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/image-size/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
-[![Docker Stars](https://img.shields.io/docker/build/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
+[![Docker Stars](https://img.shields.io/docker/cloud/build/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
+[![Docker Stars](https://img.shields.io/docker/cloud/automated/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
 [![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/docker-openvas/issues)
 [![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
@@ -22,10 +23,19 @@ armh-20.08.03 | an arm build of 20.08.03
 armh-20.08.03 |  an arm build of 20.08.03
 
 - - - -
+##Documentation##
+The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 
-You can find the updated documentation [here](https://github.com/immauss/openvas/tree/master/docs)
+### 18 Feb 2021 ###
+## A few minor updates and one **BIG** change##
+- The restore logs now go to /usr/local/var/log/db-restore.log instead of the terminal
+- The start.sh is modifying the feed sync scripts (greenbone-nvt-sync and greenbone-feed-sync) to make the normal output a little quieter.
+- And the **BIG** announcement:
+# Automated weekly builds with content updates!! #
+Early every Monday morning, the image will be rebuilt with the latest feed updates. This means that the latest image will always have  feed data less than 1 week old!!!
 
-
+-Scott
+- - - -
 ### 16 Feb 2021 ###
 I have added some additional functionality to the image:
 - Container now does a proper shutdown of postgresql on container stop. (I believe not having this has been the cause of some DB corruption seen in the past.)
