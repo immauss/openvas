@@ -267,12 +267,15 @@ until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
 
-echo "Checking for $USERNAME"
-# Unset this here or the --get-users will kill the script on a normal startup.
-set +e
-su -c "gvmd --get-users | grep -qis $USERNAME " gvm
-if [ $? -ne 0 ]; then
-	echo "$USERNAME does not exist"
+if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
+	# Change the admin password
+	echo "Setting admin password"
+	su -c "gvmd --user=\"$USERNAME\" --new-password=\'$PASSWORD\' " gvm  
+elif [ "$USERNAME" != "admin" ] ; then 
+	# create user and set password
+	echo "Creating new user $USERNAME with supplied password."
+	echo "If no password supplied on startup, then the default password is admin" 
+	echo " ...... Don't do that ..... "
 	echo "Creating Greenbone Vulnerability Manager admin user as $USERNAME"
 	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
 	echo "admin user created"
