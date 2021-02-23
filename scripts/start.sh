@@ -114,11 +114,13 @@ if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
 fi
 
-#if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
-	#echo "Fixing feed rsync options"
-	#sed -i -e "s/-ltvrP/ltrP/g" /usr/local/bin/greenbone-nvt-sync 
-	#sed -i -e "s/-ltvrP/ltrP/g" /usr/local/sbin/greenbone-feed-sync 
-#fi
+if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
+	echo "Fixing feed rsync options"
+	#sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
+	#sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
+	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
+	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
+fi
 
 
 if [ ! -f "/data/setup" ]; then
@@ -192,6 +194,12 @@ fi
 
 mkdir -p /usr/local/var/lib/openvas/plugins
 chown -R gvm:gvm /usr/local/var/lib/openvas 
+
+# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
+if [ "$DEBUG" == "true" ]; then
+	echo "Sleeping here for 1d to debug"
+	sleep 1d
+fi
 
 echo "Migrating the database to the latest version of needed."
 su -c "gvmd --migrate" gvm
