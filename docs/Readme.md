@@ -129,6 +129,10 @@ The following options can be set as environement variables when starting the con
 ```
  -e PASSWORD='<password>'
 ```
+## Important note about USERNAME and PASSWORD
+**You should only use these for initial setup of the container. Always change the password aftewards. If you start the container from the command line with the PASSWORD env set, then the password is readily readible in your command history and in /proc etc ....**
+**If you choose to create a new user at startup, the "admin" user will still exist with the default admin password. The admin user is needed as it is the owner of the "feed import process" and gvmd will not let it be deleted. Make sure you change the password for admin in this scenario. 
+you have been warned.  :)
 - RELAYHOST : The IP address or hostname of the email relay to send emails through. Default = 172.17.01 (This is default for the docker host. If you are running the mail relay on your docker host, this should work, but you will need to make sure you allow the conections through the host`s firewall/iptables)
 ```
 -e RELAYHOST=mail.example.com 
