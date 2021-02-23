@@ -8,6 +8,7 @@ ENV LANG=C.UTF-8
 
 # Build/install gvm (by default, everything installs in /usr/local)
 COPY build-gvm.sh /build-gvm.sh
+COPY build.rc /build.rc
 RUN bash /build-gvm.sh
 
 # Stage 1: Start again with the squashed fully updated ubuntu:20.04
