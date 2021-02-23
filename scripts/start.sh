@@ -270,7 +270,7 @@ done
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
 	# Change the admin password
 	echo "Setting admin password"
-	su -c "gvmd --user=\"$USERNAME\" --new-password=\'$PASSWORD\' " gvm  
+	su -c "gvmd --user=\"$USERNAME\" --new-password='$PASSWORD' " gvm  
 elif [ "$USERNAME" != "admin" ] ; then 
 	# create user and set password
 	echo "Creating new user $USERNAME with supplied password."
@@ -279,7 +279,7 @@ elif [ "$USERNAME" != "admin" ] ; then
 	echo "Creating Greenbone Vulnerability Manager admin user as $USERNAME"
 	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
 	echo "admin user created"
-	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk '{print \$2}' " gvm)
+	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk /$USERNAME/'{print \$2}' " gvm)
 	echo "admin user UUID is $ADMINUUID"
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
