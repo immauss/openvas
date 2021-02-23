@@ -90,18 +90,8 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.lis
 apt-get update
 apt-get install yarn -yq --no-install-recommends
 
-
-
-gvm_libs_version="v20.8.1" \
-openvas_scanner_version="v20.8.1" \
-gvmd_version="v20.8.1" \
-gsa_version="v20.8.1" \
-open_scanner_protocol_daemon="v20.8.0" \
-ospd_openvas="v20.8.1" \
-gvm_tools_version="v21.1.0" \
-openvas_smb="v1.0.5" \
-python_gvm_version="v21.1.3"
-
+# Source this for the latest release versions
+. build.rc
 
     #
     # install libraries module for the Greenbone Vulnerability Management Solution
@@ -112,8 +102,8 @@ echo "Building gvm_libs"
 rm -rf /build 
 mkdir -p /build 
 cd /build 
-wget --no-verbose https://github.com/greenbone/gvm-libs/archive/$gvm_libs_version.tar.gz 
-tar -zxf $gvm_libs_version.tar.gz 
+wget --no-verbose https://github.com/greenbone/gvm-libs/archive/$gvm_libs.tar.gz 
+tar -zxf $gvm_libs.tar.gz 
 cd /build/*/
 mkdir build 
 cd build
@@ -144,8 +134,8 @@ rm -rf *
     #
 echo "Building gvmd"
 cd /build 
-wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd_version.tar.gz 
-tar -zxf $gvmd_version.tar.gz 
+wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd.tar.gz 
+tar -zxf $gvmd.tar.gz 
 cd /build/*/ 
 mkdir build 
 cd build 
@@ -160,8 +150,8 @@ rm -rf *
     #
 echo "Building openvas_scanner"   
 cd /build 
-wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas_scanner_version.tar.gz 
-tar -zxf $openvas_scanner_version.tar.gz 
+wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz 
+tar -zxf $openvas.tar.gz 
 cd /build/*/ 
 mkdir build 
 cd build 
@@ -176,8 +166,8 @@ rm -rf *
     #
 echo "Building gsa"  
 cd /build 
-wget --no-verbose https://github.com/greenbone/gsa/archive/$gsa_version.tar.gz 
-tar -zxf $gsa_version.tar.gz 
+wget --no-verbose https://github.com/greenbone/gsa/archive/$gsa.tar.gz 
+tar -zxf $gsa.tar.gz 
 cd /build/*/ 
 mkdir build 
 cd build 
@@ -191,7 +181,7 @@ rm -rf *
     # Install Greenbone Vulnerability Management Python Library
     #
 echo "Installing python_gvm"
-python3 -m pip install python-gvm==$python_gvm_version
+python3 -m pip install python-gvm==$python_gvm
     
     
     #
@@ -199,8 +189,8 @@ python3 -m pip install python-gvm==$python_gvm_version
     #
 echo "Building Openvas"
 cd /build 
-wget --no-verbose https://github.com/greenbone/ospd/archive/$open_scanner_protocol_daemon.tar.gz 
-tar -zxf $open_scanner_protocol_daemon.tar.gz 
+wget --no-verbose https://github.com/greenbone/ospd/archive/$ospd.tar.gz 
+tar -zxf $ospd.tar.gz 
 cd /build/*/ 
 python3 setup.py install 
 cd /build 
@@ -222,7 +212,7 @@ rm -rf *
     # Install GVM-Tools
     #
 echo "pip install GVM-tools"
-python3 -m pip install gvm-tools==$gvm_tools_version 
+python3 -m pip install gvm-tools==$gvm_tools 
 
     # 
     # Make sure all libraries are linked and add a random directory suddenly needed by ospd :/
