@@ -15,19 +15,24 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-20.08.04.4 | This is the latest image
+20.08.04.5 | This is the latest image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
-v1.0             | old out of date image for posterity. (Dont' use this one. . . . ever)
+v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 armh-20.08.03 | an arm build of 20.08.03
 armh-20.08.03 |  an arm build of 20.08.03
 
 - - - -
-##Documentation##
+## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
-
+- - - -
+### 23 Feb 2020 ###
+**Tag 20.08.04.5**
+- Fixed the PASSWORD and USERNAME env vars. Make sure you check checks the docs for the caveats.
+- Wrote a new script to make sure I`m getting the latest releaes from all of the Greenbone github repos
+- - - -
 ### 18 Feb 2021 ###
-## A few minor updates and one **BIG** change##
+## A few minor updates and one **BIG** change ##
 - The restore logs now go to /usr/local/var/log/db-restore.log instead of the terminal
 - The start.sh is modifying the feed sync scripts (greenbone-nvt-sync and greenbone-feed-sync) to make the normal output a little quieter.
 - And the **BIG** announcement:
