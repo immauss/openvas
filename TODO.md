@@ -10,3 +10,7 @@
 - [ ] Re structure git repo/docker build automation so I can update the Readme and docs withoutr triggering a new build. 
 - [ ] Write some build / test scripts to automate testing of new builds. 
 - [ ] Cron to inform me when there is a new release on the greenbone repos
+- [ ] Clean up repo directory structure (All scripts in scripts etc)
+- [ ] start.sh clean up. 
+	- Make sure there are no duplicates
+	- Validate the order of operations
