@@ -124,22 +124,10 @@ if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then
 fi
 
 
-#if [ ! -f "/data/setup" ]; then
-	#echo "Creating Greenbone Vulnerability Manager database"
-	#su -c "createuser -DRS gvm" postgres
-	#su -c "createdb -O gvm gvmd" postgres
-	#su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
-	#su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
-	#su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
-	#su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
-	#chown postgres:postgres -R /data/database
-	#su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
-	if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
-		echo "Generating certs..."
-    		gvm-manage-certs -a
-	fi
-	touch /data/setup
-#fi
+if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+	echo "Generating certs..."
+    	gvm-manage-certs -a
+fi
 
 if [ $NEWDB = "true" ] ; then
 	echo "########################################"
@@ -147,7 +135,8 @@ if [ $NEWDB = "true" ] ; then
 	echo "base data from:"
 	cat /update.ts
 	echo "########################################"
-	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
+	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
+	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
 	touch /usr/local/var/log/db-restore.log
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log
 	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
@@ -202,7 +191,7 @@ if [ "$DEBUG" == "true" ]; then
 	sleep 1d
 fi
 
-echo "Migrating the database to the latest version of needed."
+echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
 
 # Fix perms on var/run for the sync to function
@@ -344,9 +333,9 @@ fi
 echo "Starting Greenbone Security Assistant..."
 su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 GVMVER=$(su -c "gvmd --version" gvm ) 
-echo "++++++++++++++++++++++++++++++++++++++++++++++"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ Your GVM/openvas/postgresql container is now ready to use! +"
-echo "++++++++++++++++++++++++++++++++++++++++++++++"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 echo "gvmd --version"
 echo "$GVMVER"
@@ -355,5 +344,5 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 tail -F /usr/local/var/log/gvm/* &
-
+# This is part of making sure we shutdown postgres properly on container shtudown.
 wait $!
