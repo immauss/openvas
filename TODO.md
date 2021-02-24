@@ -6,4 +6,7 @@
 	- In seperate reverse proxy
 - [x]  Fix User and password environment variables
 - [ ] docker-compose 
-- [ ] remove unneeded db creation bits from start.sh since they are alredy done via the preinstalled DB.
+- [x] remove unneeded db creation bits from start.sh since they are alredy done via the preinstalled DB.
+- [ ] Re structure git repo/docker build automation so I can update the Readme and docs withoutr triggering a new build. 
+- [ ] Write some build / test scripts to automate testing of new builds. 
+- [ ] Cron to inform me when there is a new release on the greenbone repos
