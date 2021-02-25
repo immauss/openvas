@@ -105,3 +105,4 @@ There is also a new environment variable: SKIPSYNC . This does exactly what it s
 
 For License info, see the [GNU Affero](https://github.com/immauss/openvas/blob/master/LICENSE) license.
 
+Thu Feb 25 23:59:13 UTC 2021
