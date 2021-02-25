@@ -1,7 +1,8 @@
 # Stage 0: Start with a squashed fully updated ubuntu:20.04
 # This is created seperately.
 FROM immauss/ovas-base:20.04u
-
+# Build date: 25 Feb 2021:wq
+#
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
