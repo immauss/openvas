@@ -20,6 +20,7 @@ NEWDB=false
 SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
+HTTPS=${HTTPS:-false}
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -117,14 +118,14 @@ fi
 
 if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
 	echo "Fixing feed rsync options"
-	#sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
-	#sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
-	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
-	sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
+	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
+	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
+	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
+	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
 fi
 
 
-if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+if ! [ -f /data/var-lib/gvm/CA/servercert.pem ]; then
 	echo "Generating certs..."
     	gvm-manage-certs -a
 fi
@@ -250,7 +251,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd --osp-vt-update=/tmp/ospd.sock" gvm
+su -c "gvmd --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
@@ -331,7 +332,15 @@ if [ ! -S /var/run/gvmd.sock ]; then
 fi
 
 echo "Starting Greenbone Security Assistant..."
-su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+if [ $HTTPS == "true" ]; then
+	su -c "gsad --verbose \
+	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
+		    --no-redirect \
+		    --port=9392" gvm
+else
+	su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ Your GVM/openvas/postgresql container is now ready to use! +"
