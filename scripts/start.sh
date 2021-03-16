@@ -125,7 +125,7 @@ if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then
 fi
 
 
-if ! [ -f /data/var-lib/gvm/CA/servercert.pem ]; then
+if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
     	gvm-manage-certs -a
 fi
