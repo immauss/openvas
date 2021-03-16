@@ -26,7 +26,11 @@ armh-20.08.03 |  an arm build of 20.08.03
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
-### 23 Feb 2020 ###
+### 16 Mar 2021 ###
+**Tag 20.08.04.6**
+- Added the HTTPS environment variable. Setting this to true will cause gsa to start with https enabled. I`m working on a better implementation of this, but as this was requested, I wetn ahead and added it. The `better` implementation will be able to use letsencrypt certificates! 
+- - - -
+### 23 Feb 2021 ###
 **Tag 20.08.04.5**
 - Fixed the PASSWORD and USERNAME env vars. Make sure you check checks the docs for the caveats.
 - Wrote a new script to make sure I`m getting the latest releaes from all of the Greenbone github repos
