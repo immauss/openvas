@@ -6,6 +6,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/docker-openvas/issues)
 [![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
+![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
 
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
@@ -15,7 +16,7 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-20.08.04.5 | This is the latest image
+20.08.04.6 | This is the latest image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
