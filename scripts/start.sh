@@ -3,7 +3,7 @@ set -Eeuo pipefail
 #Define  proper shutdown 
 cleanup() {
     echo "Container stopped, performing shutdown"
-    su -c "/usr/lib/postgresql/11/bin/pg_ctl -D /data/database stop" postgres
+    su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 }
 
 #Trap SIGTERM
@@ -51,9 +51,9 @@ echo "Redis ready."
 if  [ ! -d /data/database ]; then
 	mkdir -p /data/database
 	echo "Creating Data and database folder..."
-	mv /var/lib/postgresql/11/main/* /data/database
-	ln -s /data/database /var/lib/postgresql/11/main
-	chown postgres:postgres -R /var/lib/postgresql/11/main
+	mv /var/lib/postgresql/12/main/* /data/database
+	ln -s /data/database /var/lib/postgresql/12/main
+	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
 	#Use this later to import the base DB or not
@@ -63,11 +63,11 @@ fi
 # These are  needed for a first run WITH a new container image
 # and an existing database in the mounted volume at /data
 
-if [ ! -L /var/lib/postgresql/11/main ]; then
+if [ ! -L /var/lib/postgresql/12/main ]; then
 	echo "Fixing Database folder..."
-	rm -rf /var/lib/postgresql/11/main
-	ln -s /data/database /var/lib/postgresql/11/main
-	chown postgres:postgres -R /var/lib/postgresql/11/main
+	rm -rf /var/lib/postgresql/12/main
+	ln -s /data/database /var/lib/postgresql/12/main
+	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 fi
 
@@ -104,7 +104,7 @@ if [ ! -f "/setup" ]; then
 fi
 
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/11/bin/pg_ctl -D /data/database start" postgres
+su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
 
 echo "Running first start configuration..."
 if !  grep -qs gvm /etc/passwd ; then 
@@ -140,7 +140,7 @@ if [ $NEWDB = "true" ] ; then
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
 	touch /usr/local/var/log/db-restore.log
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/11/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -160,9 +160,9 @@ if [ $RESTORE = "true" ] ; then
 	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
-	su -c "/usr/lib/postgresql/11/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
-        su -c "/usr/lib/postgresql/11/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
-	su -c "/usr/lib/postgresql/11/bin/pg_ctl -D /data/database stop" postgres
+	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
+        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
+	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
 	echo " You should NOT keep the container running with the RESTORE env var set"
 	echo " as a restart of the container will overwrite the database again." 

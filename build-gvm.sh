@@ -50,8 +50,8 @@ openssh-server
 perl-base
 pkg-config
 postfix
-postgresql-11
-postgresql-server-dev-11
+postgresql-12
+postgresql-server-dev-12
 python3-defusedxml
 python3-dialog
 python3-lxml

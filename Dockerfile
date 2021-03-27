@@ -32,7 +32,7 @@ apt-get install -y gnupg curl && \
 echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
 curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - &&  \
 apt-get update && \
-apt-get install -yq --no-install-recommends ca-certificates xz-utils curl geoip-database gnutls-bin graphviz ike-scan libmicrohttpd12 libhdb9-heimdal libsnmp35 libssh-gcrypt-4 libical3 libgpgme11 libnet-snmp-perl locales-all mailutils net-tools nmap nsis openssh-client openssh-server perl-base pkg-config postfix postgresql-11 python3-defusedxml python3-dialog python3-lxml python3-paramiko python3-pip python3-polib python3-setuptools redis-server redis-tools rsync smbclient sshpass texlive-fonts-recommended texlive-latex-extra wapiti wget whiptail xml-twig-tools xsltproc && \
+apt-get install -yq --no-install-recommends ca-certificates xz-utils curl geoip-database gnutls-bin graphviz ike-scan libmicrohttpd12 libhdb9-heimdal libsnmp35 libssh-gcrypt-4 libical3 libgpgme11 libnet-snmp-perl locales-all mailutils net-tools nmap nsis openssh-client openssh-server perl-base pkg-config postfix postgresql-12 python3-defusedxml python3-dialog python3-lxml python3-paramiko python3-pip python3-polib python3-setuptools redis-server redis-tools rsync smbclient sshpass texlive-fonts-recommended texlive-latex-extra wapiti wget whiptail xml-twig-tools xsltproc && \
 python3 -m pip install psutil && \
 apt-get clean && \
 echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
