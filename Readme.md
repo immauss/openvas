@@ -31,6 +31,7 @@ The current docs are maintained on github [here](https://github.com/immauss/open
 ***Doh!***
 - Appologies to anyone who tried to pull the latest image in the last 24 hours. It looks like I accidently pusshed my dev branch to master and Docker Hub diligently built a new image.  ....... This didn't work. I've reveresed the changes and the "latest" tag is now good. Thanks to [cybermcm](https://github.com/cybermcm) for catching the problem and opening an issue. 
 - For the curious, the new work is on finding a clean way to downgrade the DB from postgresql 12 to 11. Apprently there are some performance issues with gmvd and postgresql 12. 
+- - - -
 
 ### 16 Mar 2021 ###
 **Tag 20.08.04.6**
