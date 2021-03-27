@@ -27,6 +27,11 @@ armh-20.08.03 |  an arm build of 20.08.03
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
+### 27 Mar 2021 ###
+***Doh!***
+- Appologies to anyone who tried to pull the latest image in the last 24 hours. It looks like I accidently pusshed my dev branch to master and Docker Hub diligently built a new image.  ....... This didn't work. I've reveresed the changes and the "latest" tag is now good. Thanks to [cybermcm](https://github.com/cybermcm) for catching the problem and opening an issue. 
+- For the curious, the new work is on finding a clean way to downgrade the DB from postgresql 12 to 11. Apprently there are some performance issues with gmvd and postgresql 12. 
+
 ### 16 Mar 2021 ###
 **Tag 20.08.04.6**
 - Added the HTTPS environment variable. Setting this to true will cause gsa to start with https enabled. I`m working on a better implementation of this, but as this was requested, I went ahead and added it. The `better` implementation will be able to use letsencrypt certificates! 
