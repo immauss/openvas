@@ -21,7 +21,11 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
+GMP=${GMP:-false}
 
+if [ $GMP != "false" ]; then
+	GMP="-a 127.0.0.1 -p $GMP"
+fi
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
 fi
@@ -251,7 +255,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd $GMP  --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"

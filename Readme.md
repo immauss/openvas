@@ -27,6 +27,16 @@ armh-20.08.03 |  an arm build of 20.08.03
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
+### 28 Mar 2021 ###
+***gmp option added***
+- At the request of [hoboristi](https://github.com/hoboristi) , I`ve added an option to enable the gmp service. It will require two options though.
+  - First, enable the service in the container with ``` -e GMP=<service port number> ```
+  - Then publish the port from the container ``` -p <external port number>:<service port number> ``` 
+  - Example:
+```
+docker run -d -p 9392:9392 -p 9390:9390 -e GMP=9390 --name openvas -v openvas:/data immauss/openvas:latest 
+```
+
 ### 27 Mar 2021 ###
 ***Doh!***
 - Appologies to anyone who tried to pull the latest image in the last 24 hours. It looks like I accidently pusshed my dev branch to master and Docker Hub diligently built a new image.  ....... This didn't work. I've reveresed the changes and the "latest" tag is now good. Thanks to [cybermcm](https://github.com/cybermcm) for catching the problem and opening an issue. 
