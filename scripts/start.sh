@@ -25,7 +25,7 @@ HTTPS=${HTTPS:-false}
 GMP=${GMP:-false}
 
 if [ $GMP != "false" ]; then
-        GMP="-a 127.0.0.1 -p $GMP"
+        GMP="-a 0.0.0.0  -p $GMP"
 fi
 
 if [ ! -d "/run/redis" ]; then
