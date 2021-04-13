@@ -9,16 +9,24 @@ cleanup() {
 #Trap SIGTERM
 trap 'cleanup' SIGTERM
 
+
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
-NEWDB=false
+# use this to rebuild the DB from scratch instead of using the one in the image.
+NEWDB=${NEWDB:-false}
 SKIPSYNC=${SKIPSYNC:-false}
+RESTORE=${RESTORE:-false}
+DEBUG=${DEBUG:-false}
+HTTPS=${HTTPS:-false}
+GMP=${GMP:-false}
 
-
+if [ $GMP != "false" ]; then
+        GMP="-a 0.0.0.0  -p $GMP"
+fi
 
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
@@ -55,7 +63,7 @@ if  [ ! -d /data/database ]; then
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
 	#Use this later to import the base DB or not
-	NEWDB=true
+	NEWDB=false
 fi
 
 # These are  needed for a first run WITH a new container image
@@ -98,6 +106,7 @@ if [ ! -f "/setup" ]; then
 	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
+	chown postgres:postgres -R /data/database
 fi
 
 echo "Starting PostgreSQL..."
@@ -113,42 +122,58 @@ if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
 fi
 
-
-if [ ! -f "/data/setup" ]; then
-	echo "Creating Greenbone Vulnerability Manager database"
-	su -c "createuser -DRS gvm" postgres
-	su -c "createdb -O gvm gvmd" postgres
-	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
-	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
-	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
-	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
-	chown postgres:postgres -R /data/database
-	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
-	if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
-		echo "Generating certs..."
-    	gvm-manage-certs -a
-	fi
-	touch /data/setup
+if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
+	echo "Fixing feed rsync options"
+	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
+	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
+	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
+	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
 fi
 
-if [ $NEWDB = "true" ] ; then
+
+if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
+	echo "Generating certs..."
+    	gvm-manage-certs -a
+fi
+
+if [ $NEWDB = "false" ] ; then
 	echo "########################################"
-	echo "Restore a base DB from /usr/lib/base-db.xz"
+	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
-	cat /.base-ts
+	#cat /update.ts
 	echo "########################################"
-	ls -l /usr/lib/*.xz
-	xzcat /usr/lib/base.sql.xz > /data/base-db.sql
-	chown postgres /data/base-db.sql
-	su -c "/usr/lib/postgresql/12/bin/psql -q < /data/base-db.sql " postgres
-	rm /data/base-db.sql
+	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
+	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	#touch /usr/local/var/log/db-restore.log
+	#chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log
+	#su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	#rm /data/base-db.sql
 	cd /data 
-	echo "###########################################"
-	echo "Extracting /usr/lib/var-lib.tar.xz to /data"
-	echo "###########################################"
+	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
 fi
-
+# if RESTORE is true, hopefully the user has mounted thier database in the right place.
+if [ $RESTORE = "true" ] ; then
+        echo "########################################"
+        echo "Restoring  from /usr/lib/db-backup.sql"
+        echo "########################################"
+	if ! [ -f /usr/lib/db-backup.sql ]; then
+		echo "You have set the RESTORE env varible to true, but there is no db to restore from."
+		echo "Make sure you include \" -v <path to your backup.sql>:/usr/lib/db-backup.sql\""
+		echo "on the command line to start the container."
+		exit 
+	fi
+	touch /usr/local/var/log/restore.log
+        chown postgres /usr/lib/db-backup.sql
+	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
+	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
+        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
+	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
+	echo " You should NOT keep the container running with the RESTORE env var set"
+	echo " as a restart of the container will overwrite the database again." 
+	exit
+fi
 
 # Always make sure these are right.
 
@@ -167,9 +192,15 @@ fi
 mkdir -p /usr/local/var/lib/openvas/plugins
 chown -R gvm:gvm /usr/local/var/lib/openvas 
 
+# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
+if [ "$DEBUG" == "true" ]; then
+	echo "Sleeping here for 1d to debug"
+	sleep 1d
+fi
+
 echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
-echo "Migration complete"
+
 # Fix perms on var/run for the sync to function
 chmod 777 /usr/local/var/run/
 # And it should be empty. (Thanks felimwhiteley )
@@ -212,7 +243,7 @@ if [ $SKIPSYNC == "false" ]; then
 	   echo " Pulling NVTs from greenbone" 
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
 	   sleep 2
-	   echo " Pulling scapdata from greenboon"
+	   echo " Pulling scapdata from greenbone"
 	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
@@ -226,23 +257,26 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd --osp-vt-update=/tmp/ospd.sock" gvm
+su -c "gvmd $GMP --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
 	sleep 1
 done
 
-echo "Checking for $USERNAME"
-# Unset this here or the --get-users will kill the script on a normal startup.
-set +e
-su -c "gvmd --get-users | grep -qis $USERNAME " gvm
-if [ $? -ne 0 ]; then
-	echo "$USERNAME does not exist"
+if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
+	# Change the admin password
+	echo "Setting admin password"
+	su -c "gvmd --user=\"$USERNAME\" --new-password='$PASSWORD' " gvm  
+elif [ "$USERNAME" != "admin" ] ; then 
+	# create user and set password
+	echo "Creating new user $USERNAME with supplied password."
+	echo "If no password supplied on startup, then the default password is admin" 
+	echo " ...... Don't do that ..... "
 	echo "Creating Greenbone Vulnerability Manager admin user as $USERNAME"
 	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
 	echo "admin user created"
-	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk '{print \$2}' " gvm)
+	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk /$USERNAME/'{print \$2}' " gvm)
 	echo "admin user UUID is $ADMINUUID"
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
@@ -304,11 +338,19 @@ if [ ! -S /var/run/gvmd.sock ]; then
 fi
 
 echo "Starting Greenbone Security Assistant..."
-su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+if [ $HTTPS == "true" ]; then
+	su -c "gsad --verbose \
+	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
+		    --no-redirect \
+		    --port=9392" gvm
+else
+	su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
-echo "++++++++++++++++++++++++++++++++++++++++++++++"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ Your GVM/openvas/postgresql container is now ready to use! +"
-echo "++++++++++++++++++++++++++++++++++++++++++++++"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 echo "gvmd --version"
 echo "$GVMVER"
@@ -317,5 +359,5 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 tail -F /usr/local/var/log/gvm/* &
-
+# This is part of making sure we shutdown postgres properly on container shtudown.
 wait $!
