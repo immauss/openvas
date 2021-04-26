@@ -112,6 +112,23 @@ fi
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
 
+if [ ! -f "/data/setup" ]; then
+	echo "Creating Greenbone Vulnerability Manager database"
+	su -c "createuser -DRS gvm" postgres
+	su -c "createdb -O gvm gvmd" postgres
+	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+	chown postgres:postgres -R /data/database
+	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
+	if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+		echo "Generating certs..."
+    	gvm-manage-certs -a
+	fi
+	touch /data/setup
+fi
+
 echo "Running first start configuration..."
 if !  grep -qs gvm /etc/passwd ; then 
 	echo "Adding gvm user"
