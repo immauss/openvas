@@ -17,6 +17,7 @@ build-essential
 ca-certificates
 cmake
 curl
+doxygen
 gcc
 gcc-mingw-w64
 geoip-database
@@ -34,11 +35,13 @@ libical-dev
 libksba-dev
 libldap2-dev
 libmicrohttpd-dev
+libnet1-dev
 libnet-snmp-perl
 libpcap-dev
 libpopt-dev
 libsnmp-dev
 libssh-gcrypt-dev
+libunistring-dev
 libxml2-dev
 locales-all
 mailutils
