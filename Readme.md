@@ -27,6 +27,13 @@ armh-20.08.03 |  an arm build of 20.08.03
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
+### 27 April 2021 ###
+***New GVM version !!***
+- OK ... It`s here!! 21.04. It has some tweaks and fixes. But the biggest change that I see is that it seems to be performing much better with postgresql 12. This is good news. I have it working but I have NOT made it the latest yet. The current tag is 21.04-beta. It is currently not tested with upgrading a current DB. I`ve only tested with a fresh start. If you choose to test, please drop me not and PLEASE open an issue if you find a problem with it. 
+
+-Scott
+
+- - - -
 ### 28 Mar 2021 ###
 ***gmp option added***
 - At the request of [hoboristi](https://github.com/hoboristi) , I`ve added an option to enable the gmp service. It will require two options though.
