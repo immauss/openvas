@@ -146,7 +146,7 @@ if [ $NEWDB = "false" ] ; then
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
 	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
 	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-	echo "ALTER TABLE vt_severities OWNER TO postgres;" >> /data/dbupdate.sql
+	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 
 	touch /usr/local/var/log/db-restore.log
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
