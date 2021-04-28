@@ -157,6 +157,25 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
 fi
+
+# If NEWDB is true, then we need to create an empty database. 
+if [ $NEWDB = "true" ]; then
+        echo "Creating Greenbone Vulnerability Manager database"
+        su -c "createuser -DRS gvm" postgres
+        su -c "createdb -O gvm gvmd" postgres
+        su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+        su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+        su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+        su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+        chown postgres:postgres -R /data/database
+        su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
+        if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+                echo "Generating certs..."
+        gvm-manage-certs -a
+        fi
+        touch /data/setup
+fi
+
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
         echo "########################################"
