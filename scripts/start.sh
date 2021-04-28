@@ -54,6 +54,10 @@ done
 echo "Redis ready."
 
 # This is for a first run with no existing database.
+# Also determins if we are loading the default DB. The assumption here
+# is that if we just created an empty DB, then we want to load the baseDB into it. 
+# the "NEWDB" flag on start should be used to overide the loading of the basedb and 
+# force gvmd to create a "new database" from scratch by pulling from the feeds.
 if  [ ! -d /data/database ]; then
 	mkdir -p /data/database
 	echo "Creating Data and database folder..."
@@ -62,8 +66,9 @@ if  [ ! -d /data/database ]; then
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
-	#Use this later to import the base DB or not
-	NEWDB=false
+	LOADDEFAULT="true"
+else
+	LOADDEFAULT="false"
 fi
 
 # These are  needed for a first run WITH a new container image
@@ -136,7 +141,7 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
     	gvm-manage-certs -a
 fi
 
-if [ $NEWDB = "false" ] ; then
+if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
