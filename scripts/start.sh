@@ -62,8 +62,9 @@ if  [ ! -d /data/database ]; then
 	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
-	#Use this later to import the base DB or not
-	NEWDB=false
+	LOADDEFAULT="true"
+else
+	LOADDEFAULT="false"
 fi
 
 # These are  needed for a first run WITH a new container image
@@ -136,7 +137,7 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
     	gvm-manage-certs -a
 fi
 
-if [ $NEWDB = "false" ] ; then
+if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -156,6 +157,24 @@ if [ $NEWDB = "false" ] ; then
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
+fi
+
+# If NEWDB is true, then we need to create an empty database. 
+if [ $NEWDB = "true" ]; then
+        echo "Creating Greenbone Vulnerability Manager database"
+        su -c "createuser -DRS gvm" postgres
+        su -c "createdb -O gvm gvmd" postgres
+        su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+        su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+        su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+        su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+        chown postgres:postgres -R /data/database
+        su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
+        if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+                echo "Generating certs..."
+        gvm-manage-certs -a
+        fi
+        touch /data/setup
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
