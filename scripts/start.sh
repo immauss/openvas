@@ -174,6 +174,9 @@ if [ $NEWDB = "true" ]; then
                 echo "Generating certs..."
         gvm-manage-certs -a
         fi
+	cd /data
+        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+        tar xf /usr/lib/var-lib.tar.xz
         touch /data/setup
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
@@ -287,6 +290,7 @@ until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
 	sleep 1
 done
+echo "Time to fixup the gvm accounts."
 
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
 	# Change the admin password
@@ -304,7 +308,16 @@ elif [ "$USERNAME" != "admin" ] ; then
 	echo "admin user UUID is $ADMINUUID"
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
+elif [ $NEWDB = "true" ]; then
+	echo "Creating Greenbone Vulnerability Manager admin user $USERNAME"
+	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
+	echo "admin user created"
+	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk '{print \$2}' " gvm)
+	echo "admin user UUID is $ADMINUUID"
+	echo "Granting admin access to defaults"
+	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 fi
+
 echo "reset "
 set -Eeuo pipefail
 touch /setup
