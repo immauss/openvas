@@ -39,6 +39,9 @@ echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig && \
 curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.sql.xz && \
 curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+# Can I size check those files and fail if they are too small from the Dockerfile? 
+# A script to run maybe ?
+# Hmmmmm....
 
 
 COPY scripts/* /
