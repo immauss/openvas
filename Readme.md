@@ -27,6 +27,14 @@ armh-20.08.03 |  an arm build of 20.08.03
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
+### 4 May 2021 ###
+***May the 4th be with you***
+- So the 21.04 is taking a little longer than anticipated. What would be great, would be a few more testers. If you have the cycles, I would really appreciate any testing. Just make sure you are not working on your production data yet!
+
+Thanks,
+-Scott:wq
+
+- - - -
 ### 27 April 2021 ###
 ***New GVM version !!***
 - OK ... I's here!! 21.04. It has some tweaks and fixes. But the biggest change that I see is that it seems to be performing much better with postgresql 12. This is good news. I have it working but I have NOT made it the latest yet. The current tag is 21.04-beta. It is currently not tested with upgrading a current DB. I've only tested with a fresh start. If you choose to test, please drop me not and PLEASE open an issue if you find a problem with it. 
