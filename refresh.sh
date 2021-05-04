@@ -29,7 +29,20 @@ docker stop updater
 echo "Compress and archive the data"
 tar cJf var-lib.tar.xz var-lib
 xz -1 base.sql
+SQL_SIZE=$( ls -l base.sql.xz | awk '{print $5}')
+FEED_SIZE=$( ls -l var-lib.tar.xz | awk '{print $5'})
+if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
+	logger -t db-refresh "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
+	exit
+fi
+
+# Need error checking here to prevent pushing a nil DB.
 scp *.xz push@www.immauss.com:/var/www/html/openvas/
+if [ $? -ne 0 ]; then
+	logger -t db-refresh "SCP of new db failed $?"
+	exit
+fi
+
 
 git clone git+ssh://git@github.com/immauss/openvas.git
 cd openvas
