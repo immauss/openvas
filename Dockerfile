@@ -14,7 +14,7 @@ RUN bash /build-gvm.sh
 # Stage 1: Start again with the squashed fully updated ubuntu:20.04
 FROM immauss/ovas-base:20.04u
 LABEL maintainer="scott@immauss.com" \
-      version="20.08.6" \
+      version="21.04.00" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
@@ -37,7 +37,7 @@ python3 -m pip install psutil && \
 apt-get clean && \
 echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig && \
-curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.sql.xz && \
+curl -L --url https://www.immauss.com/openvas/base.21.04.sql.xz -o /usr/lib/base.sql.xz && \
 curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
 
 

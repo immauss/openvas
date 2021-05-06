@@ -95,6 +95,15 @@ if [ ! -L /usr/local/share ]; then
 	ln -s /data/local-share /usr/local/share 
 fi
 
+if [ ! -L /usr/local/var/log/gvmi ]; then
+	echo "Fixing log directory for persistent logs .... "
+	if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
+	cp -rf /usr/local/var/log/gvm /data/var/log/ 
+	rm -rf /usr/local/var/log/gvm
+	ln -s /data/var-log /usr/local/var/log/gvm 
+fi
+
+
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
 # maybe redis should too. 
@@ -225,6 +234,15 @@ if [ "$DEBUG" == "true" ]; then
 	sleep 1d
 fi
 
+# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
+echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+touch /usr/local/var/log/db-restore.log
+chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
+su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+
+# Migrate the DB to current gvmd version
 echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
 
