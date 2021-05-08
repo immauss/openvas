@@ -27,7 +27,7 @@ docker stop updater
 
 
 echo "Compress and archive the data"
-tar cJf var-lib.tar.xz var-lib
+tar cJf var-lib.tar.xz --exclude=var-lib/gvm/gvmd/gnupg var-lib
 xz -1 base.sql
 SQL_SIZE=$( ls -l base.sql.xz | awk '{print $5}')
 FEED_SIZE=$( ls -l var-lib.tar.xz | awk '{print $5'})
