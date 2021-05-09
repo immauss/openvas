@@ -34,6 +34,19 @@ fi
 if  [ -S /run/redis/redis.sock ]; then
         rm /run/redis/redis.sock
 fi
+
+function DBCheck {
+	echo "Checking for existing DB"
+        su -c " psql -lqt " postgres 
+        DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+        if [ "$DB" = "gvmd" ]; then
+                echo "There seems to be an existing gvmd database. "
+                echo "Failing out to prevent database deletion."
+                exit
+        fi
+	echo "DB is $DB"
+}
+
 # Does redis need to be bound to 0.0.0.0 or will it work with just local host?
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
@@ -63,7 +76,6 @@ if  [ ! -d /data/database ]; then
 	echo "Creating Data and database folder..."
 	mv /var/lib/postgresql/12/main/* /data/database
 	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
 	LOADDEFAULT="true"
@@ -78,7 +90,6 @@ if [ ! -L /var/lib/postgresql/12/main ]; then
 	echo "Fixing Database folder..."
 	rm -rf /var/lib/postgresql/12/main
 	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 fi
 
@@ -98,6 +109,15 @@ if [ ! -L /usr/local/share ]; then
 	rm -rf /usr/local/share 
 	ln -s /data/local-share /usr/local/share 
 fi
+
+if [ ! -L /usr/local/var/log/gvm ]; then
+	echo "Fixing log directory for persistent logs .... "
+	if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
+	#cp -rf /usr/local/var/log/gvm/* /data/var-log/ 
+	rm -rf /usr/local/var/log/gvm
+	ln -s /data/var-log /usr/local/var/log/gvm 
+fi
+
 
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
@@ -122,7 +142,7 @@ if !  grep -qs gvm /etc/passwd ; then
 	echo "Adding gvm user"
 	useradd --home-dir /usr/local/share/gvm gvm
 fi
-chown gvm:gvm -R /usr/local/share/gvm
+chown gvm:gvm -R /usr/local/share/gvm /data/var-log
 if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
 fi
@@ -142,6 +162,10 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
+<<<<<<< HEAD
+=======
+	DBCheck
+>>>>>>> 21.04
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -149,9 +173,13 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
-	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log
+	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
 	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -160,6 +188,10 @@ fi
 
 # If NEWDB is true, then we need to create an empty database. 
 if [ $NEWDB = "true" ]; then
+<<<<<<< HEAD
+=======
+	DBCheck
+>>>>>>> 21.04
         echo "Creating Greenbone Vulnerability Manager database"
         su -c "createuser -DRS gvm" postgres
         su -c "createdb -O gvm gvmd" postgres
@@ -173,9 +205,17 @@ if [ $NEWDB = "true" ]; then
                 echo "Generating certs..."
         gvm-manage-certs -a
         fi
+<<<<<<< HEAD
         touch /data/setup
 fi
 
+=======
+	cd /data
+        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+        tar xf /usr/lib/var-lib.tar.xz
+        touch /data/setup
+fi
+>>>>>>> 21.04
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
         echo "########################################"
@@ -201,10 +241,8 @@ fi
 
 # Always make sure these are right.
 
-chown gvm:gvm -R /usr/local/var/lib/gvm
-chmod 770 -R /usr/local/var/lib/gvm
-chown gvm:gvm -R /usr/local/var/log/gvm
-chown gvm:gvm -R /usr/local/var/run	
+chown gvm:gvm -R /data/var-lib /usr/local/var 
+chmod 770 -R /data/var-lib/gvm
 
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/20.08/report_formats ]; then
 	echo "Creating dir structure for feed sync"
@@ -222,6 +260,15 @@ if [ "$DEBUG" == "true" ]; then
 	sleep 1d
 fi
 
+# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
+echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+touch /usr/local/var/log/db-restore.log
+chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
+su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+
+# Migrate the DB to current gvmd version
 echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
 
@@ -287,6 +334,7 @@ until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
 	sleep 1
 done
+echo "Time to fixup the gvm accounts."
 
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
 	# Change the admin password
@@ -304,7 +352,16 @@ elif [ "$USERNAME" != "admin" ] ; then
 	echo "admin user UUID is $ADMINUUID"
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
+elif [ $NEWDB = "true" ]; then
+	echo "Creating Greenbone Vulnerability Manager admin user $USERNAME"
+	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
+	echo "admin user created"
+	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk '{print \$2}' " gvm)
+	echo "admin user UUID is $ADMINUUID"
+	echo "Granting admin access to defaults"
+	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 fi
+
 echo "reset "
 set -Eeuo pipefail
 touch /setup

@@ -5,13 +5,15 @@
 # the gvmd has updated the DB before creating the archive and pushing
 # to github. It's probably not going to be useful to anyone but me
 # but the output will benefit all. 
+# Tag to work with. Normally latest but might be using new tag during upgrades.
+TAG="21.04"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="120m" # time between resync and archiving.
+STIME="45m" # time between resync and archiving.
 # Force a pull of the latest image.
-docker pull immauss/openvas:latest
+docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
-docker run -d --rm --name updater immauss/openvas
+docker run -d --rm --name updater immauss/openvas:$TAG
 date
 echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
@@ -20,11 +22,10 @@ cd $TWD
 echo "First copy the feeds from the container"
 docker cp updater:/data/var-lib .
 echo "Now dump the db from postgres"
-docker exec -i updater su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > ./base.sql 
+docker exec -i updater su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > ./base.${TAG}.sql 
 
 echo "Stopping update container"
 docker stop updater
-
 
 echo "Compress and archive the data"
 tar cJf var-lib.tar.xz --exclude=var-lib/gvm/gvmd/gnupg var-lib
@@ -43,7 +44,14 @@ if [ $? -ne 0 ]; then
 	exit
 fi
 
+=======
+tar cJf var-lib.tar.xz var-lib
+xz -1 base.${TAG}.sql
+echo "SCP to www"
+scp -v *.xz push@www.immauss.com:/var/www/html/openvas/
+>>>>>>> 21.04
 
+# Force rebuild at docker hub.
 git clone git+ssh://git@github.com/immauss/openvas.git
 cd openvas
 
