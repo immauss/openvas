@@ -16,7 +16,8 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-20.08.04.6 | This is the latest image
+21.04.01   | The latest and greatest !
+20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
@@ -26,6 +27,9 @@ armh-20.08.03 |  an arm build of 20.08.03
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 10 May 2021 ###
+- 21.04 is now the latest! The new image will upgrade your DB, so worries on using an older DB. I've also added all the environement options to the docker_composer.yaml in the git repo, so if composer is your thing, start there. No other new functionality added to the image, but lots of changes from Greenbone.  If you have any problems, please open an issue.
 - - - -
 ### 4 May 2021 ###
 ***May the 4th be with you***
