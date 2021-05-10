@@ -162,10 +162,7 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
-<<<<<<< HEAD
-=======
 	DBCheck
->>>>>>> 21.04
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -188,10 +185,7 @@ fi
 
 # If NEWDB is true, then we need to create an empty database. 
 if [ $NEWDB = "true" ]; then
-<<<<<<< HEAD
-=======
 	DBCheck
->>>>>>> 21.04
         echo "Creating Greenbone Vulnerability Manager database"
         su -c "createuser -DRS gvm" postgres
         su -c "createdb -O gvm gvmd" postgres
@@ -205,17 +199,11 @@ if [ $NEWDB = "true" ]; then
                 echo "Generating certs..."
         gvm-manage-certs -a
         fi
-<<<<<<< HEAD
-        touch /data/setup
-fi
-
-=======
 	cd /data
         echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
         tar xf /usr/lib/var-lib.tar.xz
         touch /data/setup
 fi
->>>>>>> 21.04
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
         echo "########################################"

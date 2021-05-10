@@ -44,12 +44,6 @@ if [ $? -ne 0 ]; then
 	exit
 fi
 
-=======
-tar cJf var-lib.tar.xz var-lib
-xz -1 base.${TAG}.sql
-echo "SCP to www"
-scp -v *.xz push@www.immauss.com:/var/www/html/openvas/
->>>>>>> 21.04
 
 # Force rebuild at docker hub.
 git clone git+ssh://git@github.com/immauss/openvas.git
