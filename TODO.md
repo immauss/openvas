@@ -5,12 +5,12 @@
 	- In current build ?
 	- In seperate reverse proxy
 - [x]  Fix User and password environment variables
-- [ ] docker-compose 
+- [x] docker-compose 
 - [x] remove unneeded db creation bits from start.sh since they are alredy done via the preinstalled DB.
 - [ ] Re structure git repo/docker build automation so I can update the Readme and docs withoutr triggering a new build. 
-- [ ] Write some build / test scripts to automate testing of new builds. 
-  - [ ] Should verify the DB and feed tar balls.
-- [ ] Error checking in start.sh to prevent complete failure if the tar balls get whacked. 
+- [x] Write some build / test scripts to automate testing of new builds. 
+  - [x] Should verify the DB and feed tar balls.
+- [x] Error checking in Dockerfile & refresh.sh to prevent complete failure if the tar balls get whacked. 
 - [ ] Cron to inform me when there is a new release on the greenbone repos.
 - [ ] Clean up repo directory structure (All scripts in scripts etc)
 - [ ] start.sh clean up. 

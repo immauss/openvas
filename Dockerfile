@@ -39,7 +39,12 @@ echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig && \
 curl -L --url https://www.immauss.com/openvas/base.21.04.sql.xz -o /usr/lib/base.sql.xz && \
 curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+
+RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit ; fi "
+RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit ; fi "
+
 # Can I size check those files and fail if they are too small from the Dockerfile? 
+
 # A script to run maybe ?
 # Hmmmmm....
 
