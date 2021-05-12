@@ -27,9 +27,12 @@ armh-20.08.03 |  an arm build of 20.08.03
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - - 
+### 12 May 2021 ###
+- Looking for feedback on the ARM images. I have not yet attempted the 21.04 on ARM. If you are interested, please open an issue and let me know. 
 - - - -
 ### 10 May 2021 ###
-- 21.04 is now the latest! The new image will upgrade your DB, so worries on using an older DB. I've also added all the environement options to the docker_composer.yaml in the git repo, so if composer is your thing, start there. No other new functionality added to the image, but lots of changes from Greenbone.  If you have any problems, please open an issue.
+- 21.04 is now the latest! The new image will upgrade your DB, so no worries on using an older DB. Bonus, 21.04 is WAY faster with postgres 12. I`ve also added all the environement options to the docker_composer.yaml in the git repo, so if composer is your thing, start there. No other new functionality added to the image, but lots of changes from Greenbone.  If you have any problems, please open an issue. 
 - - - -
 ### 4 May 2021 ###
 ***May the 4th be with you***
