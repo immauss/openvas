@@ -29,6 +29,8 @@ COPY build.d/08-ospd-openvas.sh /build.d/
 RUN /build.d/08-ospd-openvas.sh
 COPY build.d/09-gvm-tools.sh /build.d/
 RUN /build.d/09-gvm-tools.sh
+COPY build.d/10-pg-gvm.sh /build.d/
+RUN /build.d/10-pg-gvm.sh
 COPY build.d/10-link.sh /build.d/
 RUN /build.d/10-link.sh
 
