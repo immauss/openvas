@@ -54,6 +54,8 @@ COPY .base-ts /
 
 # Copy the install from stage 0 and make sure they are linked properly
 COPY --from=0 /usr/local /usr/local
+COPY --from=0 /usr/lib/postgresql/12/lib/libpg-gvm.so /usr/lib/postgresql/12/lib/libpg-gvm.so
+COPY --from=0 /usr/share/postgresql/12/extension /usr/share/postgresql/12/extension
 RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig 
 
