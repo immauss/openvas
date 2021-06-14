@@ -17,6 +17,7 @@
 tag              | Description
 ----------------|-------------------------------------------------------------------
 21.04.01   | The latest and greatest !
+multi      | A new approach. amd64, arm64, and arm/v7 in a single docker image.
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -27,6 +28,12 @@ armh-20.08.03 |  an arm build of 20.08.03
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 14 June 20201 ###
+- A new approach. Now that Docker is going to be charging for using thier build environment .... I decided to go a step further. I'm going to be doing the builds on my own infrastructure, so why not go for a multi-arch build. Something I don't think docker hub offers anyway. So the first (of hopefully many) multi-arch images is now on docker hub. The tag is simple "multi". I can't stress enough that this is very BETA at the moment. I've not done any serious testing with it. Please let me know if you find any isues on any platform. And maybe drop me a note if you have succes too. ( here, a twitter @immauss ... ) 
+
+-Scott
+
 - - - - 
 ### 12 May 2021 ###
 - Looking for feedback on the ARM images. I have not yet attempted the 21.04 on ARM. If you are interested, please open an issue and let me know. 
