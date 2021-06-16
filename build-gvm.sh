@@ -62,6 +62,7 @@ python3-paramiko
 python3-pip
 python3-polib
 python3-setuptools
+python3-psutil
 redis-server
 redis-tools
 rsync
@@ -79,7 +80,7 @@ EOF
 } | xargs apt-get install -yq --no-install-recommends
 
 # ospd needs a newer version of python psutil than available in ubuntu
-python3 -m pip install psutil
+#python3 -m pip install psutil
 
 echo "Install nodejs"
 # Install Node.js
