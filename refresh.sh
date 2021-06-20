@@ -47,7 +47,7 @@ cd $TWD
 echo "First copy the feeds from the container"
 docker cp updater:/data/var-lib .
 echo "Now dump the db from postgres"
-docker exec -i updater su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > ./base.${TAG}.sql 
+docker exec -i updater su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > ./base.sql 
 
 echo "Stopping update container"
 docker stop updater
