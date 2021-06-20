@@ -7,20 +7,20 @@
 # but the output will benefit all. 
 
 # First, make sure there's enough storage avaialbe before doing anything.
-SPACE=$(df -h /var/lib/docker | awk /G/'{print $4}' | sed "s/G//")
-if [ -n $SPACE ]; then
-	echo "Check avaialbe storage"
-	exit
-elif [ $SPACE -le 4 ]; then
-	echo "only ${SPACE}G of space on /var/lib/docker ... bailing out."
-	exit
-fi
+#SPACE=$(df -h /var/lib/docker | awk /G/'{print $4}' | sed "s/G//")
+#if [ -n $SPACE ]; then
+	#echo "Check available storage"
+	#exit
+#elif [ $SPACE -le 4 ]; then
+	#echo "only ${SPACE}G of space on /var/lib/docker ... bailing out."
+	#exit
+#fi
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
 TAG="latest"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="1h" # time between resync and archiving.
+STIME="30s" # time between resync and archiving.
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
@@ -28,6 +28,20 @@ docker run -d --name updater immauss/openvas:$TAG
 date
 echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
+CONTINUE=0
+while [ $CONTINUE -eq 0 ]; do
+	if docker logs updater 2>&1 | grep -qs "update_nvt_cache_retry: rebuild successful"; then
+		CONTINUE=1
+		echo "looks like it's done"
+	else
+		echo "Not done yet."
+	fi
+	sleep 1m
+done
+echo "Restarting updater container"
+docker restart updater
+echo "5m sleep for restart"
+
 
 cd $TWD
 echo "First copy the feeds from the container"
@@ -60,17 +74,30 @@ if [ $? -ne 0 ]; then
 fi
 
 
-# Force rebuild at docker hub.
-git clone git+ssh://git@github.com/immauss/openvas.git
-cd openvas
-
+# Now rebuild the image
+cd ~/Projects/openvas
+echo "Pulling latest from github"
+git pull
+if [ $? -ne 0 ]; then
+	echo "git pull failed. Rebuild image manually: $?"
+	exit
+fi
 date > update.ts
 git commit update.ts -m "Data update for $Date"
 echo "And pushing to github"
 git push 
+
+#Build new image here
+docker build -t immauss/openvas:latest .
+if [ $? -ne 0 ]; then
+	echo "Build failed."
+	exit
+fi
+docker buildx build -t immauss/openvas:multi --platform linux/arm64,linux/amd64 --push .
+
 echo "Cleaning up"
-cd ..
-rm -rf openvas var-lib *.xz
+cd $TWD
+rm -rf *
 echo "All done"
 
 

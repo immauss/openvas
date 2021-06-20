@@ -35,21 +35,16 @@ apt-get update && \
 apt-get install -yq --no-install-recommends ca-certificates xz-utils curl doxygen geoip-database gnutls-bin graphviz ike-scan libmicrohttpd12 libhdb9-heimdal libsnmp35 libssh-gcrypt-4 libical3 libgpgme11 libnet1 libnet-snmp-perl libunistring2 locales-all mailutils net-tools nmap nsis openssh-client openssh-server perl-base pkg-config postfix postgresql-12 python3-psutil python3-defusedxml python3-dialog python3-lxml python3-paramiko python3-pip python3-polib python3-setuptools redis-server redis-tools rsync smbclient sshpass texlive-fonts-recommended texlive-latex-extra wapiti wget whiptail xml-twig-tools xsltproc && \
 apt-get clean && \
 echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
-ldconfig && \
-curl -L --url https://www.immauss.com/openvas/base.21.04.sql.xz -o /usr/lib/base.sql.xz && \
-curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
-
-RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit ; fi "
-RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit ; fi "
-
-# Can I size check those files and fail if they are too small from the Dockerfile? 
-
-# A script to run maybe ?
-# Hmmmmm....
-
+ldconfig 
+# Split these off in a new layer makes refresh builds faster.
+COPY update.ts /
+RUN curl -L --url https://www.immauss.com/openvas/base.21.04.sql.xz -o /usr/lib/base.sql.xz && \
+    curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+# Make sure we didn't just pull zero length files 
+RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
+RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 
 COPY scripts/* /
-COPY update.ts /
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || exit 1
 CMD [ "/start.sh" ]
