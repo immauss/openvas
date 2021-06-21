@@ -16,7 +16,7 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.04.01   | The latest and greatest !
+21.04.02   | The latest and greatest !
 multi      | A new approach. amd64, arm64, and arm/v7 in a single docker image.
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
@@ -28,8 +28,13 @@ armh-20.08.03 |  an arm build of 20.08.03
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - - 
+### 21 June 2021 ###
+Finally!!! The latest image on Docker Hub is now a multi-arch image. amd64 & arm64. These should run on any 64 bit x86 kernel and on the arm 64 bit kernels. (aarc64 & arm64). I also resolved a bug in weekly rebuild script that was having the images built with an old DB. If you expereinced a rather slow to ready container recently, that should be resolved. I've also moved the rebuilds off to my own hardware vs using the Docker Hub build system. This allows me to do the multi-arch builds with buildx.  There was also a minor update from Greenbone. 
+-Scott
+
 - - - -
-### 14 June 20201 ###
+### 14 June 2021 ###
 - A new approach. Now that Docker is going to be charging for using thier build environment .... I decided to go a step further. I'm going to be doing the builds on my own infrastructure, so why not go for a multi-arch build. Something I don't think docker hub offers anyway. So the first (of hopefully many) multi-arch images is now on docker hub. The tag is simple "multi". I can't stress enough that this is very BETA at the moment. I've not done any serious testing with it. Please let me know if you find any isues on any platform. And maybe drop me a note if you have succes too. ( here, a twitter @immauss ... ) 
 
 -Scott
