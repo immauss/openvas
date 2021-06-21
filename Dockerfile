@@ -38,7 +38,7 @@ echo "/usr/local/lib" > /etc/ld.so.conf.d/openvas.conf && \
 ldconfig 
 # Split these off in a new layer makes refresh builds faster.
 COPY update.ts /
-RUN curl -L --url https://www.immauss.com/openvas/base.21.04.sql.xz -o /usr/lib/base.sql.xz && \
+RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.sql.xz && \
     curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
 # Make sure we didn't just pull zero length files 
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
