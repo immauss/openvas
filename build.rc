@@ -6,5 +6,5 @@ openvas_scanner=v21.4.0
 gsa=v21.4.0
 ospd=v21.4.0
 ospd_openvas=v21.4.0
-python_gvm=v21.4.0
-gvm_tools=v21.1.0
+python_gvm=v21.5.2
+gvm_tools=v21.6.0

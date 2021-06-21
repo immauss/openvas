@@ -20,7 +20,7 @@
 TAG="latest"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="30s" # time between resync and archiving.
+STIME="20m" # time between resync and archiving.
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
@@ -38,10 +38,6 @@ while [ $CONTINUE -eq 0 ]; do
 	fi
 	sleep 1m
 done
-echo "Restarting updater container"
-docker restart updater
-echo "5m sleep for restart"
-
 
 cd $TWD
 echo "First copy the feeds from the container"
@@ -88,12 +84,12 @@ echo "And pushing to github"
 git push 
 
 #Build new image here
-docker build -t immauss/openvas:latest .
+#docker build -t immauss/openvas:latest .
+docker buildx build -t immauss/openvas:latest --platform linux/arm64,linux/amd64 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
 fi
-docker buildx build -t immauss/openvas:multi --platform linux/arm64,linux/amd64 --push .
 
 echo "Cleaning up"
 cd $TWD
