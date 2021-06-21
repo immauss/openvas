@@ -17,7 +17,7 @@
 tag              | Description
 ----------------|-------------------------------------------------------------------
 21.04.02   | The latest and greatest !
-multi      | A new approach. amd64, arm64, and arm/v7 in a single docker image.
+multi      | A new approach. amd64 & arm64 in a single docker image.
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -30,7 +30,8 @@ armh-20.08.03 |  an arm build of 20.08.03
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - - 
 ### 21 June 2021 ###
-Finally!!! The latest image on Docker Hub is now a multi-arch image. amd64 & arm64. These should run on any 64 bit x86 kernel and on the arm 64 bit kernels. (aarc64 & arm64). I also resolved a bug in weekly rebuild script that was having the images built with an old DB. If you expereinced a rather slow to ready container recently, that should be resolved. I've also moved the rebuilds off to my own hardware vs using the Docker Hub build system. This allows me to do the multi-arch builds with buildx.  There was also a minor update from Greenbone. 
+- Finally!!! The latest image on Docker Hub is now a multi-arch image. amd64 & arm64. These should run on any 64 bit x86 kernel and on the arm 64 bit kernels. (aarc64 & arm64). I also resolved a bug in weekly rebuild script that was having the images built with an old DB. If you expereinced a rather slow to ready container recently, that should be resolved. I've also moved the rebuilds off to my own hardware vs using the Docker Hub build system. This allows me to do the multi-arch builds with buildx.  There was also a minor update from Greenbone. 
+
 -Scott
 
 - - - -
@@ -51,7 +52,7 @@ Finally!!! The latest image on Docker Hub is now a multi-arch image. amd64 & arm
 - So the 21.04 is taking a little longer than anticipated. What would be great, would be a few more testers. If you have the cycles, I would really appreciate any testing. Just make sure you are not working on your production data yet!
 
 Thanks,
--Scott:wq
+-Scott
 
 - - - -
 ### 27 April 2021 ###
@@ -71,20 +72,30 @@ Thanks,
 docker run -d -p 9392:9392 -p 9390:9390 -e GMP=9390 --name openvas -v openvas:/data immauss/openvas:latest 
 ```
 
+-Scott 
+
 ### 27 Mar 2021 ###
 ***Doh!***
 - Appologies to anyone who tried to pull the latest image in the last 24 hours. It looks like I accidently pusshed my dev branch to master and Docker Hub diligently built a new image.  ....... This didn't work. I've reveresed the changes and the "latest" tag is now good. Thanks to [cybermcm](https://github.com/cybermcm) for catching the problem and opening an issue. 
 - For the curious, the new work is on finding a clean way to downgrade the DB from postgresql 12 to 11. Apprently there are some performance issues with gmvd and postgresql 12. 
+
+-Scott
+
 - - - -
 
 ### 16 Mar 2021 ###
 **Tag 20.08.04.6**
 - Added the HTTPS environment variable. Setting this to true will cause gsa to start with https enabled. I`m working on a better implementation of this, but as this was requested, I went ahead and added it. The `better` implementation will be able to use letsencrypt certificates! 
-- - - -
+
+-Scott
+
 ### 23 Feb 2021 ###
 **Tag 20.08.04.5**
 - Fixed the PASSWORD and USERNAME env vars. Make sure you check checks the docs for the caveats.
-- Wrote a new script to make sure I`m getting the latest releaes from all of the Greenbone github repos
+- Wrote a new script to make sure I`m getting the latest releaes from all of the Greenbone github repos.
+
+-Scott
+
 - - - -
 ### 18 Feb 2021 ###
 ## A few minor updates and one **BIG** change ##
@@ -105,6 +116,7 @@ I have added some additional functionality to the image:
 - There is also a 'beta' tag now. Use this at your own peril as it may or may not work. (probably it will not.)
 
 -Scott
+
 - - - - 
 
 
@@ -114,6 +126,7 @@ I have added some additional functionality to the image:
 After pushing 20.08.04.1, I realized I had not merged the base db changes. So 20.08.04.2 includes the changes to support the base DB and contains a DB from today. 
 
 -Scott
+
 - - - - 
 
 
@@ -126,6 +139,7 @@ After pushing 20.08.04.1, I realized I had not merged the base db changes. So 20
 - There is also a new beta tag, but as you might expect, this is not really working as it is pulling from the master branch of all the tools. The backend seems to work, but the gsa is just not getting it. This is mainly to help me be ready for the next version by keeping me alert on any new dependencies that may come with the next version. Use it at your own peril. 
 
 -Scott
+
 - - - - 
 
 
@@ -139,6 +153,7 @@ The downside is the USER and PASSWORD environment variables no longer work as th
 There is also a new environment variable: SKIPSYNC . This does exactly what it says, it bypasses the feed sync on container start to speed you along. 
 
 -Scott
+
 - - - - 
 
 ### Jan 2021 ###
