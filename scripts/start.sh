@@ -23,6 +23,8 @@ RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 GMP=${GMP:-false}
+GSATIMEOUT=${GSATIMEOUT:-15}
+
 
 if [ $GMP != "false" ]; then
         GMP="-a 0.0.0.0  -p $GMP"
@@ -340,6 +342,8 @@ elif [ "$USERNAME" != "admin" ] ; then
 	echo "admin user UUID is $ADMINUUID"
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
+	# Now ... we need to remove the "admin" account ...
+	su -c "gvmd --delete-user=admin" gvm 
 elif [ $NEWDB = "true" ]; then
 	echo "Creating Greenbone Vulnerability Manager admin user $USERNAME"
 	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
@@ -409,12 +413,12 @@ fi
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 if [ $HTTPS == "true" ]; then
-	su -c "gsad --verbose \
+	su -c "gsad --verbose --timeout=$GSATIMEOUT \
 	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
 		    --no-redirect \
 		    --port=9392" gvm
 else
-	su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+	su -c "gsad --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
