@@ -28,6 +28,14 @@ armh-20.08.03 |  an arm build of 20.08.03
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 28 June 2021 ###
+- armv7 is now live with the latest tag. 
+- I've also just noticed that Greenbone has release 21.4.1 !! I'm building now and will try to test and have it up in the next day or so. 
+
+
+-Scott
+
 - - - - 
 ### 21 June 2021 ###
 - Finally!!! The latest image on Docker Hub is now a multi-arch image. amd64 & arm64. These should run on any 64 bit x86 kernel and on the arm 64 bit kernels. (aarc64 & arm64). I also resolved a bug in weekly rebuild script that was having the images built with an old DB. If you expereinced a rather slow to ready container recently, that should be resolved. I've also moved the rebuilds off to my own hardware vs using the Docker Hub build system. This allows me to do the multi-arch builds with buildx.  There was also a minor update from Greenbone. 
