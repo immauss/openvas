@@ -4,8 +4,8 @@ services:
     ports:
       - "8080:9392"
     environment:
-      - "PASSWORD=admin"
-      - "USERNAME=admin"
+      - "PASSWORD=admin" # Remove after first boot & change password via gui
+      - "USERNAME=admin" # Remove after first boot
       - "RELAYHOST=172.17.0.1"
       - "SMTPPORT=25"
       - "REDISDBS=512" # number of Redis DBs to use
