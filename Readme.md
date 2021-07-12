@@ -23,11 +23,16 @@ beta            | from the latest master source from greenbone. This may or may 
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 armh-20.08.03 | an arm build of 20.08.03
-armh-20.08.03 |  an arm build of 20.08.03
 
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 12 July 2021 ###
+- armv7 ..... is failing to build gvmLibs because of dependancies. At the moment, the latest tag only has amd64 & arm64
+
+- Scott
+
 - - - -
 ### 28 June 2021 ###
 - armv7 is now live with the latest tag. 
