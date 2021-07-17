@@ -11,10 +11,8 @@ echo "Starting Build..."
 echo "Updating ssl certs .."
 # Needed for the arm/v7 for some reason
 /usr/sbin/update-ca-certificates --fresh
+
 echo "Building gvm_libs"
-ARCH=$(arch)
-echo " Building on $ARCH "
-rm -rf /build 
 mkdir -p /build 
 cd /build 
 #wget --no-verbose https://github.com/greenbone/gvm-libs/archive/$gvm_libs.tar.gz 
@@ -106,7 +104,7 @@ rm -rf *
     #
     # Install Open Scanner Protocol daemon (OSPd)
     #
-echo "Building Openvas"
+echo "Building ospd"
 cd /build 
 wget --no-verbose https://github.com/greenbone/ospd/archive/$ospd.tar.gz 
 tar -zxf $ospd.tar.gz 
@@ -118,7 +116,7 @@ rm -rf *
     #
     # Install Open Scanner Protocol for OpenVAS
     #
-echo "Building OSPd"   
+echo "Building OSPd-openvas"   
 cd /build 
 wget --no-verbose https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas.tar.gz 
 tar -zxf $ospd_openvas.tar.gz 
