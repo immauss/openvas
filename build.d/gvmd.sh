@@ -9,7 +9,7 @@ tar -zxf $gvmd.tar.gz
 cd /build/*/
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPostgreSQL_TYPE_INCLUDE_DIR=/usr/include/postgresql -DCMAKE_BUILD_TYPE=Release ..
 make
 make install
 cd /build

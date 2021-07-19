@@ -13,6 +13,8 @@ ENV LANG=C.UTF-8
 RUN mkdir /build.d
 COPY build.d/* /build.d/
 COPY build.rc /
+COPY package-list-buster-build /
+RUN bash /build.d/build-prereqs.sh
 RUN bash /build.d/update-certs.sh
 RUN bash /build.d/gvm-libs.sh
 RUN bash /build.d/openvas-smb.sh
@@ -34,8 +36,6 @@ LABEL maintainer="scott@immauss.com" \
       
 EXPOSE 9392
 ENV LANG=C.UTF-8
-# Ensure apt doesn't ask any questions 
-ENV DEBIAN_FRONTEND=noninteractive
 # Copy the install from stage 0
 COPY --from=0 /usr/local /usr/local
 
