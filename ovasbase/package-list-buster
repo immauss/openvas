@@ -32,7 +32,7 @@
   perl-base
   pkg-config
   postfix
-  postgresql-12
+  postgresql
   python3
   python3-cffi
   python3-defusedxml
