@@ -18,15 +18,33 @@ tag              | Description
 ----------------|-------------------------------------------------------------------
 21.04.02   | The latest and greatest !
 multi      | A new approach. amd64 & arm64 in a single docker image.
+buster    | The new container based on Debian Buster No change to operation, or features, just easier to maintain. (Hopefuly)
+armv7     | The latest build for ArmV7 with Postgresql11. (Coming soon.)
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
-armh-20.08.03 | an arm build of 20.08.03
+
 
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 19 July 2021 ###
+- Buster. When i started this journey, I only wanted to add a few features I thought were missing to an already existing container. I guess I let it get a little out of hand. One of things that bothered me about the orignal, that I didn't have the time deal with, was that it was running on a base container image using Ubuntu. Nothing against Ubuntu, but I know the Greenbone Devs build on Debian Buster. With all the dependancy issues I was having trying to get the ArmV7 image to build, I decided it needed to be done. So I finally took the time to rebuild the whole thing using Debian Buster. The idea is that this should reduce the number of problems I have with dependencies and be more in line with Greenbone.
+Just one glitch:
+
+   Postgresql 12
+
+   When I moved to 20.08, I went to the current Postgressql with Ubuntu, which was 12.  But Greenbone is still standardizing on 11. Now I could build the image on 11, but then anyone with an existing DB (myself included would have to go throught the pain of downgrading the DB. This doesn't work well with the idea of having an easy to use slim container. So, I now have an image, based on Buster, and using Postgresql 12. 
+   
+   The Bad news. Postgresql12 is not available on ArmV7. But since I've never had a working ArmV7 image, there shoudln't be anyone with a Postgresql12 DB. So ... there will be an ArmV7 image, but it will be seperate and live with it's own tag in GitHub and Docker Hub, while the AMD64 & Arm64 images will be a multi-arch image as the latest. I know I can build ArmV7 on Buster, but only with Postgresql11. 
+   
+   ## Status: ## 
+   - The multi-arch image is almost ready. (Expected by 22 July)
+   - The ArmV7 will need a re-write of the start scripts to support Postgresql11. (Expected 29 July)
+           
+     
 - - - -
 ### 12 July 2021 ###
 - armv7 ..... is failing to build gvmLibs because of dependancies. At the moment, the latest tag only has amd64 & arm64
