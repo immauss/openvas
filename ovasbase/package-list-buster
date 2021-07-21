@@ -1,7 +1,9 @@
   bison
   curl
+  curl
   dpkg
   fakeroot
+  gnupg
   gnupg
   gnutls-bin
   gpgsm
@@ -32,7 +34,7 @@
   perl-base
   pkg-config
   postfix
-  postgresql-12
+  postgresql-11
   python3
   python3-cffi
   python3-defusedxml
@@ -54,6 +56,7 @@
   texlive-fonts-recommended
   texlive-latex-extra
   uuid
+  wget
   wget
   xmlstarlet
   xml-twig-tools
