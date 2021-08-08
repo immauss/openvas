@@ -71,6 +71,7 @@ fi
 
 
 # Now rebuild the image
+# This needs a branch check!!!
 cd ~/Projects/openvas
 echo "Pulling latest from github"
 git pull
