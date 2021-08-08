@@ -77,6 +77,7 @@ if  [ ! -d /data/database ]; then
 	mkdir -p /data/database
 	echo "Creating Data and database folder..."
 	mv /var/lib/postgresql/11/main/* /data/database
+	cp -rv /etc/postgresql/11/main/* /data/database
 	ln -s /data/database /var/lib/postgresql/11/main
 	chown postgres:postgres -R /data/database
 	chmod 700 /data/database
@@ -125,14 +126,8 @@ fi
 # Actually, postgress should be in its own container!
 # maybe redis should too. 
 if [ ! -f "/setup" ]; then
-	echo "Creating postgresql.conf and pg_hba.conf"
-	# Need to look at restricting this. Maybe to localhost ?
-	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
-	echo "port = 5432" >> /data/database/postgresql.conf
-	# This probably tooooo open.
-	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
-	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
-	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
+	echo "Settup for Postgresql 11"
+
 	chown postgres:postgres -R /data/database
 fi
 
