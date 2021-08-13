@@ -17,7 +17,7 @@
 #fi
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="latest"
+TAG="buster"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
 STIME="20m" # time between resync and archiving.
@@ -85,7 +85,7 @@ git push
 
 #Build new image here
 #docker build -t immauss/openvas:latest .
-docker buildx build -t immauss/openvas:latest --platform linux/arm64,linux/amd64 --push .
+docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
