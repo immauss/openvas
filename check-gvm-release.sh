@@ -26,5 +26,5 @@ if [ $? -ne 0 ]; then
 else
 	echo "no changes"
 fi
-
+cat $RC
 rm $RC
