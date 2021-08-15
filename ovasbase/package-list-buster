@@ -43,7 +43,7 @@
   python3-redis
   python3-setuptools
   python3-wrapt
-  python-impacket
+  python3-impacket
   redis-server
   rpm
   rsync
