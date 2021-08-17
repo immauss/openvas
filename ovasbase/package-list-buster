@@ -32,7 +32,7 @@
   perl-base
   pkg-config
   postfix
-  postgresql
+  postgresql-12
   python3
   python3-cffi
   python3-defusedxml
@@ -43,7 +43,7 @@
   python3-redis
   python3-setuptools
   python3-wrapt
-  python3-impacket
+  python-impacket
   redis-server
   rpm
   rsync
