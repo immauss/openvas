@@ -318,7 +318,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd $GMP --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd --unix-socket=/usr/local/var/run/gvmd.sock $GMP --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
@@ -413,12 +413,12 @@ fi
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 if [ $HTTPS == "true" ]; then
-	su -c "gsad --verbose --timeout=$GSATIMEOUT \
+	su -c "gsad --munix-socket=/usr/local/var/run/gvmd.sock --verbose --timeout=$GSATIMEOUT \
 	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
 		    --no-redirect \
 		    --port=9392" gvm
 else
-	su -c "gsad --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
+	su -c "gsad --munix-socket=/usr/local/var/run/gvmd.sock --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
