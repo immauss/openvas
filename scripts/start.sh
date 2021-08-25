@@ -44,9 +44,9 @@ function DBCheck {
         if [ "$DB" = "gvmd" ]; then
                 echo "There seems to be an existing gvmd database. "
                 echo "Failing out to prevent database deletion."
+		echo "DB is $DB"
                 exit
         fi
-	echo "DB is $DB"
 }
 
 # Does redis need to be bound to 0.0.0.0 or will it work with just local host?
@@ -94,7 +94,11 @@ if [ ! -L /var/lib/postgresql/12/main ]; then
 	ln -s /data/database /var/lib/postgresql/12/main
 	chown postgres:postgres -R /data/database
 fi
-
+if [ ! -d /usr/local/var/lib ]; then
+	mkdir -p /usr/local/var/lib/gsm
+	mkdir -p /usr/local/var/lib/openvas
+	mkdir -p /usr/local/var/log/gvm
+fi
 if [ ! -L /usr/local/var/lib  ]; then
 	echo "Fixing local/var/lib ... "
 	if [ ! -d /data/var-lib ]; then
@@ -145,6 +149,15 @@ if !  grep -qs gvm /etc/passwd ; then
 	useradd --home-dir /usr/local/share/gvm gvm
 fi
 chown gvm:gvm -R /usr/local/share/gvm /data/var-log
+# <sigh> 
+if [ ! -d /run/gvm ]; then
+	mkdir -p /run/gvm
+	mkdir -p /run/ospd
+	chmod 770 /run/gvm /run/ospd
+	chown gvm /run/gvm
+fi
+
+
 if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
 fi
@@ -263,6 +276,9 @@ echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
 
 # Fix perms on var/run for the sync to function
+if [ ! -d /usr/local/var/run ]; then
+	mkdir -p /usr/local/var/run
+fi
 chmod 777 /usr/local/var/run/
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
@@ -318,12 +334,14 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd --unix-socket=/usr/local/var/run/gvmd.sock $GMP --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
 	sleep 1
 done
+
 echo "Time to fixup the gvm accounts."
 
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
@@ -379,12 +397,15 @@ if [ -S /tmp/ospd.sock ]; then
 fi
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
-             --unix-socket /tmp/ospd.sock --log-level INFO --socket-mode 666
+             --unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777
+
 
 # wait for ospd to start by looking for the socket creation.
-while  [ ! -S /tmp/ospd.sock ]; do
+while  [ ! -S /var/run/ospd/ospd.sock ]; do
 	sleep 1
 done
+
+chgrp gvm /var/run/ospd/ospd.sock
 
 # This is cludgy and needs a better fix. namely figure out how to hard code alllll 
 # of the scoket references in the startup process.
@@ -394,31 +415,31 @@ done
 # It might even work just fine if I remove ALL of the socket refs 
 # as they should use the same default
 
-if [ ! -L /var/run/ospd/ospd.sock ]; then
-	mkdir -p /var/run/ospd
-	echo "Fixing the ospd socket ..."
-	rm -f /var/run/ospd/ospd.sock
-	ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
-fi
+#if [ ! -L /var/run/ospd/ospd.sock ]; then
+	#mkdir -p /var/run/ospd
+	#echo "Fixing the ospd socket ..."
+	#rm -f /var/run/ospd/ospd.sock
+	#ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
+#fi
 
 # Used by gvm-pyshell socket access:
 # docker exec -u gvm -it openvas /usr/local/bin/gvm-pyshell --gmp-username admin --gmp-password admin_password socket
-if [ ! -S /var/run/gvmd.sock ]; then 
-	if [ -L /var/run/gvmd.sock ]; then
-		rm /var/run/gvmd.sock
-	fi
-	ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
-fi
+#if [ ! -S /var/run/gvmd.sock ]; then 
+	#if [ -L /var/run/gvmd.sock ]; then
+		#rm /var/run/gvmd.sock
+	#fi
+	#ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
+#fi
 
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 if [ $HTTPS == "true" ]; then
-	su -c "gsad --munix-socket=/usr/local/var/run/gvmd.sock --verbose --timeout=$GSATIMEOUT \
+	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
 	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
 		    --no-redirect \
 		    --port=9392" gvm
 else
-	su -c "gsad --munix-socket=/usr/local/var/run/gvmd.sock --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
+	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
