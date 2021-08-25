@@ -22,7 +22,7 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
-GMP=${GMP:-false}
+GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
 
 
@@ -48,6 +48,13 @@ function DBCheck {
         fi
 	echo "DB is $DB"
 }
+
+if [ ! -d /run/ospd ]; then
+	mkdir /run/ospd /run/gvmd
+	chmod 0770 /run/ospd /run/gvmd
+	chgrp gvm /run/ospd /run/gvmd
+fi
+	
 
 # Does redis need to be bound to 0.0.0.0 or will it work with just local host?
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
@@ -313,7 +320,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd $GMP --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd $GMP --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
@@ -369,15 +376,15 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
-if [ -S /tmp/ospd.sock ]; then
-  rm /tmp/ospd.sock
+if [ -S /var/run/ospd/ospd.sock ]; then
+  rm /var/run/ospd/ospd.sock
 fi
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
              --unix-socket /tmp/ospd.sock --log-level INFO --socket-mode 666
 
 # wait for ospd to start by looking for the socket creation.
-while  [ ! -S /tmp/ospd.sock ]; do
+while  [ ! -S /var/run/ospd/ospd.sock ]; do
 	sleep 1
 done
 
@@ -389,31 +396,31 @@ done
 # It might even work just fine if I remove ALL of the socket refs 
 # as they should use the same default
 
-if [ ! -L /var/run/ospd/ospd.sock ]; then
-	mkdir -p /var/run/ospd
-	echo "Fixing the ospd socket ..."
-	rm -f /var/run/ospd/ospd.sock
-	ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
-fi
+#if [ ! -L /var/run/ospd/ospd.sock ]; then
+	#mkdir -p /var/run/ospd
+	#echo "Fixing the ospd socket ..."
+	#rm -f /var/run/ospd/ospd.sock
+	#ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
+#fi
 
 # Used by gvm-pyshell socket access:
 # docker exec -u gvm -it openvas /usr/local/bin/gvm-pyshell --gmp-username admin --gmp-password admin_password socket
-if [ ! -S /var/run/gvmd.sock ]; then 
-	if [ -L /var/run/gvmd.sock ]; then
-		rm /var/run/gvmd.sock
-	fi
-	ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
-fi
+#if [ ! -S /var/run/gvmd.sock ]; then 
+	#if [ -L /var/run/gvmd.sock ]; then
+		#rm /var/run/gvmd.sock
+	#fi
+	#ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
+#fi
 
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 if [ $HTTPS == "true" ]; then
-	su -c "gsad --verbose --timeout=$GSATIMEOUT \
+	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
 	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
 		    --no-redirect \
 		    --port=9392" gvm
 else
-	su -c "gsad --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
+	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392" gvm
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

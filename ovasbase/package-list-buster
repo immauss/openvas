@@ -27,12 +27,14 @@
   libunistring2
   libxml2
   libxslt1.1
+  lsof
   nmap
   nodejs
   nsis
   openssh-client
   perl-base
   pkg-config
+  procps
   postfix
   postgresql-11
   python3
