@@ -25,6 +25,7 @@
   libunistring2
   libxml2
   libxslt1.1
+  lsof
   nmap
   nodejs
   nsis
@@ -33,6 +34,7 @@
   pkg-config
   postfix
   postgresql-12
+  procps
   python3
   python3-cffi
   python3-defusedxml
