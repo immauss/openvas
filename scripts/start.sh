@@ -22,7 +22,7 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
-GMP=${GMP:-false}
+GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
 
 
@@ -52,7 +52,7 @@ function DBCheck {
 # Does redis need to be bound to 0.0.0.0 or will it work with just local host?
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
-             --port 6379 --bind 0.0.0.0
+             --port 6379 --bind 0.0.0.0 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
 
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
@@ -154,7 +154,8 @@ if [ ! -d /run/gvm ]; then
 	mkdir -p /run/gvm
 	mkdir -p /run/ospd
 	chmod 770 /run/gvm /run/ospd
-	chown gvm /run/gvm
+	chgrp gvm /run/gvm /run/ospd
+
 fi
 
 
@@ -334,7 +335,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/tmp/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
