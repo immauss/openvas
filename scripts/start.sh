@@ -9,7 +9,6 @@ cleanup() {
 #Trap SIGTERM
 trap 'cleanup' SIGTERM
 
-
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
@@ -149,7 +148,7 @@ if !  grep -qs gvm /etc/passwd ; then
 	useradd --home-dir /usr/local/share/gvm gvm
 fi
 chown gvm:gvm -R /usr/local/share/gvm /data/var-log
-# <sigh> 
+#  Need these for the sockets This might neeed to be somewhere else
 if [ ! -d /run/gvm ]; then
 	mkdir -p /run/gvm
 	mkdir -p /run/ospd
@@ -407,30 +406,6 @@ while  [ ! -S /var/run/ospd/ospd.sock ]; do
 done
 
 chgrp gvm /var/run/ospd/ospd.sock
-
-# This is cludgy and needs a better fix. namely figure out how to hard code alllll 
-# of the scoket references in the startup process.
-# Update ... I think this is no longer needed.
-# Need to test. Added this back when gvmd --rebuild failed from command line.
-# suspect it would have worked fine if using the --osp-vt-update=/tmp/ospd.sock
-# It might even work just fine if I remove ALL of the socket refs 
-# as they should use the same default
-
-#if [ ! -L /var/run/ospd/ospd.sock ]; then
-	#mkdir -p /var/run/ospd
-	#echo "Fixing the ospd socket ..."
-	#rm -f /var/run/ospd/ospd.sock
-	#ln -s /tmp/ospd.sock /var/run/ospd/ospd.sock 
-#fi
-
-# Used by gvm-pyshell socket access:
-# docker exec -u gvm -it openvas /usr/local/bin/gvm-pyshell --gmp-username admin --gmp-password admin_password socket
-#if [ ! -S /var/run/gvmd.sock ]; then 
-	#if [ -L /var/run/gvmd.sock ]; then
-		#rm /var/run/gvmd.sock
-	#fi
-	#ln -s /usr/local/var/run/gvmd.sock /var/run/gvmd.sock
-#fi
 
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
