@@ -16,10 +16,8 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.04.02   | The latest and greatest !
-multi      | A new approach. amd64 & arm64 in a single docker image.
-buster    | The new container based on Debian Buster No change to operation, or features, just easier to maintain. (Hopefuly)
-armv7     | The latest build for ArmV7 with Postgresql11. (Coming soon.)
+21.4.3 & latest  | The latest and greatest for amd64 & arm64 based on Debian buster
+armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -29,6 +27,16 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+- - - -
+### 26 August 2021 ###
+- Well that was fun. Thanks to [@bricks](https://community.greenbone.net/u/bricks/summary), [@Lukas](https://community.greenbone.net/u/Lukas/summary), [@cybermcm](https://github.com/cybermcm), [@dkade](https://github.com/dkade), [@tedher](https://github.com/tedher), [@grisno](https://github.com/grisno), & [@orhpeus](https://github.com/orpheus) for the discussion and help resolving the socket issues. (Details are [here](https://community.greenbone.net/t/sockets-sockets-sockets/10035) ) In the end, it turns out I missed a permission change on a directory in the move to buster. 
+- So now .... the latest, 21.4.3, and armv7 images are all up-to-date and working properly.  (Don't look at start.sh with too critical an eye right now though. It needs some serious clean up. )
+- Now that the newbuild is actually working, its also time to merge the 'newbuild' branch into master and make buster the default. I've been back and forth on them for a while, so I expect this to be a moderately painful expereince ... 
+- After that wil be getting the automation back for the weekly DB builds and code housekeeping. 
+- - - - 
+### 19 August 2021 ###
+- Wow. Vacation can take a lot out of you. :) It took a while to catch up, but things are back on track. In addition to moving everything to buster, reworking the Dockerfile for more efficent build/rebuilds and creating a new tag with armv7/armh  support, Greenbone released new versions of everything last week. So here we are. **21.4.3** This is now the latest tag and is the gvmd version running in the latest and armv7 tags.  
+- The weekly rebuilds are running a little behind. I still need to workout the automation for the weekly rebuilds, but now with two images since the DB is not compatabile between the latest (with arm64 & amd64) and the armv7 tags. 
 - - - -
 ### 19 July 2021 ###
 - Buster. When i started this journey, I only wanted to add a few features I thought were missing to an already existing container. I guess I let it get a little out of hand. One of things that bothered me about the orignal, that I didn't have the time deal with, was that it was running on a base container image using Ubuntu. Nothing against Ubuntu, but I know the Greenbone Devs build on Debian Buster. With all the dependancy issues I was having trying to get the ArmV7 image to build, I decided it needed to be done. So I finally took the time to rebuild the whole thing using Debian Buster. The idea is that this should reduce the number of problems I have with dependencies and be more in line with Greenbone.
