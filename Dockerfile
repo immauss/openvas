@@ -14,22 +14,33 @@ RUN mkdir /build.d
 COPY build.d/* /build.d/
 COPY build.rc /
 COPY package-list-buster-build /
+COPY build.d/build-prereqs.sh /build.d/
 RUN bash /build.d/build-prereqs.sh
+COPY build.d/update-certs.sh /build.d/
 RUN bash /build.d/update-certs.sh
+COPY build.d/gvm-libs.sh /build.d/
 RUN bash /build.d/gvm-libs.sh
+COPY build.d/openvas-smb.sh /build.d/
 RUN bash /build.d/openvas-smb.sh
+COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
+COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
+COPY build.d/gsa.sh /build.d/
 RUN bash /build.d/gsa.sh
+COPY build.d/ospd.sh /build.d/
 RUN bash /build.d/ospd.sh
+COPY build.d/ospd-openvas.sh /build.d/
 RUN bash /build.d/ospd-openvas.sh
+COPY build.d/gvm-tool.sh /build.d/
 RUN bash /build.d/gvm-tool.sh
+COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 
 # Stage 1: Start again with the ovasebase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="21.04.06" \
+      version="21.4.3" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
