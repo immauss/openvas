@@ -1,4 +1,5 @@
 # Wishlist
+- [ ] Move some of the filesystem mods from start.sh to build process.
 - [ ] Split out to multiple containers
 	Use the same container image for all. Options at start determine functions:
 	- postgresql
