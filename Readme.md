@@ -16,7 +16,7 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.4.3   | The latest and greatest for amd64 & arm64 based on Debian buster
+21.4.3 & latest  | The latest and greatest for amd64 & arm64 based on Debian buster
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
@@ -28,6 +28,12 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
 - - - -
+### 26 August 2021 ###
+- Well that was fun. Thanks to [@bricks](https://community.greenbone.net/u/bricks/summary), [@Lukas](https://community.greenbone.net/u/Lukas/summary), [@cybermcm](https://github.com/cybermcm), [@dkade](https://github.com/dkade), [@tedher](https://github.com/tedher), [@grisno](https://github.com/grisno), & [@orhpeus](https://github.com/orpheus) for the discussion and help resolving the socket issues. (Details are [here](https://community.greenbone.net/t/sockets-sockets-sockets/10035) ) In the end, it turns out I missed a permission change on a directory in the move to buster. 
+- So now .... the latest, 21.4.3, and armv7 images are all up-to-date and working properly.  (Don't look at start.sh with too critical an eye right now though. It needs some serious clean up. )
+- Now that the newbuild is actually working, its also time to merge the 'newbuild' branch into master and make buster the default. I've been back and forth on them for a while, so I expect this to be a moderately painful expereince ... 
+- After that wil be getting the automation back for the weekly DB builds and code housekeeping. 
+- - - - 
 ### 19 August 2021 ###
 - Wow. Vacation can take a lot out of you. :) It took a while to catch up, but things are back on track. In addition to moving everything to buster, reworking the Dockerfile for more efficent build/rebuilds and creating a new tag with armv7/armh  support, Greenbone released new versions of everything last week. So here we are. **21.4.3** This is now the latest tag and is the gvmd version running in the latest and armv7 tags.  
 - The weekly rebuilds are running a little behind. I still need to workout the automation for the weekly rebuilds, but now with two images since the DB is not compatabile between the latest (with arm64 & amd64) and the armv7 tags. 
