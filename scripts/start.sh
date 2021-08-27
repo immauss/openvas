@@ -29,12 +29,14 @@ if [ $GMP != "false" ]; then
         GMP="-a 0.0.0.0  -p $GMP"
 fi
 
+#*#*#*# This can move to image creation #*#*#*#
 if [ ! -d "/run/redis" ]; then
 	mkdir /run/redis
 fi
 if  [ -S /run/redis/redis.sock ]; then
         rm /run/redis/redis.sock
 fi
+#*#*#*#*#*
 
 function DBCheck {
 	echo "Checking for existing DB"
@@ -148,6 +150,8 @@ if !  grep -qs gvm /etc/passwd ; then
 	useradd --home-dir /usr/local/share/gvm gvm
 fi
 chown gvm:gvm -R /usr/local/share/gvm /data/var-log
+
+#*#*#*#* Move these to image creation 
 #  Need these for the sockets This might neeed to be somewhere else
 if [ ! -d /run/gvm ]; then
 	mkdir -p /run/gvm
@@ -156,7 +160,7 @@ if [ ! -d /run/gvm ]; then
 	chgrp gvm /run/gvm /run/ospd
 
 fi
-
+#*#*#*#*#*#*
 
 if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
 	mkdir -p /usr/local/var/lib/gvm/cert-data; 
@@ -243,14 +247,13 @@ if [ $RESTORE = "true" ] ; then
 fi
 
 # Always make sure these are right.
-
 chown gvm:gvm -R /data/var-lib /usr/local/var 
 chmod 770 -R /data/var-lib/gvm
 
-if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/20.08/report_formats ]; then
+if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	echo "Creating dir structure for feed sync"
 	for dir in configs port_lists report_formats; do 
-		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/20.08/${dir}" gvm
+		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/21.04/${dir}" gvm
 	done
 fi
 
@@ -279,7 +282,8 @@ su -c "gvmd --migrate" gvm
 if [ ! -d /usr/local/var/run ]; then
 	mkdir -p /usr/local/var/run
 fi
-chmod 777 /usr/local/var/run/
+chgrp gvm /usr/local/var/run/
+chmod 770 /usr/local/var/run
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
@@ -405,6 +409,8 @@ while  [ ! -S /var/run/ospd/ospd.sock ]; do
 	sleep 1
 done
 
+# We run ospd-openvas in the container as root. This way we don't need sudo.
+# But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
 
 echo "Starting Greenbone Security Assistant..."
@@ -425,6 +431,8 @@ echo ""
 echo "gvmd --version"
 echo "$GVMVER"
 echo ""
+echo "Image DB date:"
+cat /update.ts
 echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
