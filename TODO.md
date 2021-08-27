@@ -2,12 +2,16 @@
 - [ ] Move some of the filesystem mods from start.sh to build process.
 - [ ] Split out to multiple containers
 	Use the same container image for all. Options at start determine functions:
+	Container list in start order.
 	- postgresql
-	- redis
-	- ospd-openvas/openvas
 	- gvmd
+	- redis - **This image pulled seperately**
+		- redis should start after gvmd container. and before openvas/ospd-openvas container.
+		- use gvmd container to make sure the /var/redis directory exists
+	- ospd-openvas/openvas
+		- may need to verify the perms on redis socket at startup
 	- gsad
-	- postfix
+	- postfix **Should be able to pull this image seperately too**
 - [ ] Let`s encrypt 
 	- In current build ?
 	- In seperate reverse proxy
