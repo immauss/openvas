@@ -7,23 +7,23 @@ echo "$@"
 case $1 in
 	gsad)
 	echo "Starting Greenbone Security Assitannt !!"
-	/scripts/gsad.sh
+	exec /scripts/gsad.sh
 ;;
 	gvmd)
 	echo "Starting Greenbone Vulnerability Manager daemon !!"
-	/scripts/gvmd.sh
+	exec /scripts/gvmd.sh
 ;;
 	openvas)
 	echo "Starting ospd-openvas !!"
-	/scripts/openvas.sh
+	exec /scripts/openvas.sh
 ;;
 	postgresql)
 	echo "Starting postgresql for gvmd !!"
-	/scripts/postgresql.sh
+	exec /scripts/postgresql.sh
 ;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
-	/scripts/single.sh $@
+	exec /scripts/single.sh $@
 ;;
 
 esac

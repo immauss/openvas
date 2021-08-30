@@ -28,7 +28,7 @@ services:
   redis:
     depends_on:
       - "gvmd"
-    container_name: ovas-redis
+    container_name: ovas_redis
     image: redis:latest
     volumes: 
       - "./confs/redis.conf:/etc/redis.conf"
@@ -43,12 +43,10 @@ services:
       - "ovasrun:/run"
     image: immauss/openvas:multic
     command: openvas
-    volumes:
-      - "ovasrun:/run"
-      - "openvas:/data"
   gsad:
     depends_on:
       - "gvmd"
+    container_name: ovas_gsad
     image: immauss/openvas:multic
     command: gsad
     environment:
@@ -56,5 +54,5 @@ services:
     ports:
       - "8080:9392"
 volumes:
-  openvas:
-  ovasrun:
+  openvas: 
+  ovasrun: 

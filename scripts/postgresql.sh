@@ -9,6 +9,11 @@ cleanup() {
 }
 
 trap 'cleanup' SIGTERM
+# Clear out the old sockets so we can test for it in gvmd
+if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
+	rm -f /run/postgresql/.s.PGSQL.5432
+fi
+
 # This is for a first run with no existing database.
 # Also determins if we are loading the default DB. The assumption here
 # is that if we just created an empty DB, then we want to load the baseDB into it. 
@@ -26,6 +31,8 @@ else
 	LOADDEFAULT="false"
 fi
 
+# Pass this variable to gvmd via /run
+echo $LOADDEFAULT > /run/loaddefault
 # These are  needed for a first run WITH a new container image
 # and an existing database in the mounted volume at /data
 
@@ -63,6 +70,7 @@ if [ ! -L /usr/local/var/log/gvm ]; then
 	#cp -rf /usr/local/var/log/gvm/* /data/var-log/ 
 	rm -rf /usr/local/var/log/gvm
 	ln -s /data/var-log /usr/local/var/log/gvm 
+	chown gvm /data/var-log
 fi
 
 
@@ -82,8 +90,9 @@ if [ ! -f "/setup" ]; then
 fi
 
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
+su -c "/usr/lib/postgresql/12/bin/pg_ctl  -D /data/database start" postgres
 
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
+tail -f /var/log/postgresql/postgresql-12-main.log &
 wait $!

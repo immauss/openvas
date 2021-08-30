@@ -60,6 +60,6 @@ RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; 
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN mkdir /scripts
 COPY scripts/* /scripts/
-HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
-  CMD curl -f http://localhost:9392/ || exit 1
+#HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
+  #CMD curl -f http://localhost:9392/ || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
