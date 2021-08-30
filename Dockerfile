@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:multic
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -38,7 +38,7 @@ COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 
 # Stage 1: Start again with the ovasebase. Dependancies already installed
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:multic
 LABEL maintainer="scott@immauss.com" \
       version="21.4.3" \
       url="https://hub.docker.com/immauss/openvas" \
@@ -58,8 +58,8 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 # Make sure we didn't just pull zero length files 
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-
-COPY scripts/* /
+RUN mkdir /scripts
+COPY scripts/* /scripts/
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || exit 1
-CMD [ "/start.sh" ]
+ENTRYPOINT [ "/scripts/start.sh" ]
