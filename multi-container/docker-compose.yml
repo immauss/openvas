@@ -1,0 +1,60 @@
+version: "3"
+services:
+  postgresql:
+    image: immauss/openvas:multic
+    command: postgresql
+    volumes:
+      - "openvas:/data"
+      - "ovasrun:/run"
+    container_name: ovas_postgresql
+  gvmd:
+    depends_on: 
+      - "postgresql"
+    image: immauss/openvas:multic
+    command: gvmd
+    container_name: ovas_gvmd
+    volumes:
+      - "openvas:/data"
+      - "ovasrun:/run"
+    environment:
+      - "PASSWORD=admin"
+      - "USERNAME=admin"
+      - "RELAYHOST=172.17.0.1"
+      - "SMTPPORT=25"
+      - "QUIET=false"  # dump feed sync noise to /dev/null
+      - "SKIPSYNC=true" # Skips the feed sync on startup.
+      - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
+      - "GMP=9390"    # to enable see docsvolumes:
+  redis:
+    depends_on:
+      - "gvmd"
+    container_name: ovas-redis
+    image: redis:latest
+    volumes: 
+      - "./confs/redis.conf:/etc/redis.conf"
+      - "ovasrun:/run"
+    command: /etc/redis.conf
+  openvas:
+    depends_on: 
+      - "redis"
+    container_name: openvas
+    volumes:
+      - "openvas:/data"
+      - "ovasrun:/run"
+    image: immauss/openvas:multic
+    command: openvas
+    volumes:
+      - "ovasrun:/run"
+      - "openvas:/data"
+  gsad:
+    depends_on:
+      - "gvmd"
+    image: immauss/openvas:multic
+    command: gsad
+    environment:
+      - "HTTPS=false"  # wether to use HTTPS or not
+    ports:
+      - "8080:9392"
+volumes:
+  openvas:
+  ovasrun:
