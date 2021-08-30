@@ -13,7 +13,60 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 GMP=${GMP:-9390}
 
+function DBCheck {
+        echo "Checking for existing DB"
+        su -c " psql -lqt " postgres
+        DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+        if [ "$DB" = "gvmd" ]; then
+                echo "There seems to be an existing gvmd database. "
+                echo "Failing out to prevent database deletion."
+                echo "DB is $DB"
+                exit
+        fi
+}
+# These are  needed for a first run WITH a new container image
+# and an existing database in the mounted volume at /data
 
+if [ ! -L /var/lib/postgresql/12/main ]; then
+        echo "Fixing Database folder..."
+        rm -rf /var/lib/postgresql/12/main
+        ln -s /data/database /var/lib/postgresql/12/main
+        chown postgres:postgres -R /data/database
+fi
+if [ ! -d /usr/local/var/lib ]; then
+        mkdir -p /usr/local/var/lib/gsm
+        mkdir -p /usr/local/var/lib/openvas
+        mkdir -p /usr/local/var/log/gvm
+fi
+if [ ! -L /usr/local/var/lib  ]; then
+        echo "Fixing local/var/lib ... "
+        if [ ! -d /data/var-lib ]; then
+                mkdir /data/var-lib
+        fi
+        rm -rf /usr/local/var/lib
+        ln -s /data/var-lib /usr/local/var/lib
+fi
+if [ ! -L /usr/local/share ]; then
+        echo "Fixing local/share ... "
+        if [ ! -d /data/local-share ]; then mkdir /data/local-share; fi
+        rm -rf /usr/local/share
+        ln -s /data/local-share /usr/local/share
+fi
+
+if [ ! -L /usr/local/var/log/gvm ]; then
+        echo "Fixing log directory for persistent logs .... "
+        if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
+        rm -rf /usr/local/var/log/gvm
+        ln -s /data/var-log /usr/local/var/log/gvm
+        chown gvm /data/var-log
+fi
+
+
+# Need to find a way to wait for the DB to be ready:
+while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
+	echo "DB not ready yet"
+	sleep 1
+done
 
 if [ $GMP != "false" ]; then
 		GMP_PORT="$GMP"
@@ -32,8 +85,8 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
     	gvm-manage-certs -a
 fi
-
-if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
+LOADDEFAULT=$(cat /run/loaddefault)
+if [ $LOADDEFAULT = "true" ] ; then
 	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
@@ -143,6 +196,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
+echo "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" 
 su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
@@ -171,14 +225,6 @@ elif [ "$USERNAME" != "admin" ] ; then
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 	# Now ... we need to remove the "admin" account ...
 	su -c "gvmd --delete-user=admin" gvm 
-elif [ $NEWDB = "true" ]; then
-	echo "Creating Greenbone Vulnerability Manager admin user $USERNAME"
-	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
-	echo "admin user created"
-	ADMINUUID=$(su -c "gvmd --get-users --verbose | awk '{print \$2}' " gvm)
-	echo "admin user UUID is $ADMINUUID"
-	echo "Granting admin access to defaults"
-	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 fi
 
 echo "reset "
@@ -192,6 +238,6 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
-
+tail -f /usr/local/var/log/gvm/gvmd.log &
 wait $!
 

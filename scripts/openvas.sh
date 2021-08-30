@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeo pipefail
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
@@ -14,5 +14,5 @@ done
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /run/ospd/ospd.sock
-
+tail -f /usr/local/var/log/gvm/o*.log
 wait $!
