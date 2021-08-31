@@ -122,24 +122,27 @@ docker run --rm -it -v <path to backup file>:/backup.tar.gz -v openvas:/mnt alpi
 ( Thanks [Gareth Johnstone](https://github.com/IQXLimited) )
 
 You will need to find the name of the docker container first
+```
 docker ps
-
+```
 Then run the following
-
+```
 docker exec -it <name> bash
 su - gvm
 gvmd --create-user=MySecondSuperAdmin -v --role="Super Admin"
+```
 This will result in a message saying that the user has been created along with the new password - take note of this before proceeding.
 
 If you have already created a normal admin and would like to become a super admin, do the following
-
+```
 docker exec -it <name> bash
 su - gvm
 gvmd --create-user=MyUser2 -v --role="Super Admin"
 gvmd –-delete-user=MyUser --inheritor=MyUser2
 gvmd --create-user=MyUser -v --role="Super Admin"
 gvmd –-delete-user=MyUser2 --inheritor=MyUser
-Ensuring you take note of the password for the 2nd create user!
+```
+Ensuring you take note of the password for the 2nd created user!
 
 # Options
 The following options can be set as environement variables when starting the container. To set an environement variable use "-e": 
