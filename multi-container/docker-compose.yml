@@ -1,18 +1,19 @@
 version: "3"
 services:
   postgresql:
+    container_name: ovas_postgresql
     image: immauss/openvas:multic
     command: postgresql
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
-    container_name: ovas_postgresql
+
   gvmd:
+    container_name: ovas_gvmd
+    image: immauss/openvas:multic
+    command: gvmd
     depends_on: 
       - "postgresql"
-    image: immauss/gvmd
-    #command: gvmd
-    container_name: ovas_gvmd
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
@@ -26,29 +27,30 @@ services:
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "GMP=9390"    # to enable see docsvolumes:
   redis:
-    depends_on:
-      - "gvmd"
     container_name: ovas_redis
     image: redis:latest
+    command: /etc/redis.conf
+    depends_on:
+      - "gvmd"
     volumes: 
       - "./confs/redis.conf:/etc/redis.conf"
       - "ovasrun:/run"
-    command: /etc/redis.conf
+
   openvas:
+    container_name: openvas
+    image: immauss/openvas:multic
+    command: openvas
     depends_on: 
       - "redis"
-    container_name: openvas
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
-    image: immauss/openvas:multic
-    command: openvas
   gsad:
-    depends_on:
-      - "gvmd"
     container_name: ovas_gsad
     image: immauss/openvas:multic
     command: gsad
+    depends_on:
+      - "gvmd"
     environment:
       - "HTTPS=false"  # wether to use HTTPS or not
     ports:
