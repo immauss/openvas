@@ -227,8 +227,6 @@ elif [ "$USERNAME" != "admin" ] ; then
 	su -c "gvmd --delete-user=admin" gvm 
 fi
 
-echo "reset "
-set -Eeuo pipefail
 
 touch /setup
 
@@ -239,5 +237,8 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 tail -f /usr/local/var/log/gvm/gvmd.log &
-wait $!
+pkill gvmd
+su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+ 
+
 
