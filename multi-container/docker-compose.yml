@@ -10,8 +10,8 @@ services:
   gvmd:
     depends_on: 
       - "postgresql"
-    image: immauss/openvas:multic
-    command: gvmd
+    image: immauss/gvmd
+    #command: gvmd
     container_name: ovas_gvmd
     volumes:
       - "openvas:/data"
@@ -53,6 +53,9 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
     ports:
       - "8080:9392"
+  scannable:
+    image: immauss/scannable
+    container_name: scannable
 volumes:
   openvas: 
   ovasrun: 
