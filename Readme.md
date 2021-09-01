@@ -26,7 +26,7 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 
 - - - -
 ## Documentation ##
-The current docs are maintained on github [here](https://github.com/immauss/openvas/tree/master/docs)
+The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - -
 ### 26 August 2021 ###
 - Well that was fun. Thanks to [@bricks](https://community.greenbone.net/u/bricks/summary), [@Lukas](https://community.greenbone.net/u/Lukas/summary), [@cybermcm](https://github.com/cybermcm), [@dkade](https://github.com/dkade), [@tedher](https://github.com/tedher), [@grisno](https://github.com/grisno), & [@orhpeus](https://github.com/orpheus) for the discussion and help resolving the socket issues. (Details are [here](https://community.greenbone.net/t/sockets-sockets-sockets/10035) ) In the end, it turns out I missed a permission change on a directory in the move to buster. 
