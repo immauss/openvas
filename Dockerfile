@@ -59,7 +59,8 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 
+
 COPY scripts/* /
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
-  CMD curl -f http://localhost:9392/ || exit 1
+  CMD curl -f http://localhost:9392/ || curl -kf httsp://localhost:9392/ || exit 1
 CMD [ "/start.sh" ]

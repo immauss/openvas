@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script will refresh the data in the gvm-var-lib repo
+# This script will refresh the data in the openvas docker image on dockerhub
 # It will include a new db dump and the contents of /data/var-lib
 # This should run from a cron with a long enough sleep to make sure
 # the gvmd has updated the DB before creating the archive and pushing
@@ -17,27 +17,37 @@
 #fi
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="buster"
+TAG="fresh"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
 STIME="20m" # time between resync and archiving.
 # Force a pull of the latest image.
-docker pull immauss/openvas:$TAG
+docker pull immauss/openvas:21.4.3
 echo "Starting container for an update"
-docker run -d --name updater immauss/openvas:$TAG
+docker run -d --name updater immauss/openvas:21.4.3
+if [ $? -ne 0 ];then
+	echo " Failed to start ... ^^" 
+	exit
+fi
 date
 echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
 CONTINUE=0
-while [ $CONTINUE -eq 0 ]; do
+COUNTER=0
+while [ [ $CONTINUE -eq 0 ] && [ $COUNTER -le 20 ]; do
 	if docker logs updater 2>&1 | grep -qs "update_nvt_cache_retry: rebuild successful"; then
 		CONTINUE=1
 		echo "looks like it's done"
 	else
 		echo "Not done yet."
 	fi
+	COUNTER=$( expr $COUNTER + 1)
 	sleep 1m
 done
+
+if [ $COUNTER -gt 20 ]; then
+	logger -t db-refresh "Waited for succes in logs for > 20m. This might fail"
+fi
 
 cd $TWD
 echo "First copy the feeds from the container"
@@ -72,6 +82,14 @@ fi
 
 # Now rebuild the image
 cd ~/Projects/openvas
+# Make sure we are on the right branch before doing anything.
+BRANCH=$(git branch | awk /\*/'{print $2}')
+if [ $BRANCH != "master" ]; then
+	echo " NOT on branch master " 
+	echo " NOT rebuilding !!"
+	echo " Fix it and try again"
+	exit
+fi
 echo "Pulling latest from github"
 git pull
 if [ $? -ne 0 ]; then
