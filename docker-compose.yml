@@ -15,7 +15,6 @@ services:
       - "RESTORE=false"  # This probably not be used from compose... see docs.
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "HTTPS=false"  # wether to use HTTPS or not
-      - "GMP=false"    # to enable see docs
     volumes:
       - "openvas:/data"
     container_name: openvas
