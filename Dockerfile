@@ -40,7 +40,7 @@ RUN bash /build.d/links.sh
 # Stage 1: Start again with the ovasebase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="21.4.3" \
+      version="21.4.4" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
