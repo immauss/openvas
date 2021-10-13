@@ -1,5 +1,5 @@
 BRANCH=$(git branch | awk /\*/'{print $2}')
-docker build -t immauss/openvas:$BRANCH .
+docker buildx build --platform linux/amd64 -t immauss/openvas:$BRANCH --load .
 if [ $? -ne 0 ]; then
 	echo "Build failed. :("
 	exit
