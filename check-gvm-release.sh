@@ -6,7 +6,7 @@ RC=$(mktemp)
 # Source the api token
 . .token
 # 
-for repo in gvmd openvas openvas-smb gvm-libs openvas-scanner gsa ospd ospd-openvas ; do 
+for repo in gvmd openvas openvas-smb gvm-libs gsa ospd ospd-openvas ; do 
 	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".assets[].browser_download_url" | sed "s/^.*download\/\(v.*\)\/.*$/\1/" | head -1)
 	#echo "$repo current version is $VERSION"
 	VAR=$( echo $repo | tr - _ )

@@ -50,25 +50,6 @@ function DBCheck {
         fi
 }
 
-# Does redis need to be bound to 0.0.0.0 or will it work with just local host?
-redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
-             --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
-             --port 6379 --bind 0.0.0.0 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
-
-echo "Wait for redis socket to be created..."
-while  [ ! -S /run/redis/redis.sock ]; do
-        sleep 1
-done
-
-echo "Testing redis status..."
-X="$(redis-cli -s /run/redis/redis.sock ping)"
-while  [ "${X}" != "PONG" ]; do
-        echo "Redis not yet ready..."
-        sleep 1
-        X="$(redis-cli -s /run/redis/redis.sock ping)"
-done
-echo "Redis ready."
-
 # This is for a first run with no existing database.
 # Also determins if we are loading the default DB. The assumption here
 # is that if we just created an empty DB, then we want to load the baseDB into it. 
@@ -96,7 +77,7 @@ if [ ! -L /var/lib/postgresql/12/main ]; then
 	chown postgres:postgres -R /data/database
 fi
 if [ ! -d /usr/local/var/lib ]; then
-	mkdir -p /usr/local/var/lib/gsm
+	mkdir -p /usr/local/var/lib/gvm
 	mkdir -p /usr/local/var/lib/openvas
 	mkdir -p /usr/local/var/log/gvm
 fi
@@ -108,6 +89,7 @@ if [ ! -L /usr/local/var/lib  ]; then
 	cp -rf /usr/local/var/lib/* /data/var-lib
 	rm -rf /usr/local/var/lib
 	ln -s /data/var-lib /usr/local/var/lib
+	ln -s /data/var-lib/openvas /var/lib
 fi
 if [ ! -L /usr/local/share ]; then
 	echo "Fixing local/share ... "
@@ -124,6 +106,25 @@ if [ ! -L /usr/local/var/log/gvm ]; then
 	rm -rf /usr/local/var/log/gvm
 	ln -s /data/var-log /usr/local/var/log/gvm 
 fi
+# Does redis need to be bound to 0.0.0.0 or will it work with just local host?
+redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
+             --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
+             --port 6379 --bind 0.0.0.0 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
+
+echo "Wait for redis socket to be created..."
+while  [ ! -S /run/redis/redis.sock ]; do
+        sleep 1
+done
+
+echo "Testing redis status..."
+X="$(redis-cli -s /run/redis/redis.sock ping)"
+while  [ "${X}" != "PONG" ]; do
+        echo "Redis not yet ready..."
+        sleep 1
+        X="$(redis-cli -s /run/redis/redis.sock ping)"
+done
+echo "Redis ready."
+
 
 
 # Postgres config should be tighter.
