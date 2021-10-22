@@ -11,7 +11,7 @@ ENV LANG=C.UTF-8
 #COPY package-list-building /package-list-building
 #RUN bash /install-build-deps.sh
 RUN mkdir /build.d
-COPY build.d/* /build.d/
+#COPY build.d/* /build.d/
 COPY build.rc /
 COPY package-list-buster-build /
 COPY build.d/build-prereqs.sh /build.d/
