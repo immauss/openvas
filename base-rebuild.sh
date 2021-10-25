@@ -1,4 +1,5 @@
 #!/bin/bash
+tag=$1
 if [ -z $tag ] ; then
 	tag="latest"
 else

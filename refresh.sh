@@ -17,14 +17,18 @@
 #fi
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="fresh"
+if [ -z $1 ]; then
+	TAG="latest"
+else
+	TAG="$1"
+fi
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
 STIME="20m" # time between resync and archiving.
 # Force a pull of the latest image.
-docker pull immauss/openvas:21.4.3
+docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
-docker run -d --name updater immauss/openvas:21.4.3
+docker run -d --name updater immauss/openvas:$TAG
 if [ $? -ne 0 ];then
 	echo " Failed to start ... ^^" 
 	exit
