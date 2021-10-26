@@ -129,7 +129,8 @@ Then run the following
 ```
 docker exec -it <name> bash
 su - gvm
-gvmd --create-user=MySecondSuperAdmin -v --role="Super Admin"
+/bin/bash
+/usr/local/sbin/gvmd --create-user=MySecondSuperAdmin -v --role="Super Admin"
 ```
 This will result in a message saying that the user has been created along with the new password - take note of this before proceeding.
 
@@ -137,10 +138,10 @@ If you have already created a normal admin and would like to become a super admi
 ```
 docker exec -it <name> bash
 su - gvm
-gvmd --create-user=MyUser2 -v --role="Super Admin"
-gvmd –-delete-user=MyUser --inheritor=MyUser2
-gvmd --create-user=MyUser -v --role="Super Admin"
-gvmd –-delete-user=MyUser2 --inheritor=MyUser
+/usr/local/sbin/gvmd --create-user=MyUser2 -v --role="Super Admin"
+/usr/local/sbin/gvmd –-delete-user=MyUser --inheritor=MyUser2
+/usr/local/sbin/gvmd --create-user=MyUser -v --role="Super Admin"
+/usr/local/sbin/gvmd –-delete-user=MyUser2 --inheritor=MyUser
 ```
 Ensuring you take note of the password for the 2nd created user!
 
