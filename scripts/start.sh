@@ -24,29 +24,15 @@ HTTPS=${HTTPS:-false}
 GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
 
-
-if [ $GMP != "false" ]; then
-        GMP="-a 0.0.0.0  -p $GMP"
-fi
-
-#*#*#*# This can move to image creation #*#*#*#
-if [ ! -d "/run/redis" ]; then
-	mkdir /run/redis
-fi
-if  [ -S /run/redis/redis.sock ]; then
-        rm /run/redis/redis.sock
-fi
-#*#*#*#*#*
-
 function DBCheck {
-	echo "Checking for existing DB"
-        su -c " psql -lqt " postgres 
         DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
         if [ "$DB" = "gvmd" ]; then
                 echo "There seems to be an existing gvmd database. "
                 echo "Failing out to prevent database deletion."
 		echo "DB is $DB"
                 exit
+	else
+		echo 1
         fi
 }
 
@@ -55,61 +41,26 @@ function DBCheck {
 # is that if we just created an empty DB, then we want to load the baseDB into it. 
 # the "NEWDB" flag on start should be used to overide the loading of the basedb and 
 # force gvmd to create a "new database" from scratch by pulling from the feeds.
-if  [ ! -d /data/database ]; then
-	mkdir -p /data/database
-	echo "Creating Data and database folder..."
-	mv /var/lib/postgresql/12/main/* /data/database
-	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /data/database
-	chmod 700 /data/database
-	LOADDEFAULT="true"
-else
-	LOADDEFAULT="false"
-fi
 
+#### 
+# This is not going to work right with a directory mounted to /data vs volume
+# when /data is a volume, docker populates the new volume with the contents from the image
+# but not with a local directory. 
+# The code for empty /data needs to include copying the base db from 12/main 
+#if  [ ! -d /data/database ]; then
+	#mkdir -p /data/database
+	#echo "Creating Data and database folder..."
+	#mv /var/lib/postgresql/12/main/* /data/database
+	#ln -s /data/database /var/lib/postgresql/12/main
+	#chown postgres:postgres -R /data/database
+	#chmod 700 /data/database
 # These are  needed for a first run WITH a new container image
 # and an existing database in the mounted volume at /data
 
-if [ ! -L /var/lib/postgresql/12/main ]; then
-	echo "Fixing Database folder..."
-	rm -rf /var/lib/postgresql/12/main
-	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /data/database
-fi
-if [ ! -d /usr/local/var/lib ]; then
-	mkdir -p /usr/local/var/lib/gvm
-	mkdir -p /usr/local/var/lib/openvas
-	mkdir -p /usr/local/var/log/gvm
-fi
-if [ ! -L /usr/local/var/lib  ]; then
-	echo "Fixing local/var/lib ... "
-	if [ ! -d /data/var-lib ]; then
-		mkdir /data/var-lib
-	fi
-	cp -rf /usr/local/var/lib/* /data/var-lib
-	rm -rf /usr/local/var/lib
-	ln -s /data/var-lib /usr/local/var/lib
-	ln -s /data/var-lib/openvas /var/lib
-fi
-if [ ! -L /usr/local/share ]; then
-	echo "Fixing local/share ... "
-	if [ ! -d /data/local-share ]; then mkdir /data/local-share; fi
-	cp -rf /usr/local/share/* /data/local-share/
-	rm -rf /usr/local/share 
-	ln -s /data/local-share /usr/local/share 
-fi
-
-if [ ! -L /usr/local/var/log/gvm ]; then
-	echo "Fixing log directory for persistent logs .... "
-	if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
-	#cp -rf /usr/local/var/log/gvm/* /data/var-log/ 
-	rm -rf /usr/local/var/log/gvm
-	ln -s /data/var-log /usr/local/var/log/gvm 
-fi
-# Does redis need to be bound to 0.0.0.0 or will it work with just local host?
+# Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
-             --port 6379 --bind 0.0.0.0 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
+             --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
 
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
@@ -124,8 +75,6 @@ while  [ "${X}" != "PONG" ]; do
         X="$(redis-cli -s /run/redis/redis.sock ping)"
 done
 echo "Redis ready."
-
-
 
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
@@ -144,29 +93,16 @@ fi
 
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
+DBCheck
+echo "Checking for existing DB"
+if [ $(DBCheck) -eq 1 ]; then
+	LOADDEFAULT="true"
+	echo "Loading Default Database"
+else
+	LOADDEFAULT="false"
+fi
 
 echo "Running first start configuration..."
-if !  grep -qs gvm /etc/passwd ; then 
-	echo "Adding gvm user"
-	useradd --home-dir /usr/local/share/gvm gvm
-fi
-chown gvm:gvm -R /usr/local/share/gvm /data/var-log
-
-#*#*#*#* Move these to image creation 
-#  Need these for the sockets This might neeed to be somewhere else
-if [ ! -d /run/gvm ]; then
-	mkdir -p /run/gvm
-	mkdir -p /run/ospd
-	chmod 770 /run/gvm /run/ospd
-	chgrp gvm /run/gvm /run/ospd
-
-fi
-#*#*#*#*#*#*
-
-if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
-	mkdir -p /usr/local/var/lib/gvm/cert-data; 
-fi
-
 if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
 	echo "Fixing feed rsync options"
 	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
@@ -174,7 +110,6 @@ if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then
 	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
 	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
 fi
-
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
@@ -247,9 +182,6 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
-# Always make sure these are right.
-chown gvm:gvm -R /data/var-lib /usr/local/var 
-chmod 770 -R /data/var-lib/gvm
 
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	echo "Creating dir structure for feed sync"
@@ -258,14 +190,13 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-mkdir -p /usr/local/var/lib/openvas/plugins
-chown -R gvm:gvm /usr/local/var/lib/openvas 
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
 if [ "$DEBUG" == "true" ]; then
 	echo "Sleeping here for 1d to debug"
 	sleep 1d
 fi
+
 
 # Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
 echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
@@ -275,22 +206,17 @@ touch /usr/local/var/log/db-restore.log
 chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
 su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 
-# Migrate the DB to current gvmd version
-echo "Migrating the database to the latest version if needed."
-su -c "gvmd --migrate" gvm
-
-# Fix perms on var/run for the sync to function
-if [ ! -d /usr/local/var/run ]; then
-	mkdir -p /usr/local/var/run
-fi
-chgrp gvm /usr/local/var/run/
-chmod 770 /usr/local/var/run
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
         echo "Removing feed-update.lock"
 	rm /usr/local/var/run/feed-update.lock
 fi
+
+# Migrate the DB to current gvmd version
+echo "Migrating the database to the latest version if needed."
+su -c "gvmd --migrate" gvm
+
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
    echo "This could take a while if you are not using persistent storage for your NVTs"
@@ -381,8 +307,6 @@ echo "reset "
 set -Eeuo pipefail
 touch /setup
 
-# because ....
-chown -R gvm:gvm /data/var-lib 
 
 
 if [ -f /var/run/ospd.pid ]; then
@@ -397,9 +321,7 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
-if [ -S /tmp/ospd.sock ]; then
-  rm /tmp/ospd.sock
-fi
+
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
              --unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777

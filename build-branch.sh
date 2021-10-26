@@ -1,5 +1,10 @@
+if [ -z $1 ]; then
+	OPT=" "
+else
+	OPT="$@"
+fi
 BRANCH=$(git branch | awk /\*/'{print $2}')
-docker buildx build --no-cache --platform linux/amd64 -t immauss/openvas:$BRANCH --load .
+docker buildx build $OPT --platform linux/amd64 -t immauss/openvas:$BRANCH --load .
 if [ $? -ne 0 ]; then
 	echo "Build failed. :("
 	exit
