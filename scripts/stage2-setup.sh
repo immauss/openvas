@@ -45,7 +45,7 @@ ln -s /data/local-share /usr/local/share
 
 # Fix up run
 rm -rf /usr/local/var/run
-ln -s /var/run  /usr/local/var/run
+ln -s /run  /usr/local/var/run
 
 # Create gvm user
 useradd --home-dir /usr/local/share/gvm gvm
@@ -59,3 +59,4 @@ chown gvm:gvm /run/gvm /run/ospd
 chmod 770 /run/gvm /run/ospd
 chown -R gvm:gvm  /data/var-lib/openvas/plugins
 chown -R gvm:gvm /data/local-share/gvm
+chmod 777 /run
