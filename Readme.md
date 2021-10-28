@@ -16,7 +16,7 @@
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.4.3 & latest  | The latest and greatest for amd64 & arm64 based on Debian buster
+21.4.4-01 & latest  | The latest and greatest for amd64 & arm64 based on Debian buster
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
