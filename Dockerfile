@@ -65,5 +65,5 @@ RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 
 COPY scripts/* /
 RUN bash /stage2-setup.sh
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
-  CMD curl -f http://localhost:9392/ || curl -kf httsp://localhost:9392/ || exit 1
+  CMD curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || exit 1
 CMD [ "/start.sh" ]
