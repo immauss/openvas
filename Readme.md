@@ -28,6 +28,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - -
+### 28 October 2021 ###
+- It has been a while. Greenbone dropped a new a release a week or so ago, and it has given me quite the hard time. There was a change ... somehwere ... that causes the openvas scanner to segmentation fault, but only when run in a container. The stable branch does not exhibit this behavior, but the current release does. So .... there is good chance it will get fixd in the next release. In the mean time, I've upgrade everything except openvas scanner to the latest release. In the course of trying to resolve the segfault, I got the notion that there might be a directory missing or directory persmission problem. So I finally took the time to move ALL of the directory structure setup and linking for the volumes into the build process and took it out of the start.sh. (Take a look at the stage2-setup.sh in the scripts folder.) This greatly simplified start.sh and will come in handy as I move to the multiple containers setup. You know, how containers are suppose to be run, one process per container. 
+- So after all that ... new release. For the future, I'm going to fix my versions on the version of gvmd in the build. For this one, that is 21.4.4. And I'll add a "-xx" for my versioning. So today's release will be 21.4.4-01
+- Sorry ... no update to Arm v7 yet.  If someone really needs it, please reach out. 
+
+-Scott
+
 ### 26 August 2021 ###
 - Well that was fun. Thanks to [@bricks](https://community.greenbone.net/u/bricks/summary), [@Lukas](https://community.greenbone.net/u/Lukas/summary), [@cybermcm](https://github.com/cybermcm), [@dkade](https://github.com/dkade), [@tedher](https://github.com/tedher), [@grisno](https://github.com/grisno), & [@orhpeus](https://github.com/orpheus) for the discussion and help resolving the socket issues. (Details are [here](https://community.greenbone.net/t/sockets-sockets-sockets/10035) ) In the end, it turns out I missed a permission change on a directory in the move to buster. 
 - So now .... the latest, 21.4.3, and armv7 images are all up-to-date and working properly.  (Don't look at start.sh with too critical an eye right now though. It needs some serious clean up. )

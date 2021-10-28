@@ -24,7 +24,7 @@ else
 fi
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
-STIME="20m" # time between resync and archiving.
+STIME="40m" # time between resync and archiving.
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"

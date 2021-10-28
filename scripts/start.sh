@@ -21,18 +21,20 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
-GMP=${GMP:-9390}
+#GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
+if [ "$DEBUG" == "true" ]; then
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET NEWDB SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
+		echo "$var = ${var}"
+	done
+fi
 
 function DBCheck {
         DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
         if [ "$DB" = "gvmd" ]; then
-                echo "There seems to be an existing gvmd database. "
-                echo "Failing out to prevent database deletion."
-		echo "DB is $DB"
-                exit
-	else
 		echo 1
+	else
+		echo 0
         fi
 }
 
@@ -93,9 +95,8 @@ fi
 
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
-DBCheck
 echo "Checking for existing DB"
-if [ $(DBCheck) -eq 1 ]; then
+if [ $(DBCheck) -eq 0 ]; then
 	LOADDEFAULT="true"
 	echo "Loading Default Database"
 else
@@ -103,13 +104,6 @@ else
 fi
 
 echo "Running first start configuration..."
-if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
-	echo "Fixing feed rsync options"
-	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
-	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
-	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
-	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
-fi
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
@@ -117,7 +111,6 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
-	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -140,7 +133,11 @@ fi
 
 # If NEWDB is true, then we need to create an empty database. 
 if [ $NEWDB = "true" ]; then
-	DBCheck
+	if [ $(DBCheck) -eq 1 ]; then
+		echo " It looks like there is already a gvmd database."
+		echo " Failing out to prevent overwriting the existing DB"
+		exit 
+	fi
         echo "Creating Greenbone Vulnerability Manager database"
         su -c "createuser -DRS gvm" postgres
         su -c "createdb -O gvm gvmd" postgres
@@ -239,10 +236,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm 2&> /dev/null
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm 2&> /dev/null
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling latest GVMD Data from greenbone" 
 	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
@@ -252,10 +249,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
 	   sleep 2
 	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm
 	   sleep 2
 	   echo " Pulling latest GVMD Data from Greenbone" 
 	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
@@ -265,7 +262,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -360,5 +357,5 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 tail -F /usr/local/var/log/gvm/* &
-# This is part of making sure we shutdown postgres properly on container shtudown.
+# This is part of making sure we shutdown postgres properly on container shutdown.
 wait $!
