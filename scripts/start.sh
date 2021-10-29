@@ -38,31 +38,18 @@ function DBCheck {
         fi
 }
 
-# This is for a first run with no existing database.
-# Also determins if we are loading the default DB. The assumption here
-# is that if we just created an empty DB, then we want to load the baseDB into it. 
-# the "NEWDB" flag on start should be used to overide the loading of the basedb and 
-# force gvmd to create a "new database" from scratch by pulling from the feeds.
-
-#### 
-# This is not going to work right with a directory mounted to /data vs volume
-# when /data is a volume, docker populates the new volume with the contents from the image
-# but not with a local directory. 
-# The code for empty /data needs to include copying the base db from 12/main 
-#if  [ ! -d /data/database ]; then
-	#mkdir -p /data/database
-	#echo "Creating Data and database folder..."
-	#mv /var/lib/postgresql/12/main/* /data/database
-	#ln -s /data/database /var/lib/postgresql/12/main
-	#chown postgres:postgres -R /data/database
-	#chmod 700 /data/database
-# These are  needed for a first run WITH a new container image
-# and an existing database in the mounted volume at /data
+# 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
+if [ -f /data/var-log/gvmd.log ]; then
+	echo " Correcting Volume dir structure"
+	mkdir -p /data/var-log/gvm
+	mv /data/var-log/*.log /data/var-log/gvm
+	chown -R gvm:gvm /data/var-log/gvm 
+fi
 
 # Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
-             --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
+             --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /data/var-log/gvm/redis-server.log
 
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
