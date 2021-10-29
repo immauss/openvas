@@ -40,7 +40,7 @@ RUN bash /build.d/links.sh
 # Stage 1: Start again with the ovasebase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="21.10.1" \
+      version="21.4.4-02" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
@@ -60,8 +60,6 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 # Make sure we didn't just pull zero length files 
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-
-
 COPY scripts/* /
 RUN bash /stage2-setup.sh
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
