@@ -16,5 +16,5 @@ Various shell scripts used to make managing this easier.
 
 - release-build.sh - Build both architechures and push to hub.docker.com with $1 as tag. If no $1, then uses latest.
 
-- test-release.sh - pull and test the image with the tag $1
+- test-release.sh - pull and run the image with the tag $1
 
