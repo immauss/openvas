@@ -7,13 +7,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 
 # Build/install gvm (by default, everything installs in /usr/local)
-#COPY install-build-deps.sh /install-build-deps.sh
-#COPY package-list-building /package-list-building
-#RUN bash /install-build-deps.sh
 RUN mkdir /build.d
-#COPY build.d/* /build.d/
 COPY build.rc /
-COPY package-list-buster-build /
+COPY package-list-build /
 COPY build.d/build-prereqs.sh /build.d/
 RUN bash /build.d/build-prereqs.sh
 COPY build.d/update-certs.sh /build.d/
@@ -58,9 +54,9 @@ COPY update.ts /
 RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.sql.xz && \
     curl -L --url https://www.immauss.com/openvas/var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
 # Make sure we didn't just pull zero length files 
-RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-COPY scripts/* /
+RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
+    bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
+COPY scripts/*.sh /
 RUN bash /stage2-setup.sh
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || exit 1
