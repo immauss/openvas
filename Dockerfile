@@ -13,7 +13,7 @@ ENV LANG=C.UTF-8
 RUN mkdir /build.d
 #COPY build.d/* /build.d/
 COPY build.rc /
-COPY package-list-buster-build /
+COPY package-list-build /
 COPY build.d/build-prereqs.sh /build.d/
 RUN bash /build.d/build-prereqs.sh
 COPY build.d/update-certs.sh /build.d/
