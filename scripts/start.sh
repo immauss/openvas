@@ -2,7 +2,7 @@
 #set -Eeuo pipefail
 echo "Choosing container start method from:"
 echo "$@"
-
+echo "$1" > /usr/local/etc/running-as
 
 case $1 in
 	gsad)

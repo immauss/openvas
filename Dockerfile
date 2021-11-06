@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:multic
+FROM immauss/ovasbase:latest
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,7 +11,7 @@ ENV LANG=C.UTF-8
 #COPY package-list-building /package-list-building
 #RUN bash /install-build-deps.sh
 RUN mkdir /build.d
-COPY build.d/* /build.d/
+#COPY build.d/* /build.d/
 COPY build.rc /
 COPY package-list-buster-build /
 COPY build.d/build-prereqs.sh /build.d/
@@ -38,9 +38,9 @@ COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 
 # Stage 1: Start again with the ovasebase. Dependancies already installed
-FROM immauss/ovasbase:multic
+FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="21.4.3" \
+      version="21.4.4" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
@@ -60,6 +60,8 @@ RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; 
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN mkdir /scripts
 COPY scripts/* /scripts/
+# Healthcheck needs be an on image script that will know what service is running and check it. 
+# Current image function stored in /usr/local/etc/running-as
 #HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
-  #CMD curl -f http://localhost:9392/ || exit 1
+  #CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
