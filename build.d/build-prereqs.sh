@@ -4,7 +4,10 @@ set -Eeuo pipefail
 . build.rc
 apt update
 echo "install required packages"
-PACKAGES=$(cat package-list-buster-build)
+df -h
+ls -l /tmp
+PACKAGES=$(cat package-list-build)
 apt-get install -yq --no-install-recommends $PACKAGES
+
 
 python3 -m pip install psutil
