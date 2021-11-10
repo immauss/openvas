@@ -49,6 +49,8 @@ EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
 COPY --from=0 /usr/local /usr/local
+COPY --from=0 /var/lib /var/lib 
+COPY --from=0 /etc/gvm /etc/gvm
 
 RUN ldconfig
 # Split these off in a new layer makes refresh builds faster.
@@ -60,6 +62,7 @@ RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; 
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN mkdir /scripts
 COPY scripts/* /scripts/
+RUN bash scripts/stage2-setup.sh
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 #HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \

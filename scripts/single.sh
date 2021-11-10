@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-
-
-
 #Define  proper shutdown 
-# This is only needed with the postgresql instance
 cleanup() {
     echo "Container stopped, performing shutdown"
     su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 }
 
+#Trap SIGTERM
 trap 'cleanup' SIGTERM
-#### End of postgresql shutdown code bits ###
-#### More at end of script ####
 
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
@@ -26,33 +21,36 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
-GMP=${GMP:-9390}
+#GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
-
-
-if [ $GMP != "false" ]; then
-		GMP_PORT="$GMP"
-        GMP="-a 0.0.0.0  -p $GMP_PORT"
-
+if [ "$DEBUG" == "true" ]; then
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET NEWDB SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
+		echo "$var = ${var}"
+	done
 fi
 
-
-
 function DBCheck {
-	echo "Checking for existing DB"
-        su -c " psql -lqt " postgres 
         DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
         if [ "$DB" = "gvmd" ]; then
-                echo "There seems to be an existing gvmd database. "
-                echo "Failing out to prevent database deletion."
-		echo "DB is $DB"
-                exit
+		echo 1
+	else
+		echo 0
         fi
 }
+
+# 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
+if [ -f /data/var-log/gvmd.log ]; then
+	echo " Correcting Volume dir structure"
+	mkdir -p /data/var-log/gvm
+	mv /data/var-log/*.log /data/var-log/gvm
+	chown -R gvm:gvm /data/var-log/gvm 
+fi
+
+# Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
-             --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /usr/local/var/log/gvm/redis-server.log
-#
+             --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /data/var-log/gvm/redis-server.log
+
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
         sleep 1
@@ -66,63 +64,6 @@ while  [ "${X}" != "PONG" ]; do
         X="$(redis-cli -s /run/redis/redis.sock ping)"
 done
 echo "Redis ready."
-
-# This is for a first run with no existing database.
-# Also determins if we are loading the default DB. The assumption here
-# is that if we just created an empty DB, then we want to load the baseDB into it. 
-# the "NEWDB" flag on start should be used to overide the loading of the basedb and 
-# force gvmd to create a "new database" from scratch by pulling from the feeds.
-if  [ ! -d /data/database ]; then
-	mkdir -p /data/database
-	echo "Creating Data and database folder..."
-	mv /var/lib/postgresql/12/main/* /data/database
-	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /data/database
-	chmod 700 /data/database
-	LOADDEFAULT="true"
-else
-	LOADDEFAULT="false"
-fi
-
-# These are  needed for a first run WITH a new container image
-# and an existing database in the mounted volume at /data
-
-if [ ! -L /var/lib/postgresql/12/main ]; then
-	echo "Fixing Database folder..."
-	rm -rf /var/lib/postgresql/12/main
-	ln -s /data/database /var/lib/postgresql/12/main
-	chown postgres:postgres -R /data/database
-fi
-if [ ! -d /usr/local/var/lib ]; then
-	mkdir -p /usr/local/var/lib/gsm
-	mkdir -p /usr/local/var/lib/openvas
-	mkdir -p /usr/local/var/log/gvm
-fi
-if [ ! -L /usr/local/var/lib  ]; then
-	echo "Fixing local/var/lib ... "
-	if [ ! -d /data/var-lib ]; then
-		mkdir /data/var-lib
-	fi
-	cp -rf /usr/local/var/lib/* /data/var-lib
-	rm -rf /usr/local/var/lib
-	ln -s /data/var-lib /usr/local/var/lib
-fi
-if [ ! -L /usr/local/share ]; then
-	echo "Fixing local/share ... "
-	if [ ! -d /data/local-share ]; then mkdir /data/local-share; fi
-	cp -rf /usr/local/share/* /data/local-share/
-	rm -rf /usr/local/share 
-	ln -s /data/local-share /usr/local/share 
-fi
-
-if [ ! -L /usr/local/var/log/gvm ]; then
-	echo "Fixing log directory for persistent logs .... "
-	if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
-	#cp -rf /usr/local/var/log/gvm/* /data/var-log/ 
-	rm -rf /usr/local/var/log/gvm
-	ln -s /data/var-log /usr/local/var/log/gvm 
-fi
-
 
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
@@ -141,21 +82,15 @@ fi
 
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
-
-chown -R gvm:gvm /data/var-log
-
-if [ ! -d /usr/local/var/lib/gvm/cert-data ]; then 
-	mkdir -p /usr/local/var/lib/gvm/cert-data; 
+echo "Checking for existing DB"
+if [ $(DBCheck) -eq 0 ]; then
+	LOADDEFAULT="true"
+	echo "Loading Default Database"
+else
+	LOADDEFAULT="false"
 fi
 
-if  grep -qs -- "-ltvrP" /usr/local/bin/greenbone-nvt-sync ; then 
-	echo "Fixing feed rsync options"
-	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/bin/greenbone-nvt-sync 
-	sed -i -e "s/-ltvrP/-ltrP/g" /usr/local/sbin/greenbone-feed-sync 
-	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/bin/greenbone-nvt-sync 
-	#sed -i -e "s/-ltvrP/\$RSYNC_OPTIONS/g" /usr/local/sbin/greenbone-feed-sync 
-fi
-
+echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
@@ -163,7 +98,6 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
-	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -186,7 +120,11 @@ fi
 
 # If NEWDB is true, then we need to create an empty database. 
 if [ $NEWDB = "true" ]; then
-	DBCheck
+	if [ $(DBCheck) -eq 1 ]; then
+		echo " It looks like there is already a gvmd database."
+		echo " Failing out to prevent overwriting the existing DB"
+		exit 
+	fi
         echo "Creating Greenbone Vulnerability Manager database"
         su -c "createuser -DRS gvm" postgres
         su -c "createdb -O gvm gvmd" postgres
@@ -228,9 +166,6 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
-# Always make sure these are right.
-chown gvm:gvm -R /data/var-lib /usr/local/var 
-chmod 770 -R /data/var-lib/gvm
 
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	echo "Creating dir structure for feed sync"
@@ -239,14 +174,13 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-mkdir -p /usr/local/var/lib/openvas/plugins
-chown -R gvm:gvm /usr/local/var/lib/openvas 
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
 if [ "$DEBUG" == "true" ]; then
 	echo "Sleeping here for 1d to debug"
 	sleep 1d
 fi
+
 
 # Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
 echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
@@ -256,22 +190,17 @@ touch /usr/local/var/log/db-restore.log
 chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
 su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 
-# Migrate the DB to current gvmd version
-echo "Migrating the database to the latest version if needed."
-su -c "gvmd --migrate" gvm
-
-# Fix perms on var/run for the sync to function
-if [ ! -d /usr/local/var/run ]; then
-	mkdir -p /usr/local/var/run
-fi
-chgrp gvm /usr/local/var/run/
-chmod 770 /usr/local/var/run
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
         echo "Removing feed-update.lock"
 	rm /usr/local/var/run/feed-update.lock
 fi
+
+# Migrate the DB to current gvmd version
+echo "Migrating the database to the latest version if needed."
+su -c "gvmd --migrate" gvm
+
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
    echo "This could take a while if you are not using persistent storage for your NVTs"
@@ -294,10 +223,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm 2&> /dev/null
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm 2&> /dev/null
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm 2&> /dev/null
 	   sleep 2
 	   echo " Pulling latest GVMD Data from greenbone" 
 	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
@@ -307,10 +236,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
 	   sleep 2
 	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm
 	   sleep 2
 	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm
+	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm
 	   sleep 2
 	   echo " Pulling latest GVMD Data from Greenbone" 
 	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
@@ -320,7 +249,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -362,8 +291,6 @@ echo "reset "
 set -Eeuo pipefail
 touch /setup
 
-# because ....
-chown -R gvm:gvm /data/var-lib 
 
 
 if [ -f /var/run/ospd.pid ]; then
@@ -378,9 +305,7 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
-if [ -S /tmp/ospd.sock ]; then
-  rm /tmp/ospd.sock
-fi
+
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
              --unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777
@@ -399,7 +324,7 @@ echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 if [ $HTTPS == "true" ]; then
 	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
-	            --gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0 \
+		    --gnutls-priorities=SECURE128:+SECURE192:-VERS-TLS-ALL:+VERS-TLS1.2 \
 		    --no-redirect \
 		    --port=9392" gvm
 else
@@ -419,6 +344,5 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 tail -F /usr/local/var/log/gvm/* &
-# This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
-# in postgresql instance
+# This is part of making sure we shutdown postgres properly on container shutdown.
 wait $!
