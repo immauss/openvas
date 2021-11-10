@@ -24,44 +24,6 @@ function DBCheck {
                 exit
         fi
 }
-# These are  needed for a first run WITH a new container image
-# and an existing database in the mounted volume at /data
-
-if [ ! -L /var/lib/postgresql/12/main ]; then
-        echo "Fixing Database folder..."
-        rm -rf /var/lib/postgresql/12/main
-        ln -s /data/database /var/lib/postgresql/12/main
-        chown postgres:postgres -R /data/database
-fi
-if [ ! -d /usr/local/var/lib ]; then
-        mkdir -p /usr/local/var/lib/gsm
-        mkdir -p /usr/local/var/lib/openvas
-        mkdir -p /usr/local/var/log/gvm
-fi
-if [ ! -L /usr/local/var/lib  ]; then
-        echo "Fixing local/var/lib ... "
-        if [ ! -d /data/var-lib ]; then
-                mkdir /data/var-lib
-        fi
-        rm -rf /usr/local/var/lib
-        ln -s /data/var-lib /usr/local/var/lib
-fi
-if [ ! -L /usr/local/share ]; then
-        echo "Fixing local/share ... "
-        if [ ! -d /data/local-share ]; then mkdir /data/local-share; fi
-        rm -rf /usr/local/share
-        ln -s /data/local-share /usr/local/share
-fi
-
-if [ ! -L /usr/local/var/log/gvm ]; then
-        echo "Fixing log directory for persistent logs .... "
-        if [ ! -d /data/var-log/ ]; then mkdir /data/var-log; fi
-        rm -rf /usr/local/var/log/gvm
-        ln -s /data/var-log /usr/local/var/log/gvm
-        chown gvm /data/var-log
-fi
-
-
 # Need to find a way to wait for the DB to be ready:
 while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
 	echo "DB not ready yet"
@@ -108,9 +70,6 @@ if [ $LOADDEFAULT = "true" ] ; then
 	tar xf /usr/lib/var-lib.tar.xz 
 fi
 
-# Always make sure these are right.
-chown gvm:gvm -R /data/var-lib /usr/local/var 
-chmod 770 -R /data/var-lib/gvm
 
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	echo "Creating dir structure for feed sync"
@@ -119,8 +78,6 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-mkdir -p /usr/local/var/lib/openvas/plugins
-chown -R gvm:gvm /usr/local/var/lib/openvas 
 
 
 
@@ -135,14 +92,6 @@ su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /
 # Migrate the DB to current gvmd version
 echo "Migrating the database to the latest version if needed."
 su -c "gvmd --migrate" gvm
-
-# Fix perms on var/run for the sync to function
-if [ ! -d /usr/local/var/run ]; then
-	mkdir -p /usr/local/var/run
-fi
-chgrp gvm /usr/local/var/run/
-chmod 770 /usr/local/var/run
-# And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
         echo "Removing feed-update.lock"
@@ -237,6 +186,7 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 tail -f /usr/local/var/log/gvm/gvmd.log &
+#WTF ???? Why did I do this?
 pkill gvmd
 su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
  
