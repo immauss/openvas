@@ -1,7 +1,7 @@
 FROM debian:buster
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
-COPY install-deps-buster.sh /
-COPY package-list-buster /
-RUN bash /install-deps-buster.sh
+COPY scripts /scripts
+RUN bash /scripts/install-deps-buster.sh && \
+ bash /scripts/stage2-setup.sh
 ENTRYPOINT ["/bin/bash"] 
