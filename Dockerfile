@@ -36,7 +36,7 @@ RUN bash /build.d/links.sh
 # Stage 1: Start again with the ovasebase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="21.4.4-02" \
+      version="21.4.4-04" \
       url="https://hub.docker.com/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
@@ -47,6 +47,7 @@ ENV LANG=C.UTF-8
 COPY --from=0 /usr/local /usr/local
 COPY --from=0 /var/lib /var/lib 
 COPY --from=0 /etc/gvm /etc/gvm
+COPY --from=0 /data /data 
 COPY confs/gvmd_log.conf /usr/local/etc/gvm/
 RUN ldconfig
 # Split these off in a new layer makes refresh builds faster.
@@ -57,7 +58,7 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
     bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 COPY scripts/*.sh /
-RUN bash /stage2-setup.sh
+#RUN bash /stage2-setup.sh
 HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \
   CMD curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || exit 1
 CMD [ "/start.sh" ]
