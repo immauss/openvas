@@ -56,6 +56,8 @@ docker volume create openvas
 docker run --detach --publish 8080:9392 -e PASSWORD="Your admin password here" --volume openvas:/data --name openvas immauss/openvas
 ```
 
+*** Please note that images after 21.4.4-02 will not properly support a bind mount, only docker managed volumes. I'm working on it. *** 
+
 You can use whatever `--name` you'd like but for the sake of this guide we're using openvas.
 
 The `--publish 8080:9392` option will port forward `8080` on the host to `9392` (the container web interface port) in the docker container. Port `8080` was chosen only to avoid conflicts with any existing OpenVAS/GVM installation. You can change `8080` to any available port that you`d like.
