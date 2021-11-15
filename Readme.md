@@ -13,6 +13,13 @@
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
 
 
+# Attention !!! #
+There have been a ton of problems with the last few updates ( > 21.4.4-03 ). My appologies.  It seems a got a little too aggressive with changes and lax with testing. I've rolled latest back to 21.4.4-03, which is what I'm running in production at the moment. If you have some skills with writing tests for web applications, please ping me as I clearly need to automate some better testing before I publish. 
+
+Thanks,
+Scott
+
+
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
