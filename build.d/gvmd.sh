@@ -4,8 +4,9 @@ set -Eeuo pipefail
 . build.rc
 echo "Building gvmd"
 cd /build
-wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd.tar.gz
-tar -zxf $gvmd.tar.gz
+#wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd.tar.gz
+#tar -zxf $gvmd.tar.gz
+git clone --branch stable https://github.com/greenbone/gvmd.git
 cd /build/*/
 mkdir build
 cd build

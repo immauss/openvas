@@ -38,7 +38,7 @@ echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
 CONTINUE=0
 COUNTER=0
-while [ [ $CONTINUE -eq 0 ] && [ $COUNTER -le 20 ]; do
+while  [ $CONTINUE -eq 0 ] && [ $COUNTER -le 20 ]; do
 	if docker logs updater 2>&1 | grep -qs "update_nvt_cache_retry: rebuild successful"; then
 		CONTINUE=1
 		echo "looks like it's done"
