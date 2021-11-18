@@ -37,6 +37,15 @@ function DBCheck {
 		echo 0
         fi
 }
+# First, we need to setup the filesystem properly.
+# Tried to do this in the base image, but it breaks too manythings 
+# Primarily with bind vs docker volumes for storage
+# But my efforts did yield a nice script to handle it all
+if ! [ -d /data ]; then
+	/fs-setup.sh 
+fi
+# Need something new here to check for existing 'old' /data and fix all the links.
+# maybe an option passed to fs-setup?
 
 # 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
 if [ -f /data/var-log/gvmd.log ]; then
@@ -66,8 +75,6 @@ done
 echo "Redis ready."
 
 # Postgres config should be tighter.
-# Actually, postgress should be in its own container!
-# maybe redis should too. 
 if [ ! -f "/setup" ]; then
 	echo "Creating postgresql.conf and pg_hba.conf"
 	# Need to look at restricting this. Maybe to localhost ?
@@ -340,6 +347,8 @@ echo "$GVMVER"
 echo ""
 echo "Image DB date:"
 cat /update.ts
+echo "Versions:"
+cat /gvm-versions
 echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"

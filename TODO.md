@@ -22,3 +22,17 @@
 - [x] start.sh clean up. 
 	- Make sure there are no duplicates
 	- Validate the order of operations
+- [ ] Standardize testing for new images
+	- Scenarios
+	  - no volume
+	  - with empty docker volume
+	  - with empty bind directory
+	  - With existing volume from previous major version
+	  - With existing bind from previous major version
+	- In each scenario
+	  - starts without error
+	  - restart
+	  - Check GUI
+	  - Run a scan of a scannable container
+	  - With preeixsting data, is it still there?
+	  - 

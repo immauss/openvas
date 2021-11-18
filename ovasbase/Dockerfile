@@ -3,5 +3,5 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 COPY scripts /scripts
 RUN bash /scripts/install-deps-buster.sh && \
- bash /scripts/stage2-setup.sh
+ date > /ovasbase-build-date
 ENTRYPOINT ["/bin/bash"] 

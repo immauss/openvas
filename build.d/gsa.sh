@@ -19,3 +19,6 @@ make
 make install
 cd /build
 rm -rf *
+# Clean up after yarn
+rm -rf /usr/local/share/.cache
+
