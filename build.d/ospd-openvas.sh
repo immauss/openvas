@@ -4,9 +4,9 @@ set -Eeuo pipefail
 . build.rc
 echo "Building OSPd-openvas"   
 cd /build
-#wget --no-verbose https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas.tar.gz
-#tar -zxf $ospd_openvas.tar.gz
-git clone --branch stable https://github.com/greenbone/ospd-openvas.git
+wget --no-verbose https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas.tar.gz
+tar -zxf $ospd_openvas.tar.gz
+#git clone --branch stable https://github.com/greenbone/ospd-openvas.git
 cd /build/*/
 python3 -m pip install .
 cd /build
