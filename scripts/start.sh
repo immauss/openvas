@@ -41,9 +41,7 @@ function DBCheck {
 # Tried to do this in the base image, but it breaks too manythings 
 # Primarily with bind vs docker volumes for storage
 # But my efforts did yield a nice script to handle it all
-if ! [ -d /data ]; then
-	/fs-setup.sh 
-fi
+/fs-setup.sh 
 # Need something new here to check for existing 'old' /data and fix all the links.
 # maybe an option passed to fs-setup?
 
