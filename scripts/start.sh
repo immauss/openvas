@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #set -Eeuo pipefail
-echo "Setting up contianer filesystem"
-/scripts/fs-setup.sh
+if ! [ -f /.fs-setup-complete ]; then
+	echo "Setting up contianer filesystem"
+	/scripts/fs-setup.sh
+fi
 echo "Choosing container start method from:"
 echo "$@"
 echo "$1" > /usr/local/etc/running-as
