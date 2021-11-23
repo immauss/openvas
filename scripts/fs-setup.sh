@@ -89,4 +89,4 @@ chmod 750 /data/database
 chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg
 chown -R gvm:gvm  /data/var-lib/openvas/plugins /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd
 chmod 777 /run
-
+chown -R postfix:postfix /var/lib/postfix
