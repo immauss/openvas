@@ -60,7 +60,7 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 # Make sure we didn't just pull zero length files 
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-RUN mkdir /scripts
+#RUN mkdir /scripts
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
