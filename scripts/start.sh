@@ -25,6 +25,10 @@ case $1 in
 	echo "Starting postgresql for gvmd !!"
 	exec /scripts/postgresql.sh
 ;;
+	redis)
+	echo "Starting redis !!"
+	exec /scripts/redis.sh
+;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
 	exec /scripts/single.sh $@

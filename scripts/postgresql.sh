@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#set -Eeuo pipefail
 set -Eeo pipefail
 #Define  proper shutdown 
 # This is only needed with the postgresql instance
@@ -7,19 +6,10 @@ cleanup() {
     echo "Container stopped, performing shutdown"
     su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 }
-
-trap 'cleanup' SIGTERM
 # Clear out the old sockets so we can test for it in gvmd
 if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
 	rm -f /run/postgresql/.s.PGSQL.5432
 fi
-
-if ! [ -d /var/log/postgresql ]; then
-	
-# Pass this variable to gvmd via /run
-echo $LOADDEFAULT > /run/loaddefault
-# These are  needed for a first run WITH a new container image
-# and an existing database in the mounted volume at /data
 
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
@@ -38,6 +28,20 @@ fi
 
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/12/bin/pg_ctl  -D /data/database start" postgres
+
+trap 'cleanup' SIGTERM
+echo "Checking for existing DB"
+su -c " psql -lqt " postgres
+DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+if [ "$DB" = "gvmd" ]; then
+	LOADDEFAULT="false"
+else
+	LOADDEFAULT="true"
+fi
+
+# Pass this variable to gvmd via /run
+echo $LOADDEFAULT > /run/loaddefault
+#
 
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
