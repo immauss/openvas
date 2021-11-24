@@ -28,14 +28,12 @@ services:
       - "GMP=9390"    # to enable see docsvolumes:
   redis:
     container_name: ovas_redis
-    image: redis:latest
-    command: /etc/redis.conf
+    image: immauss/openvas:21.4.4-06mc
+    command: redis
     depends_on:
       - "gvmd"
     volumes: 
-      - "./confs/redis.conf:/etc/redis.conf"
       - "ovasrun:/run"
-
   openvas:
     container_name: openvas
     image: immauss/openvas:21.4.4-06mc

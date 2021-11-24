@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-
+sleep 2
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
@@ -48,6 +48,7 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
     	gvm-manage-certs -a
 fi
 LOADDEFAULT=$(cat /run/loaddefault)
+echo "LOADDEFAULT is $LOADDEFAULT" 
 if [ $LOADDEFAULT = "true" ] ; then
 	DBCheck
 	echo "########################################"
