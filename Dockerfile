@@ -62,6 +62,7 @@ RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; 
 RUN bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 #RUN mkdir /scripts
 COPY scripts/* /scripts/
+COPY build.rc /gvm-versions
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 #HEALTHCHECK --interval=600s --start-period=1200s --timeout=3s \

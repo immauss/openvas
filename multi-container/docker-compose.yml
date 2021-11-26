@@ -37,6 +37,7 @@ services:
   openvas:
     container_name: openvas
     image: immauss/openvas:21.4.4-06mc
+    init: true
     command: openvas
     depends_on: 
       - "redis"
