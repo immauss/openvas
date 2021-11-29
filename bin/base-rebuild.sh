@@ -5,6 +5,22 @@ if [ -z $tag ] ; then
 else
 	tag="$tag"
 fi
+case $1 in
+	-t)
+	shift
+	tag=$1
+	shift	
+	;;
+	-a)
+	shift
+	arch=$1
+	shift
+	;;
+	*)
+	echo " Specify at least the tag with -t"
+	exit
+	;;
+esac
 set -Eeuo pipefail
 cd /home/scott/Projects/openvas/ovasbase
 docker buildx build --push --no-cache --platform  linux/amd64,linux/arm64 -f Dockerfile -t immauss/ovasbase:latest .
