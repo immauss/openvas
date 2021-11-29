@@ -44,11 +44,18 @@ LABEL maintainer="scott@immauss.com" \
 EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
-COPY --from=0 /usr/local /usr/local
-COPY --from=0 /var/lib /var/lib 
-COPY --from=0 /etc/gvm /etc/gvm
+COPY --from=0 etc/gvm/pwpolicy.conf /etc/gvm/pwpolicy.conf
+COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
+COPY --from=0 etc/openvas/openvas_log.conf /etc/openvas/openvas_log.conf
+COPY --from=0 lib/systemd/system /lib/systemd/system
+COPY --from=0 usr/local/bin /usr/local/bin
+COPY --from=0 usr/local/include /usr/local/include
+COPY --from=0 usr/local/lib /usr/local/lib
+COPY --from=0 usr/local/sbin /usr/local/sbin
+COPY --from=0 usr/local/share /usr/local/share
 COPY confs/gvmd_log.conf /usr/local/etc/gvm/
-RUN ldconfig
+COPY build.d/links.sh /
+RUN bash /links.sh 
 # Split these off in a new layer makes refresh builds faster.
 COPY update.ts /
 COPY build.rc /gvm-versions
