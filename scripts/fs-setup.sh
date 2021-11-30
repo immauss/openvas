@@ -18,6 +18,8 @@ mkdir -p /data/var-lib/gvm/data-objects
 mkdir -p /data/var-lib/gvm/private/CA/
 mkdir -p /data/var-lib/openvas/plugins
 mkdir -p /data/var-lib/gvm/gvmd/gnupg
+mkdir -p /data/local-etc/openvas
+mkdir -p /data/local-etc/gvm
 
 # Link the database to the /data folder where the volume should be mounted
 if ! [ -d /data/database/base ]; then
@@ -42,12 +44,14 @@ if ! [ -L /usr/local/var/lib ]; then
 fi
 # Fix up var/log
 if ! [ -L /usr/local/var/log ]; then 
-	cp -rf /usr/local/var/log/* /data/var-log/
+	# Don't copy over existing log files
+	#cp -rf /usr/local/var/log/* /data/var-log/
 	rm -rf /usr/local/var/log
 	ln -s /data/var-log /usr/local/var/log 
 fi
 if ! [ -L /var/log ]; then
-	cp -rf /var/log/* /data/var-log/
+	# Don't copy over existing log files ... 
+	#cp -rf /var/log/* /data/var-log/
 	rm -rf /var/log 
 	ln -s /data/var-log /var/log
 fi
@@ -82,6 +86,42 @@ fi
 if !  grep -qis gvm /etc/passwd ; then
 	useradd --home-dir /usr/local/share/gvm gvm
 fi
+
+# Handle the config files for loggin and pw-policy properly
+# If there is is version already in /data, then just link to it.
+# If no existing config, copy the default there.
+# Defaults should be in /usr/local/etc/
+# Configs live in sub dirs gvm & openvas
+# gvm logging
+if [ -f /data/local-etc/gvm/gvmd_log.conf ]; then
+	echo "Using existing gvm logging config"
+else
+	echo "Using default gvm logging config"
+	cp /usr/local/etc/gvm/gvmd_log.conf /data/local-etc/gvm/
+fi
+# gvm password policy
+if [ -f /data/local-etc/gvm/pwpolicy.conf ]; then
+	echo "Using existing password policy config"
+else
+	echo "Using default gvm logging config"
+	cp /usr/local/etc/gvm/pwpolicy.conf /data/local-etc/gvm/
+fi
+
+rm -rf /etc/gvm /usr/local/etc/gvm
+ln -s /data/local-etc/gvm /etc/gvm
+ln -s /data/local-etc/gvm /usr/local/etc/gvm
+# openvas logging
+if [ -f /data/local-etc/openvas/openvas_log.conf ]; then
+	echo "Using existing openvas logging config"
+else
+	echo "Using default openvas logging config"
+	cp /usr/local/etc/openvas/openvas_log.conf /data/local-etc/openvas/
+fi
+
+rm -rf /etc/openvas /usr/local/etc/openvas
+ln -s /data/local-etc/openvas /etc/openvas
+ln -s /data/local-etc/openvas /usr/local/etc/openvas
+
 
 # Fix ownership and permissions
 chown -R postgres:postgres /data/database
