@@ -14,7 +14,6 @@
 
 
 # Attention !!! #
-There have been a ton of problems with the last few updates ( > 21.4.4-03 ). My appologies.  It seems a got a little too aggressive with changes and lax with testing. I've rolled latest back to 21.4.4-03, which is what I'm running in production at the moment. If you have some skills with writing tests for web applications, please ping me as I clearly need to automate some better testing before I publish. 
 # Dec 1, 2021: 21.4.4-06 is now live on hub.docker.com and 'should' resolve all the issues. See below for more detail. #
 
 Thanks,
@@ -24,8 +23,7 @@ Scott
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.4.4-06 | This is the most recent, but not yet the same as latest. I'm going to give it a few days. 
-21.4.4-01 & latest  | The latest and greatest for amd64 & arm64 based on Debian buster
+21.4.4-06 | This is the most recent and latest.  
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
@@ -36,6 +34,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
+- - - - 
+
+### 3 December 2021 ###
+- After some testing with arm64 image on RPI, I'm making 21.4.4-06 latest. Please let me know if you have any issues. 
+
+-Scott
+
 - - - -
 ### 1 December 2021 ###
 # Finally !! #
