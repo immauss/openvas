@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 set -Eeo pipefail
-# These are  needed for a first run WITH a new container image
-# and an existing database in the mounted volume at /data
 sleep 2
 while ! [ -f /run/redisup ]; do
 	echo "Waiting for redis"

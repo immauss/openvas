@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeo pipefail
+
 #Define  proper shutdown 
 # This is only needed with the postgresql instance
 cleanup() {

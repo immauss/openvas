@@ -43,7 +43,14 @@ function DBCheck {
 # But my efforts did yield a nice script to handle it all
 if ! [ -f /.fs-setup-complete ]; then
 	/fs-setup.sh 
+else
+	# we assume it has run already so let's make sure there are no 
+	# existing pid and sock files to cause issues.
+	find / -iname "*.sock" -exec rm -f {} \;
+	find /run -iname "*.pid" -exec rm -f {} \;
 fi
+
+
 # Need something new here to check for existing 'old' /data and fix all the links.
 # maybe an option passed to fs-setup?
 
