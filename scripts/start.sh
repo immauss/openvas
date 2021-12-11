@@ -3,9 +3,16 @@
 if ! [ -f /.fs-setup-complete ]; then
 	echo "Setting up contianer filesystem"
 	/scripts/fs-setup.sh
+else
+        # we assume it has run already so let's make sure there are no
+        # existing pid and sock files to cause issues.
+        find / -iname "*.sock" -exec rm -f {} \;
+        find /run -iname "*.pid" -exec rm -f {} \;
 fi
+
 echo "Choosing container start method from:"
 echo "$@"
+# We'll use this later to know how to check container health
 echo "$1" > /usr/local/etc/running-as
 
 case $1 in
