@@ -31,6 +31,7 @@
   libxml2-dev
   libxslt1-dev
   nmap
+  nodejs
   nsis
   openssh-client
   perl-base
@@ -65,4 +66,5 @@
   xml-twig-tools
   xsltproc
   xz-utils
+  yarnpkg
   zip

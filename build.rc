@@ -1,9 +1,9 @@
-gvmd=v21.4.4
-openvas=v21.4.3
+gvmd=v21.4.5
+openvas=v21.4.4
 openvas_smb=v21.4.0
-gvm_libs=v21.4.3
-gsa=v21.4.3
+gvm_libs=v21.4.4
+gsa=v21.4.4
 ospd=v21.4.4
-ospd_openvas=v21.4.3
-python_gvm=v21.10.0
+ospd_openvas=v21.4.4
+python_gvm=v21.11.0
 gvm_tools=v21.10.0

@@ -87,6 +87,7 @@ if [ ! -f "/setup" ]; then
 	# Need to look at restricting this. Maybe to localhost ?
 	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
 	echo "port = 5432" >> /data/database/postgresql.conf
+	echo "jit = off" >> /data/database/postgresql.conf
 	# This probably tooooo open.
 	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf

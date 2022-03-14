@@ -25,7 +25,7 @@ done
 if [ -z  $tag ]; then
 	tag=latest
 fi
-if [ -z arch ]; then
+if [ -z $arch ]; then
 	arch="linux/amd64,linux/arm64"
 fi
 
