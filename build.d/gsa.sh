@@ -34,6 +34,6 @@ cmake /build/gsad-$GSA_VERSION \
 	-DGSAD_RUN_DIR=/run/gsad \
 	-DLOGROTATE_DIR=/etc/logrotate.d
 
-make DESTDIR=$INSTALL_PREFIX install
+make install
 cd /build
 rm -rf *

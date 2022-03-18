@@ -88,7 +88,7 @@ fi
 cd ~/Projects/openvas
 # Make sure we are on the right branch before doing anything.
 BRANCH=$(git branch | awk /\*/'{print $2}')
-if [ $BRANCH != "21.04.06" ]; then
+if [ $BRANCH != "21.04.07" ]; then
 	echo " NOT on branch master " 
 	echo " NOT rebuilding !!"
 	echo " Fix it and try again"

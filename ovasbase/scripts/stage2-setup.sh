@@ -4,6 +4,7 @@ mkdir -p /run/gvm
 mkdir -p /run/ospd
 mkdir -p /run/gvmd
 mkdir -p /run/redis
+mkdir -p /run/gsad
 mkdir -p /etc/openvas
 mkdir -p /usr/local/var
 # These need a check for creation on a new volume in start.sh

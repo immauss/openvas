@@ -4,6 +4,7 @@ mkdir -p /run/gvm
 mkdir -p /run/ospd
 mkdir -p /run/gvmd
 mkdir -p /run/redis
+mkdir -p /run/gsad
 mkdir -p /etc/openvas
 mkdir -p /usr/local/var
 # These need a check for creation on a new volume in start.sh
@@ -126,8 +127,8 @@ ln -s /data/local-etc/openvas /usr/local/etc/openvas
 # Fix ownership and permissions
 chown -R postgres:postgres /data/database
 chmod 750 /data/database
-chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg
-chown -R gvm:gvm  /data/var-lib/openvas/plugins /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd
+chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
+chown -R gvm:gvm  /data/var-lib/openvas/plugins /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad
 chmod 777 /run
 chown -R postfix:postfix /var/lib/postfix
 
