@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create the volume and the bind dir from the old archive.
-tag="master"
+tag="21.04.07"
 OLDTAG="21.4.3"
 OLDVOL="test-$OLDTAG"
 OLDBIND="/bind/testing/$OLDTAG"

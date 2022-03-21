@@ -46,7 +46,7 @@ if ! [ -f /.fs-setup-complete ]; then
 else
 	# we assume it has run already so let's make sure there are no 
 	# existing pid and sock files to cause issues.
-	find / -iname "*.sock" -exec rm -f {} \;
+	find /run -iname "*.sock" -exec rm -f {} \;
 	find /run -iname "*.pid" -exec rm -f {} \;
 fi
 
