@@ -24,8 +24,8 @@ COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
 COPY build.d/gsa.sh /build.d/
 RUN bash /build.d/gsa.sh
-COPY build.d/ospd.sh /build.d/
-RUN bash /build.d/ospd.sh
+#COPY build.d/ospd.sh /build.d/
+#RUN bash /build.d/ospd.sh
 COPY build.d/ospd-openvas.sh /build.d/
 RUN bash /build.d/ospd-openvas.sh
 COPY build.d/gvm-tool.sh /build.d/

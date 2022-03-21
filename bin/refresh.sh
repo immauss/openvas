@@ -77,7 +77,7 @@ if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 fi
 
 # Need error checking here to prevent pushing a nil DB.
-scp *.xz push@www.immauss.com:/var/www/html/openvas/
+scp *.xz push@www.immauss.com:/var/www/html/drupal/openvas/
 if [ $? -ne 0 ]; then
 	logger -t db-refresh "SCP of new db failed $?"
 	exit
