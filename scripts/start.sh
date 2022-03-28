@@ -334,6 +334,8 @@ done
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
+# Creating this until I can figure out why issue #107 seems to need it. 
+ln -s /run/ospd/ospd.sock  /run/ospd/ospd-openvas.sock
 
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
