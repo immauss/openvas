@@ -20,7 +20,7 @@
   libpopt0
   libpq5
   libradcli4
-  libsnmp30
+  libsnmp40
   libssh-gcrypt-4
   libunistring2
   libxml2
@@ -45,7 +45,7 @@
   python3-redis
   python3-setuptools
   python3-wrapt
-  python-impacket
+  python3-impacket
   redis-server
   rpm
   rsync
