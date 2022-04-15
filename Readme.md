@@ -23,7 +23,8 @@ Scott
 # Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.4.4-06 | This is the most recent and latest.  
+21.04.07 | This is the most recent and latest.  
+21.04.08 | This is still beta. The only difference is it uses Debian bullseye as the base image instead of buster. This is because Greenbone has switched to bullseye as thier primary dev platform. It should work .. but limited testing.
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 beta            | from the latest master source from greenbone. This may or may not work.
@@ -35,6 +36,12 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+
+### 15 April 2022 ###
+After a long wait, the 21.04.07 is live. It's actually been up for a week or so, but just now updating here. I made a mess of the git repo and had to do some hard rests and force pushes to get things back in order. Mainly because I pushed the multi-container branch to master before it was ready. There is also a 21.04.08 image which is based on the latest Debian image, bullseye. Greenbone recently announced they are using Bullseye as a their primary dev platform. Only required a few changes to the package lists, so it should be fine, but it has limited testing so .....
+
+-Scott
+---
 
 ### 3 December 2021 ###
 - After some testing with arm64 image on RPI, I'm making 21.4.4-06 latest. Please let me know if you have any issues. 
