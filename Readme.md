@@ -20,14 +20,12 @@ Thanks,
 Scott
 
 
-# Tags  #
+# Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.04.07 | This is the most recent and latest.  
-21.04.08 | This is still beta. The only difference is it uses Debian bullseye as the base image instead of buster. This is because Greenbone has switched to bullseye as thier primary dev platform. It should work .. but limited testing.
+21.04.08 | This is the most recent and latest.  
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
-beta            | from the latest master source from greenbone. This may or may not work.
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 
@@ -36,6 +34,10 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+
+### 18 April 2022 ###
+After some qemu struggles with arm64 builds, the 21.04.08 build based on debian:bullsye instead of buster is now live and latest. If you are building the image on your own with Docker's Build Kit and see qemu segmentation faults when cross compiling, then make sure you check out [tonistiigi'sbinfmt. ] (https://hub.docker.com/r/tonistiigi/binfmt). It will get your Build Kit up to the latest qemu and should resolve the issue.
+- - - -
 
 ### 15 April 2022 ###
 After a long wait, the 21.04.07 is live. It's actually been up for a week or so, but just now updating here. I made a mess of the git repo and had to do some hard rests and force pushes to get things back in order. Mainly because I pushed the multi-container branch to master before it was ready. There is also a 21.04.08 image which is based on the latest Debian image, bullseye. Greenbone recently announced they are using Bullseye as a their primary dev platform. Only required a few changes to the package lists, so it should be fine, but it has limited testing so .....
