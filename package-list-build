@@ -31,6 +31,7 @@
   libxml2-dev
   libxslt1-dev
   nmap
+  nodejs
   nsis
   openssh-client
   perl-base
@@ -48,7 +49,7 @@
   python3-redis
   python3-setuptools
   python3-wrapt
-  python-impacket
+  python3-impacket
   python3-dev
   redis-server
   rpm
@@ -65,4 +66,5 @@
   xml-twig-tools
   xsltproc
   xz-utils
+  yarnpkg
   zip
