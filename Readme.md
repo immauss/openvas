@@ -13,13 +13,6 @@
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
 
 
-# Attention !!! #
-# Dec 1, 2021: 21.4.4-06 is now live on hub.docker.com and 'should' resolve all the issues. See below for more detail. #
-
-Thanks,
-Scott
-
-
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
