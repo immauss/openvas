@@ -46,5 +46,6 @@ echo $LOADDEFAULT > /run/loaddefault
 
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
-tail -f /var/log/postgresql/postgresql-12-main.log &
+#tail -f /var/log/postgresql/postgresql-12-main.log &
+tail -f /dev/null
 wait $!
