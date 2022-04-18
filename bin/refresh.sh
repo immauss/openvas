@@ -16,12 +16,51 @@
 	#exit
 #fi
 
-# Tag to work with. Normally latest but might be using new tag during upgrades.
-if [ -z $1 ]; then
+while ! [ -z "$1" ]; do
+  case $1 in
+        -t)
+        shift
+        TAG=$1
+        shift
+        ;;
+	-b)
+	shift 
+	BUILD_BRANCH=$1
+	shift
+	;;
+        -p)
+        echo " Flushing build kit cache"
+        docker buildx prune -af
+        shift
+        ;;
+	*)
+	echo -e " Unrecognized option $1"
+	echo -e " -p\t\tFlush Build Kit cache"
+	echo -e " -t <TAG>\tSet build tag.(default latest)"
+	echo -e " -b <BRANCH>\tSet git branch to build from.(default master)"
+	echo -e " -h\t\tThis text"
+	exit
+	;;
+
+  esac
+done
+# Tag & branch to work with. Normally latest/master but might be using new tag during upgrades.
+if [ -z $TAG ]; then
 	TAG="latest"
-else
-	TAG="$1"
 fi
+if [ -z $BUILD_BRANCH ]; then
+	BUILD_BRANCH="master"
+fi
+# Make sure we are on the right branch before doing anything.
+cd ~/Projects/openvas
+BRANCH=$(git branch | awk /\*/'{print $2}')
+if [ $BRANCH != "$BUILD_BRANCH" ]; then
+	echo " NOT on branch $BUILD_BRANCH " 
+	echo " NOT rebuilding !!"
+	echo " Fix it and try again"
+	exit
+fi
+
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
 STIME="40m" # time between resync and archiving.
@@ -86,14 +125,6 @@ fi
 
 # Now rebuild the image
 cd ~/Projects/openvas
-# Make sure we are on the right branch before doing anything.
-BRANCH=$(git branch | awk /\*/'{print $2}')
-if [ $BRANCH != "21.04.07" ]; then
-	echo " NOT on branch master " 
-	echo " NOT rebuilding !!"
-	echo " Fix it and try again"
-	exit
-fi
 echo "Pulling latest from github"
 git pull
 if [ $? -ne 0 ]; then
