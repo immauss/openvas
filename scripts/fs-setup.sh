@@ -12,6 +12,7 @@ mkdir -p /data/database
 mkdir -p /data/var-lib/gvm
 mkdir -p /data/var-lib/openvas
 mkdir -p /data/var-log/gvm
+mkdir -p /data/var-log/postgresql
 mkdir -p /data/local-share/gvm
 mkdir -p /data/var-lib/gvm/cert-data
 mkdir -p /data/var-lib/gvm/scap-data
@@ -125,7 +126,7 @@ ln -s /data/local-etc/openvas /usr/local/etc/openvas
 
 
 # Fix ownership and permissions
-chown -R postgres:postgres /data/database
+chown -R postgres:postgres /data/database /data/var-log/postgresql
 chmod 750 /data/database
 chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
 chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad

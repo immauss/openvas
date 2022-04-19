@@ -24,7 +24,7 @@ services:
       - "RELAYHOST=172.17.0.1"
       - "SMTPPORT=25"
       - "QUIET=false"  # dump feed sync noise to /dev/null
-      - "SKIPSYNC=false" # Skips the feed sync on startup.
+      - "SKIPSYNC=true" # Skips the feed sync on startup.
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "GMP=9390"    # to enable see docs
     restart: unless-stopped
