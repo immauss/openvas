@@ -41,7 +41,7 @@ LABEL maintainer="scott@immauss.com" \
       source="https://github.com/immauss/openvas"
       
       
-EXPOSE 9392
+#EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
 COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
