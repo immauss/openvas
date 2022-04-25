@@ -173,6 +173,8 @@ if [ $RESTORE = "true" ] ; then
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
 	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
         su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
+	echo "Rebuilding report formats"
+	su -c "gvmd --rebuild-gvmd-data=report_formats" gvm
 	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
 	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
 	echo " You should NOT keep the container running with the RESTORE env var set"
