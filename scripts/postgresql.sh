@@ -18,7 +18,7 @@ fi
 if [ ! -f "/setup" ]; then
 	echo "Creating postgresql.conf and pg_hba.conf"
 	# Need to look at restricting this. Maybe to localhost ?
-	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
+	echo "listen_addresses = '*'" > /data/database/postgresql.conf
 	echo "port = 5432" >> /data/database/postgresql.conf
 	echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
 	echo "logging_collector = on" >> /data/database/postgresql.conf
@@ -29,10 +29,11 @@ if [ ! -f "/setup" ]; then
 	echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
 	echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	# This probably tooooo open.
-	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
+	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" > /data/database/pg_hba.conf
 	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
 	chown postgres:postgres -R /data/database
+	touch /setup
 fi
 
 echo "Starting PostgreSQL..."
