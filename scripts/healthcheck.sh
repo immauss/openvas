@@ -1,7 +1,7 @@
 #!/bin/bash 
 FUNC=$(cat /usr/local/etc/running-as)
 
-case in $FUNC 
+case  $FUNC in
 	openvas)
 		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
 		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || exit 1
