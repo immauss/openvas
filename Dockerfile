@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:pg13
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
