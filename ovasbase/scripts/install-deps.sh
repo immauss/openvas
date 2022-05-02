@@ -15,7 +15,7 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key a
 apt-get update 
 apt-get upgrade -y
 echo "install required packages"
-PACKAGES=$(cat /scripts/package-list-buster)
+PACKAGES=$(cat /scripts/package-list)
 apt-get install -yq --no-install-recommends $PACKAGES
 /usr/sbin/update-ca-certificates --fresh
 #Clean up after apt

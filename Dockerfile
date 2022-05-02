@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:pg13
+FROM immauss/ovasbase:mc-pg13
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -34,7 +34,7 @@ COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 
 # Stage 1: Start again with the ovasebase. Dependancies already installed
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:mc-pg13
 LABEL maintainer="scott@immauss.com" \
       version="21.04.08-mc01" \
       url="https://hub.docker.com/immauss/openvas" \
