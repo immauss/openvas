@@ -5,5 +5,5 @@ gvm_libs=v21.4.4
 gsa=v21.4.4
 ospd=v21.4.4
 ospd_openvas=v21.4.4
-gvm_tools=v21.10.0
 python_gvm=v21.11.0
+gvm_tools=v21.10.0
