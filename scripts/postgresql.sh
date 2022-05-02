@@ -5,7 +5,7 @@ set -Eeo pipefail
 # This is only needed with the postgresql instance
 cleanup() {
     echo "Container stopped, performing shutdown"
-    su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+    su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
 }
 # Clear out the old sockets so we can test for it in gvmd
 if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
@@ -37,7 +37,7 @@ if [ ! -f "/setup" ]; then
 fi
 
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/12/bin/pg_ctl  -D /data/database start" postgres
+su -c "/usr/lib/postgresql/13/bin/pg_ctl  -D /data/database start" postgres
 
 trap 'cleanup' SIGTERM
 echo "Checking for existing DB"
@@ -55,6 +55,6 @@ echo $LOADDEFAULT > /run/loaddefault
 
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
-#tail -f /var/log/postgresql/postgresql-12-main.log &
+#tail -f /var/log/postgresql/postgresql-13-main.log &
 tail -f /data/var-log/postgresql/postgresql-gvmd.log
 wait $!

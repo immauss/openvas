@@ -36,6 +36,10 @@ case $1 in
 	echo "Starting redis !!"
 	exec /scripts/redis.sh
 ;;
+	debug)
+	echo "Starting bash shell!!"
+	exec /bin/bash
+;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
 	exec /scripts/single.sh $@
