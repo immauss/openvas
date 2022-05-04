@@ -38,7 +38,7 @@ case $1 in
 ;;
 	debug)
 	echo "Starting bash shell!!"
-	exec /bin/bash
+	/bin/bash -c "sleep 30d"
 ;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
