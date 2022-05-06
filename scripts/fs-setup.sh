@@ -25,9 +25,9 @@ mkdir -p /data/local-etc/gvm
 
 # Link the database to the /data folder where the volume should be mounted
 if ! [ -d /data/database/base ]; then
-	mv /var/lib/postgresql/12/main/* /data/database/ 
-	rm -rf /var/lib/postgresql/12/main
-	ln -s /data/database /var/lib/postgresql/12/main
+	mv /var/lib/postgresql/13/main/* /data/database/ 
+	rm -rf /var/lib/postgresql/13/main
+	ln -s /data/database /var/lib/postgresql/13/main
 else 
 	echo "/data/database/base alredy exists ..."
 	echo " NOT moving data from image to /data"

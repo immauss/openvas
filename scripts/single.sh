@@ -3,7 +3,7 @@ set -Eeuo pipefail
 #Define  proper shutdown 
 cleanup() {
     echo "Container stopped, performing shutdown"
-    su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+    su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
 }
 
 #Trap SIGTERM
@@ -95,7 +95,17 @@ if [ ! -f "/setup" ]; then
 fi
 
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database start" postgres
+su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
+echo "pg exit with $PGFAIL ." 
+if [ $PGFAIL -ne 0 ]; then
+	echo "It looks like postgres failed to start. ( Exit code: \"$?\" "
+	echo "Assuming this is due to different database version and starting upgrade."
+	/scripts/db-upgrade.sh || PGUPFAIL=$?
+	if [ $PGUPFAIL -ne 0 ]; then
+		echo "Looks like this is either not an upgrade problem, or the upgrade failed."
+		exit
+	fi
+fi
 echo "Checking for existing DB"
 if [ $(DBCheck) -eq 0 ]; then
 	LOADDEFAULT="true"
@@ -124,8 +134,8 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
-	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/13/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -147,7 +157,7 @@ if [ $NEWDB = "true" ]; then
         su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
         su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
         chown postgres:postgres -R /data/database
-        su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database restart" postgres
+        su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
         if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
                 echo "Generating certs..."
         gvm-manage-certs -a
@@ -171,11 +181,11 @@ if [ $RESTORE = "true" ] ; then
 	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
-	su -c "/usr/lib/postgresql/12/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
-        su -c "/usr/lib/postgresql/12/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
+	su -c "/usr/lib/postgresql/13/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
+        su -c "/usr/lib/postgresql/13/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
 	echo "Rebuilding report formats"
 	su -c "gvmd --rebuild-gvmd-data=report_formats" gvm
-	su -c "/usr/lib/postgresql/12/bin/pg_ctl -D /data/database stop" postgres
+	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
 	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
 	echo " You should NOT keep the container running with the RESTORE env var set"
 	echo " as a restart of the container will overwrite the database again." 
@@ -204,7 +214,7 @@ echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');
 echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 touch /usr/local/var/log/db-restore.log
 chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
