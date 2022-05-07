@@ -91,6 +91,14 @@ if [ ! -f "/setup" ]; then
 	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
+        echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
+        echo "logging_collector = on" >> /data/database/postgresql.conf
+        echo "log_directory = '/data/var-log/postgresql/'" >> /data/database/postgresql.conf
+        echo "log_filename = 'postgresql-gvmd.log'" >> /data/database/postgresql.conf
+        echo "log_file_mode = 0666" >> /data/database/postgresql.conf
+        echo "log_truncate_on_rotation = off" >> /data/database/postgresql.conf
+        echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
+        echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	chown postgres:postgres -R /data/database
 fi
 
