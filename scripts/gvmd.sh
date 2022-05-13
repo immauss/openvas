@@ -63,8 +63,8 @@ if [ $LOADDEFAULT = "true" ] ; then
 	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
-	su -c "/usr/lib/postgresql/12/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/13/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -88,7 +88,7 @@ echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');
 echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
 touch /usr/local/var/log/db-restore.log
 chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-su -c "/usr/lib/postgresql/12/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 
 # Migrate the DB to current gvmd version
 echo "Migrating the database to the latest version if needed."

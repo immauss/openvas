@@ -101,7 +101,8 @@ if [ ! -f "/setup" ]; then
         echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	chown postgres:postgres -R /data/database
 fi
-
+PGFAIL=0
+PGUPFAIL=0
 echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
 echo "pg exit with $PGFAIL ." 
@@ -112,6 +113,9 @@ if [ $PGFAIL -ne 0 ]; then
 	if [ $PGUPFAIL -ne 0 ]; then
 		echo "Looks like this is either not an upgrade problem, or the upgrade failed."
 		exit
+	else
+		echo " DB Upgrade was a success. Starting postgresql 13"
+		su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres
 	fi
 fi
 echo "Checking for existing DB"

@@ -36,8 +36,23 @@ if [ ! -f "/setup" ]; then
 	touch /setup
 fi
 
+PGFAIL=0
+PGUPFAIL=0
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/13/bin/pg_ctl  -D /data/database start" postgres
+su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
+echo "pg exit with $PGFAIL ." 
+if [ $PGFAIL -ne 0 ]; then
+        echo "It looks like postgres failed to start. ( Exit code: \"$?\" "
+        echo "Assuming this is due to different database version and starting upgrade."
+        /scripts/db-upgrade.sh || PGUPFAIL=$?
+        if [ $PGUPFAIL -ne 0 ]; then
+                echo "Looks like this is either not an upgrade problem, or the upgrade failed."
+                exit
+        else
+                echo " DB Upgrade was a success. Starting postgresql 13"
+                su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres
+        fi
+fi
 
 trap 'cleanup' SIGTERM
 echo "Checking for existing DB"

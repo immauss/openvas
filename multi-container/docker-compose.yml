@@ -2,15 +2,16 @@ version: "3"
 services:
   postgresql:
     container_name: ovas_postgresql
-    image: immauss/openvas:mc
+    image: immauss/openvas:mc01
     command: postgresql
+    #init: true
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
-
+    restart: unless-stopped
   gvmd:
     container_name: ovas_gvmd
-    image: immauss/openvas:mc
+    image: immauss/openvas:mc01
     command: gvmd
     depends_on: 
       - "postgresql"
@@ -26,17 +27,19 @@ services:
       - "SKIPSYNC=true" # Skips the feed sync on startup.
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "GMP=9390"    # to enable see docs
+    restart: unless-stopped
   redis:
     container_name: ovas_redis
-    image: immauss/openvas:mc
+    image: immauss/openvas:mc01
     command: redis
     depends_on:
       - "gvmd"
     volumes: 
       - "ovasrun:/run"
+    restart: unless-stopped
   openvas:
     container_name: openvas
-    image: immauss/openvas:mc
+    image: immauss/openvas:mc01
     init: true
     command: openvas
     depends_on: 
@@ -44,9 +47,10 @@ services:
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
+    restart: unless-stopped
   gsad:
     container_name: ovas_gsad
-    image: immauss/openvas:mc
+    image: immauss/openvas:mc01
     command: gsad
     depends_on:
       - "gvmd"
@@ -54,6 +58,7 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
     ports:
       - "8080:9392"
+    restart: unless-stopped
   scannable:
     image: immauss/scannable
     container_name: scannable
