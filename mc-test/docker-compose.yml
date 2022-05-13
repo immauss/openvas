@@ -6,8 +6,8 @@ services:
     command: postgresql
     #init: true
     volumes:
-      - "openvas13:/data"
-      - "ovasrun13:/run"
+      - "openvas:/data"
+      - "ovasrun:/run"
     restart: unless-stopped
   gvmd:
     container_name: ovas_gvmd
@@ -16,8 +16,8 @@ services:
     depends_on: 
       - "postgresql"
     volumes:
-      - "openvas13:/data"
-      - "ovasrun13:/run"
+      - "openvas:/data"
+      - "ovasrun:/run"
     environment:
       - "PASSWORD=admin"
       - "USERNAME=admin"
@@ -35,7 +35,7 @@ services:
     depends_on:
       - "gvmd"
     volumes: 
-      - "ovasrun13:/run"
+      - "ovasrun:/run"
     restart: unless-stopped
   openvas:
     container_name: openvas
@@ -45,8 +45,8 @@ services:
     depends_on: 
       - "redis"
     volumes:
-      - "openvas13:/data"
-      - "ovasrun13:/run"
+      - "openvas:/data"
+      - "ovasrun:/run"
     restart: unless-stopped
   gsad:
     container_name: ovas_gsad
@@ -63,5 +63,5 @@ services:
     image: immauss/scannable
     container_name: scannable
 volumes:
-  openvas13: 
-  ovasrun13: 
+  openvas: 
+  ovasrun: 
