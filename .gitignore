@@ -4,3 +4,4 @@ build-branch.sh
 TODO-Before-21.04.md
 *.gz
 tmp
+testing/bind
