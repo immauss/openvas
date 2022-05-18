@@ -10,8 +10,8 @@
 OLDTAG="latest"
 STIME="300"
 # we need one with a bind 
-if ! [ -d $(pwd)/bind/$OLDTAG-bind ]; then
-	mkdir $(pwd)/bind/$OLDTAG-bind
+if ! [ -d ./bind/$OLDTAG-bind ]; then
+	mkdir -p  ./bind/$OLDTAG-bind
 fi
 docker run  -d --rm -e SKIPSYNC=true -v $(pwd)/bind/$OLDTAG-bind:/data --name $OLDTAG-bind -p 8081:9392 immauss/openvas:$OLDTAG
 # Wait for log entry to indicate the DB is in sync
@@ -40,10 +40,10 @@ docker stop $OLDTAG-bind
 
 # Create archives
 
-sudo tar cJvf $(pwd)/bind/$OLDTAG-bind.tar.xz $(pwd)/bind/$OLDTAG-bind
+sudo tar cJvf ./archive/$OLDTAG-bind.tar.xz ./bind/$OLDTAG-bind
 
 echo " All Done"
-ls $(pwd)/bind
+ls -l ./archive/
 
 # End
 
