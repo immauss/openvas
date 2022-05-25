@@ -17,6 +17,7 @@
 tag              | Description
 ----------------|-------------------------------------------------------------------
 21.04.08 | This is the most recent and latest.  
+mc-pg13	| What will soon be latest. With armv7, multi-container and postgres13!
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -27,6 +28,18 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+
+### 25 May 2022 ###
+After way too long ... the multi-container build is finally ready! 
+Also, Postgresql 13 with auto upgrade ! 
+And of course the latest updates from Greenbone.
+The big plus for the Postgresql update to 13 is I can finally roll amd64, arm64, and arm v7 into one single tag!
+
+For now, this exists as tag mc-pg13. I'm currenlty running it as my production server as a single container. I still need to do some testing with the auto-upgrade in multi-container environments, but multi-container is stable with a new build. I'm also working on a transistion plan from an existing single container to a multi-container build. The short answer is export DB from single, start multi, import DB to multi. But all those scritps need to be tested in the multi environement. (Any takers?) 
+
+-Scott
+
+- - - -
 
 ### 18 April 2022 ###
 After some qemu struggles with arm64 builds, the 21.04.08 build based on debian:bullsye instead of buster is now live and latest. If you are building the image on your own with Docker's Build Kit and see qemu segmentation faults when cross compiling, then make sure you check out [tonistiigi'sbinfmt. ] (https://hub.docker.com/r/tonistiigi/binfmt). It will get your Build Kit up to the latest qemu and should resolve the issue.
