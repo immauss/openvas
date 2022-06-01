@@ -9,9 +9,14 @@
 # Tag to work with. Normally latest but might be using new tag during upgrades.
 TAG="21.04.09"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
-TWD="/var/lib/openvas"
+TWD="/var/lib/openvas/" # Must have a trailing "/"
 STIME="20m" # time between resync and archiving.
-# First, make sure there's enough storage avaialbe before doing anything.
+# First, clean TWD and  make sure there's enough storage available before doing anything.
+if [ -d $TWD ]; then # Make sure the TWD exists and is a directory so we don't accidently destroy the system.
+	echo " Cleaning $TWD "
+	cd $TWD
+	rm -rf ${TWD}*
+fi
 SPACE=$(df -h "$TWD" | awk /G/'{print $4}' | sed "s/G//")
 if [ -z $SPACE ]; then
 	echo "Check available storage"
