@@ -6,21 +6,22 @@
 # to github. It's probably not going to be useful to anyone but me
 # but the output will benefit all. 
 
-# First, make sure there's enough storage avaialbe before doing anything.
-#SPACE=$(df -h /var/lib/docker | awk /G/'{print $4}' | sed "s/G//")
-#if [ -n $SPACE ]; then
-	#echo "Check available storage"
-	#exit
-#elif [ $SPACE -le 4 ]; then
-	#echo "only ${SPACE}G of space on /var/lib/docker ... bailing out."
-	#exit
-#fi
-
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="latest"
+TAG="21.04.09"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas"
 STIME="20m" # time between resync and archiving.
+# First, make sure there's enough storage avaialbe before doing anything.
+SPACE=$(df -h "$TWD" | awk /G/'{print $4}' | sed "s/G//")
+if [ -z $SPACE ]; then
+	echo "Check available storage"
+	exit
+elif [ $SPACE -le 4 ]; then
+	echo "only ${SPACE}G of space on /var/lib/docker ... bailing out."
+	exit
+fi
+
+
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
@@ -59,16 +60,17 @@ docker logs updater >> /var/log/refresh.log
 docker rm updater
 
 echo "Compress and archive the data"
+#Exclude the gnupg dir as this should be unique for each installation. 
 tar cJf var-lib.tar.xz --exclude=var-lib/gvm/gvmd/gnupg var-lib
 xz -1 base.sql
 SQL_SIZE=$( ls -l base.sql.xz | awk '{print $5}')
 FEED_SIZE=$( ls -l var-lib.tar.xz | awk '{print $5'})
+echo "Check the file sizes for sanity"
 if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 	logger -t db-refresh "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
 	exit
 fi
-
-# Need error checking here to prevent pushing a nil DB.
+echo " Push updates to www"
 scp *.xz push@www.immauss.com:/var/www/html/openvas/
 if [ $? -ne 0 ]; then
 	logger -t db-refresh "SCP of new db failed $?"
