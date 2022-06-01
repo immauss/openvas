@@ -77,7 +77,7 @@ if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 	exit
 fi
 echo " Push updates to www"
-scp *.xz push@www.immauss.com:/var/www/html/openvas/
+scp *.xz push@www.immauss.com:/var/www/html/drupal/openvas/
 if [ $? -ne 0 ]; then
 	echo "SCP of new db failed $?"
 	logger -t db-refresh "SCP of new db failed $?"
