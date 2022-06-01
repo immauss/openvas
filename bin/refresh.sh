@@ -55,7 +55,7 @@ cd $TWD
 echo "First copy the feeds from the container"
 docker cp updater:/data/var-lib .
 echo "Now dump the db from postgres"
-docker exec -i updater su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > ./base.sql 
+docker exec -i updater su -c "/usr/lib/postgresql/13/bin/pg_dumpall" postgres > ./base.sql 
 
 echo "Stopping update container"
 docker stop updater
@@ -72,12 +72,14 @@ SQL_SIZE=$( ls -l base.sql.xz | awk '{print $5}')
 FEED_SIZE=$( ls -l var-lib.tar.xz | awk '{print $5'})
 echo "Check the file sizes for sanity"
 if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
+	echo "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
 	logger -t db-refresh "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
 	exit
 fi
 echo " Push updates to www"
 scp *.xz push@www.immauss.com:/var/www/html/openvas/
 if [ $? -ne 0 ]; then
+	echo "SCP of new db failed $?"
 	logger -t db-refresh "SCP of new db failed $?"
 	exit
 fi
