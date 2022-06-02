@@ -100,7 +100,7 @@ git push
 
 #Build new image here
 #docker build -t immauss/openvas:latest .
-docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64 --push .
+docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
