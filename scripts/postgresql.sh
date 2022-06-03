@@ -71,5 +71,6 @@ echo $LOADDEFAULT > /run/loaddefault
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
 #tail -f /var/log/postgresql/postgresql-13-main.log &
-tail -f /data/var-log/postgresql/postgresql-gvmd.log
+tail -f /data/var-log/postgresql/postgresql-gvmd.log &
 wait $!
+#wait $(ps axwu | awk /postgres.*postgres.-D/'{print $2}' |head -1)
