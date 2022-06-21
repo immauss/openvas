@@ -16,8 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-21.04.08 | This is the most recent and latest.  
-mc-pg13	| What will soon be latest. With armv7, multi-container and postgres13!
+21.04.09 | This is the most recent and latest.  
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -29,6 +28,15 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
 
+### 21 June 2022 ###
+I've finally moved the 21.04.09 tag to latest. Not too many real changes here from the mc-pg13. It has Postgresql 13, auto update to pg13 and works in the multi container environment. It's also available for amd64, arm64 and armv7 !! It's also refreshed as of yesterday, so if you run with '-e SKIPSYNC=true', then it should be up and ready to scan in less than half an hour. It comes up in < 20 minutes on my Linode. :)
+
+I'm actively working now to add the option for a reverse proxy with nginx and a Let's Encrypt certificate. The trick is in working out how to get the initial certificate setup. It's chicken vs egg thing. 
+
+-Scott
+
+- - - -
+
 ### 25 May 2022 ###
 After way too long ... the multi-container build is finally ready! 
 Also, Postgresql 13 with auto upgrade ! 
@@ -36,6 +44,10 @@ And of course the latest updates from Greenbone.
 The big plus for the Postgresql update to 13 is I can finally roll amd64, arm64, and arm v7 into one single tag!
 
 For now, this exists as tag mc-pg13. I'm currenlty running it as my production server as a single container. I still need to do some testing with the auto-upgrade in multi-container environments, but multi-container is stable with a new build. 
+
+-Scott
+
+- - - -
 
 ### 18 April 2022 ###
 After some qemu struggles with arm64 builds, the 21.04.08 build based on debian:bullsye instead of buster is now live and latest. If you are building the image on your own with Docker's Build Kit and see qemu segmentation faults when cross compiling, then make sure you check out [tonistiigi'sbinfmt. ] (https://hub.docker.com/r/tonistiigi/binfmt). It will get your Build Kit up to the latest qemu and should resolve the issue.
