@@ -23,6 +23,10 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 #GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
+GVMD_ARGS=${GVMD_ARGS:-blank}
+if [ $GVMD_ARGS == "blank" ]; then
+	GVMD_ARGS='--'
+fi
 if [ "$DEBUG" == "true" ]; then
 	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET NEWDB SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
 		echo "$var = ${var}"
@@ -37,20 +41,6 @@ function DBCheck {
 		echo 0
         fi
 }
-# First, we need to setup the filesystem properly.
-# Tried to do this in the base image, but it breaks too manythings 
-# Primarily with bind vs docker volumes for storage
-# But my efforts did yield a nice script to handle it all
-if ! [ -f /.fs-setup-complete ]; then
-	/fs-setup.sh 
-else
-	# we assume it has run already so let's make sure there are no 
-	# existing pid and sock files to cause issues.
-	find / -iname "*.sock" -exec rm -f {} \;
-	find /run -iname "*.pid" -exec rm -f {} \;
-fi
-
-
 # Need something new here to check for existing 'old' /data and fix all the links.
 # maybe an option passed to fs-setup?
 
@@ -88,8 +78,8 @@ if [ ! -f "/setup" ]; then
 	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
 	echo "port = 5432" >> /data/database/postgresql.conf
 	# This probably tooooo open.
-	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" >> /data/database/pg_hba.conf
-	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
+	echo -e "host\tall\tall\t0.0.0.0/0\tmd5" >> /data/database/pg_hba.conf
+	echo -e "host\tall\tall\t::0/0\tmd5" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
         echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
         echo "logging_collector = on" >> /data/database/postgresql.conf
@@ -287,7 +277,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000 \"$GVMD_ARGS\"" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
