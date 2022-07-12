@@ -134,4 +134,4 @@ chmod 777 /run
 chown -R postfix:postfix /var/lib/postfix
 
 
-touch /.fs-setup-complete
+touch /data/.fs-setup-complete

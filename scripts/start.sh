@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #set -Eeuo pipefail
-if ! [ -f /.fs-setup-complete ]; then
+if ! [ -f /data/.fs-setup-complete ]; then
 	echo "Setting up contianer filesystem"
 	/scripts/fs-setup.sh
 else
