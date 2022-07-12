@@ -186,7 +186,7 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
-tail -f /usr/local/var/log/gvm/gvmd.log &
+tail -F /usr/local/var/log/gvm/gvmd.log &
 #WTF ???? Why did I do this?
 pkill gvmd
 su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
