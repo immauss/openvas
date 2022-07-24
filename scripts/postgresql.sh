@@ -29,8 +29,8 @@ if [ ! -f "/setup" ]; then
 	echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
 	echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	# This probably tooooo open.
-	echo -e "host\tall\tall\t0.0.0.0/0\ttrust" > /data/database/pg_hba.conf
-	echo -e "host\tall\tall\t::0/0\ttrust" >> /data/database/pg_hba.conf
+	echo -e "host\tall\tall\t0.0.0.0/0\tmd5" > /data/database/pg_hba.conf
+	echo -e "host\tall\tall\t::0/0\tmd5" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
 	chown postgres:postgres -R /data/database
 	touch /setup

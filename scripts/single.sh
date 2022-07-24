@@ -285,6 +285,10 @@ until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
 
+if ! [ -L /var/run/ospd/ospd-openvas.sock ]; then
+	ln -s /var/run/ospd/ospd.sock /var/run/ospd/ospd-openvas.sock
+fi
+
 echo "Time to fixup the gvm accounts."
 
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then

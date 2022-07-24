@@ -7,7 +7,7 @@
 # but the output will benefit all. 
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="21.04.09"
+TAG="latest"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas/" # Must have a trailing "/"
 STIME="20m" # time between resync and archiving.
