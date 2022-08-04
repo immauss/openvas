@@ -29,8 +29,8 @@ The current docs are maintained on github [here](https://immauss.github.io/openv
 - - - - 
 
 ### 4 Augusut 2022 ###
-22.04 !!
-I was able to get all the new code build in the container. Step one complete. Now I need to work out the additions to the startup scripts to add in the notus-scanner. Shoudn't be difficult, so hopefully havea beta out in a few days. 
+## 22.04 !! ##
+I was able to get all the new code to build in the container. Step one complete. Now I need to work out the additions to the startup scripts to add in the new notus-scanner. Shoudn't be difficult, so hopefully I will have a beta out in a few days. 
 
 -Scott
 
