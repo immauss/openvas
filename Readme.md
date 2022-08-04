@@ -28,6 +28,14 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
 
+### 4 Augusut 2022 ###
+22.04 !!
+I was able to get all the new code build in the container. Step one complete. Now I need to work out the additions to the startup scripts to add in the notus-scanner. Shoudn't be difficult, so hopefully havea beta out in a few days. 
+
+-Scott
+
+- - - -
+
 ### 21 June 2022 ###
 I've finally moved the 21.04.09 tag to latest. Not too many real changes here from the mc-pg13. It has Postgresql 13, auto update to pg13 and works in the multi container environment. It's also available for amd64, arm64 and armv7 !! It's also refreshed as of yesterday, so if you run with '-e SKIPSYNC=true', then it should be up and ready to scan in less than half an hour. It comes up in < 20 minutes on my Linode. :)
 
