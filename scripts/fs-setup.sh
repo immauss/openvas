@@ -12,6 +12,7 @@ mkdir -p /data/database
 mkdir -p /data/var-lib/gvm
 mkdir -p /data/var-lib/openvas
 mkdir -p /data/var-log/gvm
+mkdir -p /data/var-lib/notus
 mkdir -p /data/var-log/postgresql
 mkdir -p /data/local-share/gvm
 mkdir -p /data/var-lib/gvm/cert-data
@@ -132,6 +133,6 @@ chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
 chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad
 chmod 777 /run
 chown -R postfix:postfix /var/lib/postfix
-
+chown -R gvm:gvm /data/var-lib/notus
 
 touch /.fs-setup-complete
