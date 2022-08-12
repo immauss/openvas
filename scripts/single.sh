@@ -337,16 +337,37 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
+# Start the mqtt 
+if  ! grep -qis  mosquitto ; then  
+	echo "mqtt_server_uri = localhost:1883" |  tee -a /etc/openvas/openvas.conf
+fi
+chmod  777 /run/mosquitto
+echo "listener 1883
+allow_anonymous true" >> /etc/mosquitto.conf
+/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
+
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
-             --unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777
-
+#ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
+             #--unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777
+/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd.sock \
+	--pid-file /run/ospd/ospd-openvas.pid \
+	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
+	--lock-file-dir /var/lib/openvas \
+	--socket-mode 0o770 \
+	--mqtt-broker-address localhost \
+	--mqtt-broker-port 1883 \
+	--notus-feed-dir /var/lib/notus/advisories
 
 # wait for ospd to start by looking for the socket creation.
 while  [ ! -S /var/run/ospd/ospd.sock ]; do
 	sleep 1
 done
+
+
+# start notus-scanner 
+
+/usr/local/bin/notus-scanner --products-directory /var/lib/notus/products --log-file /var/log/gvm/notus-scanner.log
 
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
