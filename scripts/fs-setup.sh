@@ -40,12 +40,12 @@ else
 fi
 
 # Fix up var/lib 
-if ! [ -L /var/lib ]; then
+if ! [ -L /usr/local/var/lib ]; then
 	cp -rf /usr/local/var/lib/* /data/var-lib/
 	rm -rf /usr/local/var/lib
 	ln -s /data/var-lib /usr/local/var/lib
 fi
-if ! [ -L /usr/local/var/lib ]; then
+if ! [ -L /var/lib ]; then
 	cp -rf /var/lib/* /data/var-lib/
 	rm -rf /var/lib 
 	ln -s /data/var-lib /var/lib
