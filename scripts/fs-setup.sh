@@ -45,11 +45,11 @@ if ! [ -L /usr/local/var/lib ]; then
 	rm -rf /usr/local/var/lib
 	ln -s /data/var-lib /usr/local/var/lib
 fi
-if ! [ -L /var/lib ]; then
-	cp -rf /var/lib/* /data/var-lib/
-	rm -rf /var/lib 
-	ln -s /data/var-lib /var/lib
-fi
+#if ! [ -L /var/lib ]; then
+	#cp -rf /var/lib/* /data/var-lib/
+	#rm -rf /var/lib 
+	#ln -s /data/var-lib /var/lib
+#fi
 # Fix up var/log
 if ! [ -L /usr/local/var/log ]; then 
 	# Don't copy over existing log files
@@ -84,6 +84,12 @@ if ! [ -L /var/lib/gvm ]; then
 	ln -s /data/var-lib/gvm /var/lib/gvm
 fi
 
+# Fix up /var/lib/notus
+if ! [ -L /var/lib/notus ]; then
+	cp -rpf /var/lib/notus/* /data/var/lib/notus
+	rm -rf /var/lib/notus
+	ln -s /data/var-lib/notus /var/lib/notus
+fi
 # Fix up /var/lib/openvas
 if ! [ -L /var/lib/openvas ]; then 
 	cp -rpf /var/lib/openvas/* /data/var-lib/openvas

@@ -68,9 +68,9 @@ RUN curl -L --url https://www.immauss.com/openvas/base.sql.xz -o /usr/lib/base.s
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
     bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 #RUN mkdir /scripts
-COPY scripts/* /scripts/
 # packages to add to ovasbase
 RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
+COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=60s --start-period=300s --timeout=3s \

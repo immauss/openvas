@@ -346,10 +346,27 @@ echo "listener 1883
 allow_anonymous true" >> /etc/mosquitto.conf
 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
 
-
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-#ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
-             #--unix-socket /var/run/ospd/ospd.sock --log-level INFO --socket-mode 777
+# Prep the gpg keys
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/tmp/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.as ]; then
+	echo " Get the Greenbone public Key"
+	curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
+	echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
+	echo "Setup environment"
+	mkdir -p $GNUPGHOME
+	chmod 600 $GNUPGHOME
+	echo "Import the key "
+	gpg --import /tmp/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /tmp/ownertrust.txt
+	echo "Setup key for openvas .."
+	mkdir -p $OPENVAS_GNUPG_HOME
+	chown 600 $OPENVAS_GNUPG_HOME
+	cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
+
 /usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
