@@ -1,6 +1,6 @@
 # Wishlist
-- [ ] Move some of the filesystem mods from start.sh to build process.
-- [ ] Split out to multiple containers
+- [x] Move some of the filesystem mods from start.sh to build process.
+- [x] Split out to multiple containers
 	Use the same container image for all. Options at start determine functions:
 	Container list in start order.
 	- postgresql
@@ -19,7 +19,8 @@
 	- use GMP/OSP to validate a scan against a scannable container
 	- use compose to spin up openvas &  scannable, then script the scan creation and execution
         - build an image that starts after openvas is up and ready that connects to gmp to create and run scan against scannable.
-- [ ] Clean up repo directory structure (All scripts in scripts etc)
-- [ ] start.sh clean up. 
+- [x] Clean up repo directory structure (All scripts in scripts etc)
+- [x] start.sh clean up. 
 	- Make sure there are no duplicates
 	- Validate the order of operations
+- [ ] Move all daemon logs to /var/log/gvm so they will show up with docker logs -f ...
