@@ -29,6 +29,10 @@ The current docs are maintained on github [here](https://immauss.github.io/openv
 - - - - 
 
 ### 16 August 2022 ###
+## Update 2 ##
+Single container is "kind of" working. It doesn't yet want to work correctly with an old database. I'm looking for some voluntiers to help test database upgrade/migrations. If you are interested, please comment [here](https://github.com/immauss/openvas/issues/139).
+
+### 16 August 2022 ###
 ## Still working 22.04 ##
 I haven't stopped on this. As usual, there are lots of new bits from Greenbone with a major release. This time, it's the notus-scanner. Curiously, if you don't setup the feed properly, it doesn't really tell you. So at first glance, it looked like everything was running fine, but in reality, the notus-scanner was not doing anything. It wasn't doing anything because I had not created the directory for the feed sync in the container, and it had no data. Then I realized the notus-scanner needs the gpg key from Greenbone, or it will crash. ..... Anyway ... Getting close now. Everything is running again in a single container, I just need to do some testing to make sure it actually is working. :)D
 
