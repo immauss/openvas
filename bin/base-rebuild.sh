@@ -1,4 +1,5 @@
 #!/bin/bash
+NOBASE="false"
 while ! [ -z "$1" ]; do
   case $1 in
 	-t)
@@ -16,6 +17,11 @@ while ! [ -z "$1" ]; do
 	docker buildx prune -af 
 	shift
 	;;
+	-N)
+	shift
+	NOBASE=true;
+	echo "Skipping ovasebase build"
+	;;
   esac
 done
 if [ -z  $tag ]; then
@@ -27,13 +33,13 @@ fi
 
 echo "Building with $tag and $arch"
 set -Eeuo pipefail
-cd /home/scott/Projects/openvas/ovasbase
-docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase:$tag  .
-
-cd ..
-
+if  [ "$NOBASE" == "false" ]; then
+	cd /home/scott/Projects/openvas/ovasbase
+	docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase:$tag  .
+	cd ..
+fi
+cd /home/scott/Projects/openvas
 docker buildx build --push --platform $arch -f Dockerfile -t immauss/openvas:$tag .
-
 docker rm -f $tag
 docker pull immauss/openvas:$tag
 docker run -d --name $tag immauss/openvas:$tag 
