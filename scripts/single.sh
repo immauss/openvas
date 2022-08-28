@@ -226,8 +226,8 @@ if [ -f /usr/local/var/run/feed-update.lock ]; then
 fi
 
 # Migrate the DB to current gvmd version
-#echo "Migrating the database to the latest version if needed."
-#su -c "gvmd --migrate" gvm
+echo "Migrating the database to the latest version if needed."
+su -c "gvmd --migrate" gvm
 
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"

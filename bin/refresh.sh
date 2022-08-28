@@ -7,10 +7,12 @@
 # but the output will benefit all. 
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="latest"
+TAG="22.4-beta"
+SQLBU="${TAG}.base.sql"
+TAR="${TAG}.var-lib.tar.xz"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas/" # Must have a trailing "/"
-STIME="20m" # time between resync and archiving.
+STIME="30m" # time between resync and archiving.
 # First, clean TWD and  make sure there's enough storage available before doing anything.
 if [ -d $TWD ]; then # Make sure the TWD exists and is a directory so we don't accidently destroy the system.
 	echo " Cleaning $TWD "
@@ -30,14 +32,15 @@ fi
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
-docker run -d --name updater immauss/openvas:$TAG
+docker run -d -e NEWDB=true --name updater immauss/openvas:$TAG
 date
 echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
 CONTINUE=0
 COUNTER=0
-while [ [ $CONTINUE -eq 0 ] && [ $COUNTER -le 20 ]; do
-	if docker logs updater 2>&1 | grep -qs "update_nvt_cache_retry: rebuild successful"; then
+WAIT="45" # Time after sync to wait for DB to finish updating.
+while  [ $CONTINUE -eq 0 ] && [ $COUNTER -le $WAIT ]; do
+	if docker logs updater 2>&1 | grep -qs "Updating VTs in database ... done"; then
 		CONTINUE=1
 		echo "looks like it's done"
 	else
@@ -47,15 +50,18 @@ while [ [ $CONTINUE -eq 0 ] && [ $COUNTER -le 20 ]; do
 	sleep 1m
 done
 
-if [ $COUNTER -gt 20 ]; then
-	echo "Waited for succes in logs for > 20m. This might fail"
+if [ $COUNTER -gt $WAIT ]; then
+	echo "Waited for succes in logs for > $WAIT minutes. "
+	echo "Bailing out now."
+	docker logs -n 30 updater
+	exit
 fi
 
 cd $TWD
 echo "First copy the feeds from the container"
 docker cp updater:/data/var-lib .
 echo "Now dump the db from postgres"
-docker exec -i updater su -c "/usr/lib/postgresql/13/bin/pg_dumpall" postgres > ./base.sql 
+docker exec -i updater su -c "/usr/lib/postgresql/13/bin/pg_dumpall" postgres > ./$SQLBU 
 
 echo "Stopping update container"
 docker stop updater
@@ -66,10 +72,10 @@ docker rm updater
 
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
-tar cJf var-lib.tar.xz --exclude=var-lib/gvm/gvmd/gnupg var-lib
-xz -1 base.sql
-SQL_SIZE=$( ls -l base.sql.xz | awk '{print $5}')
-FEED_SIZE=$( ls -l var-lib.tar.xz | awk '{print $5'})
+tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg var-lib
+xz -1 $SQLBU
+SQL_SIZE=$( ls -l $SQLBU.xz | awk '{print $5}')
+FEED_SIZE=$( ls -l $TAR | awk '{print $5'})
 echo "Check the file sizes for sanity"
 if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 	echo "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
