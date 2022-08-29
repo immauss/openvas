@@ -115,7 +115,6 @@ if [ $(DBCheck) -eq 0 ]; then
 else
 	LOADDEFAULT="false"
 fi
-
 echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
@@ -202,22 +201,6 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-
-# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
-if [ "$DEBUG" == "true" ]; then
-	echo "Sleeping here for 1d to debug"
-	sleep 1d
-fi
-
-
-# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
-echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
-touch /usr/local/var/log/db-restore.log
-chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
-
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
@@ -225,9 +208,43 @@ if [ -f /usr/local/var/run/feed-update.lock ]; then
 	rm /usr/local/var/run/feed-update.lock
 fi
 
-# Migrate the DB to current gvmd version
-echo "Migrating the database to the latest version if needed."
-su -c "gvmd --migrate" gvm
+
+# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
+if [ "$DEBUG" == "true" ]; then
+	echo "Sleeping here for 1d to debug"
+	sleep 1d
+fi
+
+# IF the GVMd database version is less than 250, then we must be on version 21.4. 
+# So we need to grok the database or the migration will fail. . . . 
+DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
+echo "Current GVMd database version is $DB"
+if [ $DB -lt 250 ]; then
+	date
+	echo "Groking the database so migration won't fail"
+	echo "This could take a while. (10-15 minutes). "
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
+	date
+	echo "Grock complete."
+	echo "Now the long part, migrating the databse."
+	su -c "gvmd --migrate" gvm
+	echo "Migration complete!!"
+	date
+else 
+
+	# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
+	# But only if we didn't just delete most of these functions for the upgrade to 22.4
+	# This whole things can probably be removed, but just incase .....
+	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	touch /usr/local/var/log/db-restore.log
+	chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	echo "Migrate the database if needed."
+	su -c "gvmd --migrate" gvm 
+fi
+
 
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
