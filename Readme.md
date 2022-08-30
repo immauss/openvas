@@ -28,6 +28,11 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
 
+### 30 August 2022 ###
+## 22.4.1 Beta !! ##
+
+It's up! Tagged on docker hub as 21.4.01 , but only for single container. Now that's it's working there, I can start to push the bits over to the multicontainer parts. If you try to start a multi-container, all the containers will just die. There were some issues migrating to the newest version of the DB. If you are curious, there's a thread over on the [community forum.](https://forum.greenbone.net/t/database-migration-from-21-04-22-04/12834/11)
+
 ### 16 August 2022 ###
 ## Update 2 ##
 Single container is "kind of" working. It doesn't yet want to work correctly with an old database. I'm looking for some voluntiers to help test database upgrade/migrations. If you are interested, please comment [here](https://github.com/immauss/openvas/issues/139).
