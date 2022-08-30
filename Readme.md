@@ -16,6 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
+22.4.01 | This is the latest beta 
 21.04.09 | This is the most recent and latest.  
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
@@ -29,9 +30,9 @@ The current docs are maintained on github [here](https://immauss.github.io/openv
 - - - - 
 
 ### 30 August 2022 ###
-## 22.4.1 Beta !! ##
+## 22.4.01 Beta !! ##
 
-It's up! Tagged on docker hub as 21.4.01 , but only for single container. Now that's it's working there, I can start to push the bits over to the multicontainer parts. If you try to start a multi-container, all the containers will just die. There were some issues migrating to the newest version of the DB. If you are curious, there's a thread over on the [community forum.](https://forum.greenbone.net/t/database-migration-from-21-04-22-04/12834/11)
+It's up! Tagged on docker hub as 22.4.01 , but only for single container. Now that's it's working there, I can start to push the bits over to the multicontainer parts. If you try to start a multi-container, all the containers will just die. There were some issues migrating to the newest version of the DB. If you are curious, there's a thread over on the [community forum.](https://forum.greenbone.net/t/database-migration-from-21-04-22-04/12834/11)
 
 ### 16 August 2022 ###
 ## Update 2 ##
