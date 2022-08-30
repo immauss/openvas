@@ -16,7 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.01 | This is the latest beta 
+22.4.01 | This is the latest beta of GVMd 22.4 .
 21.04.09 | This is the most recent and latest.  
 armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
 20.08.04.6 | The last 20.08 image
