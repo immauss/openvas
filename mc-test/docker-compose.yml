@@ -2,7 +2,7 @@ version: "3"
 services:
   postgresql:
     container_name: ovas_postgresql
-    image: immauss/openvas:21.04.09
+    image: immauss/openvas:22.4.01
     command: postgresql
     #init: true
     volumes:
@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
   gvmd:
     container_name: ovas_gvmd
-    image: immauss/openvas:21.04.09
+    image: immauss/openvas:22.4.01
     command: gvmd
     depends_on: 
       - "postgresql"
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
   redis:
     container_name: ovas_redis
-    image: immauss/openvas:21.04.09
+    image: immauss/openvas:22.4.01
     command: redis
     depends_on:
       - "gvmd"
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
   openvas:
     container_name: openvas
-    image: immauss/openvas:21.04.09
+    image: immauss/openvas:22.4.01
     init: true
     command: openvas
     depends_on: 
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
   gsad:
     container_name: ovas_gsad
-    image: immauss/openvas:21.04.09
+    image: immauss/openvas:22.4.01
     command: gsad
     depends_on:
       - "gvmd"

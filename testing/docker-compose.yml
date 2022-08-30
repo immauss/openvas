@@ -1,0 +1,25 @@
+version: "3"
+services:
+  openvas:
+    ports:
+      - "8080:9392"
+    environment:
+      - "PASSWORD=admin"
+      - "USERNAME=admin"
+      - "RELAYHOST=172.17.0.1"
+      - "SMTPPORT=25"
+      - "REDISDBS=512" # number of Redis DBs to use
+      - "QUIET=false"  # dump feed sync noise to /dev/null
+      - "NEWDB=false"  # only use this for creating a blank DB 
+      - "SKIPSYNC=true" # Skips the feed sync on startup.
+      - "RESTORE=false"  # This probably not be used from compose... see docs.
+      - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
+      - "HTTPS=false"  # wether to use HTTPS or not
+    volumes:
+      - "openvas:/data"
+    container_name: openvas
+    image: immauss/openvas:22.4-beta
+  scannable:
+    image: immauss/scannable
+volumes:
+  openvas:
