@@ -15,24 +15,35 @@ echo "$@"
 # We'll use this later to know how to check container health
 echo "$1" > /usr/local/etc/running-as
 
+sorry() {
+	echo " Sorry.. this version not ready for multi-container."
+	echo " Check https://github.com/immauss/openvas for latest news."
+	exit
+}
+
 case $1 in
 	gsad)
+		sorry
 	echo "Starting Greenbone Security Assitannt !!"
 	exec /scripts/gsad.sh
 ;;
 	gvmd)
+		sorry
 	echo "Starting Greenbone Vulnerability Manager daemon !!"
 	exec /scripts/gvmd.sh
 ;;
 	openvas)
+		sorry
 	echo "Starting ospd-openvas !!"
 	exec /scripts/openvas.sh
 ;;
 	postgresql)
+		sorry
 	echo "Starting postgresql for gvmd !!"
 	exec /scripts/postgresql.sh
 ;;
 	redis)
+		sorry
 	echo "Starting redis !!"
 	exec /scripts/redis.sh
 ;;
