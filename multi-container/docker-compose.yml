@@ -2,16 +2,21 @@ version: "3"
 services:
   postgresql:
     container_name: ovas_postgresql
-    image: immauss/openvas:mc01
+    image: immauss/openvas:${TAG}
     command: postgresql
     #init: true
     volumes:
       - "openvas:/data"
       - "ovasrun:/run"
     restart: unless-stopped
+  mosquitto:
+    container_name: mosquitto
+    image: immauss/openvas:${TAG}
+    command: mosquitto
+    restart: unless-stopped
   gvmd:
     container_name: ovas_gvmd
-    image: immauss/openvas:mc01
+    image: immauss/openvas:${TAG}
     command: gvmd
     depends_on: 
       - "postgresql"
@@ -30,7 +35,7 @@ services:
     restart: unless-stopped
   redis:
     container_name: ovas_redis
-    image: immauss/openvas:mc01
+    image: immauss/openvas:${TAG}
     command: redis
     depends_on:
       - "gvmd"
@@ -39,7 +44,7 @@ services:
     restart: unless-stopped
   openvas:
     container_name: openvas
-    image: immauss/openvas:mc01
+    image: immauss/openvas:${TAG}
     init: true
     command: openvas
     depends_on: 
@@ -50,7 +55,7 @@ services:
     restart: unless-stopped
   gsad:
     container_name: ovas_gsad
-    image: immauss/openvas:mc01
+    image: immauss/openvas:${TAG}
     command: gsad
     depends_on:
       - "gvmd"

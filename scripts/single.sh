@@ -251,7 +251,7 @@ if [ $SKIPSYNC == "false" ]; then
    echo "This could take a while if you are not using persistent storage for your NVTs"
    echo " or this is the first time pulling to your persistent storage."
    echo " the time will be mostly dependent on your available bandwidth."
-   echo " We sleep for 5 seconds between sync command to make sure everything closes"
+   echo " We sleep for 2 seconds between sync command to make sure everything closes"
    echo " and it doesnt' look like we are connecting more than once."
    
    # This will make the feed syncs a little quieter
@@ -355,9 +355,7 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 service postfix start
 
 # Start the mqtt 
-if  ! grep -qis  mosquitto ; then  
-	echo "mqtt_server_uri = localhost:1883" |  tee -a /etc/openvas/openvas.conf
-fi
+
 chmod  777 /run/mosquitto
 echo "listener 1883
 allow_anonymous true" >> /etc/mosquitto.conf
