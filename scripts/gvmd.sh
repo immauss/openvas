@@ -173,8 +173,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-echo "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" 
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -216,7 +215,7 @@ service postfix start
 tail -f /usr/local/var/log/gvm/gvmd.log &
 #WTF ???? Why did I do this?
 pkill gvmd
-su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
  
 
 

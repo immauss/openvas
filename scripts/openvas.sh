@@ -8,16 +8,29 @@ done
 if  ! grep -qis  mosquitto /etc/openvas/openvas.conf; then  
 	echo "mqtt_server_uri = mosquitto:1883" |  tee -a /etc/openvas/openvas.conf
 fi
-echo "Starting the notus-scanner ...."
-/usr/local/bin/notus-scanner --products-directory /var/lib/notus/products --log-file /var/log/gvm/notus-scanner.log 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd.sock \
+/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock\
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
 	--lock-file-dir /var/lib/openvas \
-	--socket-mode 0o770 \
-	--mqtt-broker-address localhost \
+	--socket-mode 0o777 \
+	--mqtt-broker-address mosquitto \
 	--mqtt-broker-port 1883 \
-	--notus-feed-dir /var/lib/notus/advisories
+	--notus-feed-dir /var/lib/notus/advisories &
 
+while ! [ -S /var/run/ospd/ospd-openvas.sock ]; do 
+	echo " Waiting for ospd.sock"
+	sleep 1
+done
+
+echo "Make sure gvm can read from the ospd socket."
+echo "We run ospd as root so as not to need sudo"
+#chown gvm.gvm /var/run/ospd/ospd.sock
+
+echo "Starting the notus-scanner ...."
+/usr/local/bin/notus-scanner \
+	--products-directory /var/lib/notus/products \
+	--log-file /var/log/gvm/notus-scanner.log \
+	-b mosquitto \
+	-p 1883 -f
 
