@@ -36,6 +36,10 @@ case $1 in
 	echo "Starting ospd-openvas !!"
 	exec /scripts/openvas.sh
 ;;
+	notus)
+	echo "Starting notus-scanner !!"
+	exec /scripts/notus-scanner.sh
+;;
 	postgresql)
 	echo "Starting postgresql for gvmd !!"
 	exec /scripts/postgresql.sh
