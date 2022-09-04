@@ -58,7 +58,7 @@ fi
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
 DBEXISTS=$(DBCheck)
-if [ $LOADDEFAULT = "true" ] && [ $DBEXIST -eq 0 ]; then
+if [ $LOADDEFAULT = "true" ] && [ $DBEXISTS =  "0" ]; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
