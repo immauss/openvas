@@ -13,7 +13,7 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 GMP=${GMP:-9390}
 
-function DBCheck {
+function DBChuck {
         echo "Checking for existing DB"
         su -c " psql -lqt " postgres
         DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
@@ -22,6 +22,14 @@ function DBCheck {
                 echo "Failing out to prevent database deletion."
                 echo "DB is $DB"
                 exit
+        fi
+}
+function DBCheck {
+        DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+        if [ "$DB" = "gvmd" ]; then
+                echo 1
+        else
+                echo 0
         fi
 }
 # Need to find a way to wait for the DB to be ready:
@@ -49,8 +57,8 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
-if [ $LOADDEFAULT = "true" ] ; then
-	DBCheck
+DBEXISTS=$(DBCheck)
+if [ $LOADDEFAULT = "true" ] && [ $DBEXIST -eq 0 ]; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -146,8 +154,8 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-echo "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" 
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+echo "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" 
+su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -189,7 +197,7 @@ service postfix start
 tail -f /usr/local/var/log/gvm/gvmd.log &
 #WTF ???? Why did I do this?
 pkill gvmd
-su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
  
 
 
