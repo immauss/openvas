@@ -11,6 +11,8 @@ cleanup() {
 if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
 	rm -f /run/postgresql/.s.PGSQL.5432
 fi
+# Until If find a better way, Force this here.
+chown -R postgres /run/postgresql 
 
 # Postgres config should be tighter.
 # Actually, postgress should be in its own container!
