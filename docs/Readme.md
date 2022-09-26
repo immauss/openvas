@@ -139,7 +139,7 @@ you have been warned.  :)
 ```
 - SMTPPORT : The TCP port for the RELAYHOST. Default = 25
 ```
--e RELAYHOST=25
+-e SMTPPORT=25
 ```
 - REDISDBS : Number or redis databases to allow. (This was specific user request. In somecases, when running scans against a large number of targets, the default can be low and increasing the nubmer of redis databases can improve scan performance.) Default = 512
 ```
