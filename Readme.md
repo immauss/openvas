@@ -1,7 +1,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/immauss/openvas.svg)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/stars/immauss/openvas?style=flat)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/image-size/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
-[![Docker Stars](https://img.shields.io/docker/cloud/build/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
 [![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/openvas/issues)
 [![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
@@ -34,6 +33,8 @@ Moving sucks. But we are (kind of) settled now and I finally polished of the 22.
 1. Mine is packaged with a ready to use database. Even using the containers GB is offering with the feeds already downloaded, you have still wait for gvmd to build the database. My image can be up and ready to scan in < 15 minutes. 
 2. The single container option. GB is not offering a single container option. For the quick scan here or there, the single container seems to be the prefered method of many. 
 3. I actually enjoy working on this. 
+
+Also, make sure you check out the announcement over at GB for the [new features of 22.4](https://forum.greenbone.net/t/greenbone-community-edition-22-4-stable-initial-release-2022-07-25/12638)
 
 -Scott
 
@@ -311,5 +312,3 @@ There is also a new environment variable: SKIPSYNC . This does exactly what it s
 
 
 For License info, see the [GNU Affero](https://github.com/immauss/openvas/blob/master/LICENSE) license.
-
-Thu Feb 25 23:59:13 UTC 2021
