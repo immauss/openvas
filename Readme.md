@@ -32,7 +32,7 @@ The current docs are maintained on github [here](https://immauss.github.io/openv
 Moving sucks. But we are (kind of) settled now and I finally polished of the 22.4 branch. The main branch is now based on 22.4 and works with upgrades from 21.4 in single and multi-container mode. If you've paid attention to Greenbone, you know that the community edition now has a container setup available so you might be wondering if I'll continue with this. I will. Mainly because my setup has a few advantages. 
 
 1. Mine is packaged with a ready to use database. Even using the containers GB is offering with the feeds already downloaded, you have still wait for gvmd to build the database. My image can be up and ready to scan in < 15 minutes. 
-2. The single container option. GB is not offering a single container option. For the quick scan here or there, the single container seems to be the prefernece of many. 
+2. The single container option. GB is not offering a single container option. For the quick scan here or there, the single container seems to be the prefered method of many. 
 3. I actually enjoy working on this. 
 
 -Scott
