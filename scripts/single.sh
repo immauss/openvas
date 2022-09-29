@@ -217,7 +217,12 @@ fi
 
 # IF the GVMd database version is less than 250, then we must be on version 21.4. 
 # So we need to grok the database or the migration will fail. . . . 
-DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
+if [ "$NEWDB" == "false" ]; then
+	echo "Checking DB Version"
+	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
+else 
+	DB=250
+fi
 echo "Current GVMd database version is $DB"
 if [ $DB -lt 250 ]; then
 	date
