@@ -98,9 +98,14 @@ fi
 
 # IF the GVMd database version is less than 250, then we must be on version 21.4. 
 # So we need to grok the database or the migration will fail. . . . 
+# Also need to extract feeds so notus has it's bits.
 DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 echo "Current GVMd database version is $DB"
 if [ $DB -lt 250 ]; then
+	echo "Extract feeds for 22.4"
+        cd /data
+        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+        tar xf /usr/lib/var-lib.tar.xz
 	date
 	echo "Groking the database so migration won't fail"
 	echo "This could take a while. (10-15 minutes). "
