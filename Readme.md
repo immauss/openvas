@@ -2,7 +2,6 @@
 [![Docker Stars](https://img.shields.io/docker/stars/immauss/openvas?style=flat)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/image-size/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
 [![Docker Stars](https://img.shields.io/docker/cloud/build/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
-[![Docker Stars](https://img.shields.io/docker/cloud/automated/immauss/openvas.svg?maxAge=2592000)](https://hub.docker.com/r/immauss/openvas/)
 [![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/openvas/issues)
 [![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
@@ -16,9 +15,8 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.01 | This is the latest beta of GVMd 22.4 .
-21.04.09 | This is the most recent and latest.  
-armv7     | The latest build for ArmV7 with Postgresql11 based on Debian buster
+22.4.02 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
+21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
@@ -27,6 +25,18 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
+- - - - 
+
+### 29 September 2022 ###
+## 22.4.02 !!! ##
+Moving sucks. But we are (kind of) settled now and I finally polished of the 22.4 branch. The main branch is now based on 22.4 and works with upgrades from 21.4 in single and multi-container mode. If you've paid attention to Greenbone, you know that the community edition now has a container setup available so you might be wondering if I'll continue with this. I will. Mainly because my setup has a few advantages. 
+
+1. Mine is packaged with a ready to use database. Even using the containers GB is offering with the feeds already downloaded, you have still wait for gvmd to build the database. My image can be up and ready to scan in < 15 minutes. 
+2. The single container option. GB is not offering a single container option. For the quick scan here or there, the single container seems to be the prefernece of many. 
+3. I actually enjoy working on this. 
+
+-Scott
+
 - - - - 
 
 ### 30 August 2022 ###
