@@ -1,25 +1,7 @@
 #!/usr/bin/env bash
 rm /run/redisup
 set -Eeuo pipefail
-USERNAME=${USERNAME:-admin}
-PASSWORD=${PASSWORD:-admin}
-RELAYHOST=${RELAYHOST:-172.17.0.1}
-SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-512}
-QUIET=${QUIET:-false}
-# use this to rebuild the DB from scratch instead of using the one in the image.
-NEWDB=${NEWDB:-false}
-SKIPSYNC=${SKIPSYNC:-false}
-RESTORE=${RESTORE:-false}
-DEBUG=${DEBUG:-false}
-HTTPS=${HTTPS:-false}
-#GMP=${GMP:-9390}
-GSATIMEOUT=${GSATIMEOUT:-15}
-if [ "$DEBUG" == "true" ]; then
-	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET NEWDB SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
-		echo "$var = ${var}"
-	done
-fi
 
 # Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \

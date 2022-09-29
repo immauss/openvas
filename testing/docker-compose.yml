@@ -18,6 +18,8 @@ services:
     volumes:
       - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas:$TAG
+    image: immauss/openvas:22.4-beta
+  scannable:
+    image: immauss/scannable
 volumes:
   openvas:

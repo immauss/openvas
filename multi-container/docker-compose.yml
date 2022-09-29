@@ -9,6 +9,21 @@ services:
       - "openvas:/data"
       - "ovasrun:/run"
     restart: unless-stopped
+  mosquitto:
+    container_name: mosquitto
+    image: immauss/openvas:${TAG}
+    command: mosquitto
+    restart: unless-stopped
+  notus:
+    container_name: notus
+    image: immauss/openvas:${TAG}
+    command: notus
+    restart: unless-stopped
+    volumes:
+      - "openvas:/data"
+      - "ovasrun:/run"
+    depends_on: 
+      - "mosquitto" 
   gvmd:
     container_name: ovas_gvmd
     image: immauss/openvas:${TAG}

@@ -5,6 +5,8 @@ mkdir -p /run/ospd
 mkdir -p /run/gvmd
 mkdir -p /run/redis
 mkdir -p /run/gsad
+mkdir -p /run/mosquitto
+mkdir -p /run/notus-scanner
 mkdir -p /etc/openvas
 mkdir -p /usr/local/var
 # These need a check for creation on a new volume in start.sh
@@ -13,7 +15,9 @@ mkdir -p /data/var-lib/gvm
 mkdir -p /data/var-lib/openvas
 mkdir -p /data/var-log/gvm
 mkdir -p /data/var-lib/notus
+mkdir -p /data/var-lib/mosquitto
 mkdir -p /data/var-log/postgresql
+mkdir -p /data/var-log/mosquitto
 mkdir -p /data/local-share/gvm
 mkdir -p /data/var-lib/gvm/cert-data
 mkdir -p /data/var-lib/gvm/scap-data
@@ -22,6 +26,7 @@ mkdir -p /data/var-lib/gvm/private/CA/
 mkdir -p /data/var-lib/openvas/plugins
 mkdir -p /data/var-lib/gvm/gvmd/gnupg
 mkdir -p /data/local-etc/openvas
+mkdir -p /data/local-etc/openvas/gnupg
 mkdir -p /data/local-etc/gvm
 
 # Link the database to the /data folder where the volume should be mounted
@@ -35,16 +40,16 @@ else
 fi
 
 # Fix up var/lib 
-if ! [ -L /var/lib ]; then
+if ! [ -L /usr/local/var/lib ]; then
 	cp -rf /usr/local/var/lib/* /data/var-lib/
 	rm -rf /usr/local/var/lib
 	ln -s /data/var-lib /usr/local/var/lib
 fi
-if ! [ -L /usr/local/var/lib ]; then
-	cp -rf /var/lib/* /data/var-lib/
-	rm -rf /var/lib 
-	ln -s /data/var-lib /var/lib
-fi
+#if ! [ -L /var/lib ]; then
+	#cp -rf /var/lib/* /data/var-lib/
+	#rm -rf /var/lib 
+	#ln -s /data/var-lib /var/lib
+#fi
 # Fix up var/log
 if ! [ -L /usr/local/var/log ]; then 
 	# Don't copy over existing log files
@@ -79,6 +84,12 @@ if ! [ -L /var/lib/gvm ]; then
 	ln -s /data/var-lib/gvm /var/lib/gvm
 fi
 
+# Fix up /var/lib/notus
+if ! [ -L /var/lib/notus ]; then
+	cp -rpf /var/lib/notus/* /data/var/lib/notus
+	rm -rf /var/lib/notus
+	ln -s /data/var-lib/notus /var/lib/notus
+fi
 # Fix up /var/lib/openvas
 if ! [ -L /var/lib/openvas ]; then 
 	cp -rpf /var/lib/openvas/* /data/var-lib/openvas
@@ -127,11 +138,13 @@ ln -s /data/local-etc/openvas /usr/local/etc/openvas
 
 
 # Fix ownership and permissions
-chown -R postgres:postgres /data/database /data/var-log/postgresql
+chown -R postgres:postgres /data/database /data/var-log/postgresql /run/postgres
 chmod 750 /data/database
 chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
 chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad
-chmod 777 /run
+chmod 777 /run 
+chmod 740 /run/mosquitto /var/log/mosquitto
+chown mosquitto /run/mosquitto /var/log/mosquitto 
 chown -R postfix:postfix /var/lib/postfix
 chown -R gvm:gvm /data/var-lib/notus
 

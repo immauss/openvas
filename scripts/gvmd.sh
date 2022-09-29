@@ -13,7 +13,7 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 GMP=${GMP:-9390}
 
-function DBChuck {
+function DBCheck {
         echo "Checking for existing DB"
         su -c " psql -lqt " postgres
         DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
@@ -24,14 +24,23 @@ function DBChuck {
                 exit
         fi
 }
-function DBCheck {
-        DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
-        if [ "$DB" = "gvmd" ]; then
-                echo 1
-        else
-                echo 0
-        fi
-}
+# Prep the gpg keys
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/tmp/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+	echo " Get the Greenbone public Key"
+	curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
+	echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
+	echo "Setup environment"
+	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
+	echo "Import the key "
+	gpg --import /tmp/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /tmp/ownertrust.txt
+	echo "Setup key for openvas .."
+	cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
+
 # Need to find a way to wait for the DB to be ready:
 while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
 	echo "DB not ready yet"
@@ -57,8 +66,8 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 fi
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
-DBEXISTS=$(DBCheck)
-if [ $LOADDEFAULT = "true" ] && [ $DBEXISTS =  "0" ]; then
+if [ $LOADDEFAULT = "true" ] ; then
+	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
@@ -87,31 +96,46 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-
-
-
-# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
-echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
-touch /usr/local/var/log/db-restore.log
-chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
-
-# Migrate the DB to current gvmd version
-echo "Migrating the database to the latest version if needed."
-su -c "gvmd --migrate" gvm
-if [ -f /usr/local/var/run/feed-update.lock ]; then
-        # If NVT updater crashes it does not clear this up without intervention
-        echo "Removing feed-update.lock"
-	rm /usr/local/var/run/feed-update.lock
+# IF the GVMd database version is less than 250, then we must be on version 21.4. 
+# So we need to grok the database or the migration will fail. . . . 
+# Also need to extract feeds so notus has it's bits.
+DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
+echo "Current GVMd database version is $DB"
+if [ $DB -lt 250 ]; then
+	echo "Extract feeds for 22.4"
+        cd /data
+        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+        tar xf /usr/lib/var-lib.tar.xz
+	date
+	echo "Groking the database so migration won't fail"
+	echo "This could take a while. (10-15 minutes). "
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
+	date
+	echo "Grock complete."
+	echo "Now the long part, migrating the databse."
+	su -c "gvmd --migrate" gvm
+	echo "Migration complete!!"
+	date
+else 
+	# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
+	# But only if we didn't just delete most of these functions for the upgrade to 22.4
+	# This whole things can probably be removed, but just incase .....
+	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	touch /usr/local/var/log/db-restore.log
+	chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	echo "Migrate the database if needed."
+	su -c "gvmd --migrate" gvm 
 fi
+
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
    echo "This could take a while if you are not using persistent storage for your NVTs"
    echo " or this is the first time pulling to your persistent storage."
    echo " the time will be mostly dependent on your available bandwidth."
-   echo " We sleep for 5 seconds between sync command to make sure everything closes"
+   echo " We sleep for 2 seconds between sync command to make sure everything closes"
    echo " and it doesnt' look like we are connecting more than once."
    
    # This will make the feed syncs a little quieter
@@ -154,8 +178,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-echo "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" 
-su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "gvmd  $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -197,7 +220,7 @@ service postfix start
 tail -f /usr/local/var/log/gvm/gvmd.log &
 #WTF ???? Why did I do this?
 pkill gvmd
-su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
  
 
 

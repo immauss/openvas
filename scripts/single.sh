@@ -115,7 +115,6 @@ if [ $(DBCheck) -eq 0 ]; then
 else
 	LOADDEFAULT="false"
 fi
-
 echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
@@ -202,22 +201,6 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	done
 fi
 
-
-# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
-if [ "$DEBUG" == "true" ]; then
-	echo "Sleeping here for 1d to debug"
-	sleep 1d
-fi
-
-
-# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
-echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
-touch /usr/local/var/log/db-restore.log
-chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
-
 # And it should be empty. (Thanks felimwhiteley )
 if [ -f /usr/local/var/run/feed-update.lock ]; then
         # If NVT updater crashes it does not clear this up without intervention
@@ -225,16 +208,55 @@ if [ -f /usr/local/var/run/feed-update.lock ]; then
 	rm /usr/local/var/run/feed-update.lock
 fi
 
-# Migrate the DB to current gvmd version
-echo "Migrating the database to the latest version if needed."
-su -c "gvmd --migrate" gvm
+
+# Before we migrate the DB and start gvmd, this is a good place to stop for a debug
+if [ "$DEBUG" == "true" ]; then
+	echo "Sleeping here for 1d to debug"
+	sleep 1d
+fi
+
+# IF the GVMd database version is less than 250, then we must be on version 21.4. 
+# So we need to grok the database or the migration will fail. . . . 
+if [ "$NEWDB" == "false" ]; then
+	echo "Checking DB Version"
+	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
+else 
+	DB=250
+fi
+echo "Current GVMd database version is $DB"
+if [ $DB -lt 250 ]; then
+	date
+	echo "Groking the database so migration won't fail"
+	echo "This could take a while. (10-15 minutes). "
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
+	date
+	echo "Grock complete."
+	echo "Now the long part, migrating the databse."
+	su -c "gvmd --migrate" gvm
+	echo "Migration complete!!"
+	date
+else 
+
+	# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
+	# But only if we didn't just delete most of these functions for the upgrade to 22.4
+	# This whole things can probably be removed, but just incase .....
+	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	touch /usr/local/var/log/db-restore.log
+	chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
+	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	echo "Migrate the database if needed."
+	su -c "gvmd --migrate" gvm 
+fi
+
 
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
    echo "This could take a while if you are not using persistent storage for your NVTs"
    echo " or this is the first time pulling to your persistent storage."
    echo " the time will be mostly dependent on your available bandwidth."
-   echo " We sleep for 5 seconds between sync command to make sure everything closes"
+   echo " We sleep for 2 seconds between sync command to make sure everything closes"
    echo " and it doesnt' look like we are connecting more than once."
    
    # This will make the feed syncs a little quieter
@@ -286,7 +308,7 @@ until su -c "gvmd --get-users" gvm; do
 done
 
 if ! [ -L /var/run/ospd/ospd-openvas.sock ]; then
-	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd-openvas.sock
+	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock
 fi
 
 echo "Time to fixup the gvm accounts."
@@ -337,19 +359,53 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
+# Start the mqtt 
+
+chmod  777 /run/mosquitto
+echo "listener 1883
+allow_anonymous true" >> /etc/mosquitto.conf
+/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log \
-             --unix-socket /var/run/ospd/ospd-openvas.sock --log-level INFO --socket-mode 777
+# Prep the gpg keys
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/tmp/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+	echo " Get the Greenbone public Key"
+	curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
+	echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
+	echo "Setup environment"
+	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
+	echo "Import the key "
+	gpg --import /tmp/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /tmp/ownertrust.txt
+	echo "Setup key for openvas .."
+	cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
 
+/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
+	--pid-file /run/ospd/ospd-openvas.pid \
+	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
+	--lock-file-dir /var/lib/openvas \
+	--socket-mode 0o770 \
+	--mqtt-broker-address localhost \
+	--mqtt-broker-port 1883 \
+	--notus-feed-dir /var/lib/notus/advisories
 
 # wait for ospd to start by looking for the socket creation.
-while  [ ! -S /var/run/ospd/ospd-openvas.sock ]; do
-	sleep 1
-done
+#while  [ ! -S /var/run/ospd/ospd-openvas.sock]; do
+	#sleep 1
+#done
+
+
+# start notus-scanner 
+
+/usr/local/bin/notus-scanner --products-directory /var/lib/notus/products --log-file /var/log/gvm/notus-scanner.log
 
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
+chgrp gvm /var/run/ospd/ospd.sock
 chgrp gvm /var/run/ospd/ospd-openvas.sock
 
 echo "Starting Greenbone Security Assistant..."

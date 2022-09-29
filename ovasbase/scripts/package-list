@@ -2,6 +2,7 @@
   curl
   dpkg
   fakeroot
+gir1.2-json-1.0
   gnupg
   gnutls-bin
   gpgsm
@@ -12,10 +13,13 @@
   libgpgme11
   libhiredis0.14
   libical3
+libjson-glib-1.0-0
+libjson-glib-1.0-common
   libksba8
   libldap-2.4-2
   libmicrohttpd12
   libnet1
+libpaho-mqtt-dev
   libpcap0.8
   libpopt0
   libpq5
@@ -26,6 +30,7 @@
   libxml2
   libxslt1.1
   lsof
+  mosquitto
   nmap
   nodejs
   nsis
@@ -38,14 +43,15 @@
   python3
   python3-cffi
   python3-defusedxml
+  python3-impacket
   python3-lxml
   python3-packaging
+python3-paho-mqtt
   python3-paramiko
   python3-pip
   python3-redis
   python3-setuptools
   python3-wrapt
-  python3-impacket
   redis-server
   rpm
   rsync
