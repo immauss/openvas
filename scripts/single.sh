@@ -294,7 +294,7 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock--max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000 \"$GVMD_ARGS\"" gvm
+su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000 \"$GVMD_ARGS\"" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -302,8 +302,8 @@ until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
 
-if ! [ -L /var/run/ospd/ospd-openvas.sock]; then
-	ln -s /var/run/ospd/ospd-openvas.sock/var/run/ospd/ospd-openvas.sock
+if ! [ -L /var/run/ospd/ospd-openvas.sock ]; then
+	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock
 fi
 
 echo "Time to fixup the gvm accounts."
@@ -379,7 +379,7 @@ if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 fi
 
-/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock\
+/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
 	--lock-file-dir /var/lib/openvas \
@@ -401,6 +401,7 @@ fi
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
+chgrp gvm /var/run/ospd/ospd-openvas.sock
 
 echo "Starting Greenbone Security Assistant..."
 #su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
