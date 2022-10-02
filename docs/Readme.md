@@ -12,18 +12,29 @@
 This lives as a docker container at: 
 [docker hub](https://hub.docker.com/repository/docker/immauss/openvas)
 
+The Greenbone Source code can be found at:
+[Greenbone Source Code](https://github.com/greenbone)
 
-This docker image is based on GVM 20.08.1 and started as a clone of [Secure Compliance Solutions](https://github.com/Secure-Compliance-Solutions-LLC/GVM-Docker) container image. However, it has undergone significant transformation from that base. It runs all the components needed to create a scanner including:
+The advantages of the Immauss container image vs the Greenbone images:
+- Able to run a full scanner in a sinlge image with or without volumes. 
+- Image contains a full database.
+- Speed to scanning. The Immauss image can be up and scanning in 15-20 minutes. ( With sufficent machine resources).
+- The image on docker hub is updated weekly to ensure the database is up to date.
+
+The the latest image is based on GVM 22.4.x  In single container mode, it runs all the components needed to create a scanner in a single container including:
 - gvmd - the Greenbone Vulnerability Managedment daemon
 - openvas scanner - the scanner component of GVM
 - ospd - the openvas scanner protocal daemon
+- notusscanner - the new piece from Greenbone that handles the local scans of machines.
 - postgresql - the database backend for the scanner and gvm
 - redis - in memory database store used by gvmd 
 - postfix mail server for delivering email notices from GVM
 - A copy of the baseline data feeds and associated database
 - Option to restore from existing postgresql database dump
 - Option to skip the data sync on startup
-- Proper database shutdown on container stop to prevent db corruption. (This was added in 20.08.04.4) 
+- Proper database shutdown on container stop to prevent db corruption. 
+
+In multi-container mode it creates individual containers for each of the components. Since most of the Greenbone components utlize unix sockets for comunication, the contianers share a volume (the default name is: ovasrun) soley for the sharing of the sokets.`
 
 ## Deployment
 
@@ -66,6 +77,36 @@ The NVTs will update every time the container starts. Even if you leave your con
 ```
 docker restart openvas
 ```
+
+There is also a script in the container that will initiate the sync. 
+```
+/scripts/sync.sh
+```
+You can run the sync at anytime on a running container with:
+```
+docker exec -it <container-name> /scripts/sync.sh
+```
+
+## Docker compose
+  The git repo has two docker-compose.yml files.
+
+	- /compose/docker-compose.yml
+	- /multi-container/docker-compose.yml
+
+  The 'yml' in /compose is a single container immplementation. The 'yml' in /multi-container is for  .... multiple containers. Both utilize a '.env" file. You can set the docker tag in the ".env" file.
+
+	To utilze the docker-compose.yml files, change to the desired directory and run:
+```
+docker-compose up -d
+```
+	For upgrades, edit the ".env" file and change the version, then execute:
+```
+docker-compose up -d
+```
+
+	For upgrades from major versions, ensure you are using the most recent docker-compose.yml for the git repo. For instance, from  21.4 -> 22.4, the notus scanner was added. If you do not utilize the new docker-compose.yml with the mulit-container 'yml', then there will be no container with the 'notuscanner'.
+
+
 # Database backup
 
 If you are running the container on a continuing basis, it is a good idea to make a backup of the database at regular intervals. The container is setup to properly shutdown the database to prevent corruption, but if the process is killed unexpectedly, or the host machine loses power, then it is still possible for the database to become corrupt. To make a backup of the current database in the container:
