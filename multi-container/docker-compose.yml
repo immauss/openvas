@@ -10,12 +10,12 @@ services:
       - "ovasrun:/run"
     restart: unless-stopped
   mosquitto:
-    container_name: mosquitto
+    container_name: ovas_mosquitto
     image: immauss/openvas:${TAG}
     command: mosquitto
     restart: unless-stopped
   notus:
-    container_name: notus
+    container_name: ovas_notus
     image: immauss/openvas:${TAG}
     command: notus
     restart: unless-stopped
@@ -76,7 +76,7 @@ services:
     restart: unless-stopped
   scannable:
     image: immauss/scannable
-    container_name: scannable
+    container_name: ovas_scannable
 volumes:
   openvas: 
   ovasrun: 
