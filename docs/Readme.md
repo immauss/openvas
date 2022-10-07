@@ -104,7 +104,7 @@ docker-compose up -d
 docker-compose up -d
 ```
 
-	For upgrades from major versions, ensure you are using the most recent docker-compose.yml for the git repo. For instance, from  21.4 -> 22.4, the notus scanner was added. If you do not utilize the new docker-compose.yml with the mulit-container 'yml', then there will be no container with the 'notuscanner'.
+* For upgrades from major versions, ensure you are using the most recent docker-compose.yml for the git repo. For instance, from  21.4 -> 22.4, the notus scanner was added. If you do not utilize the new docker-compose.yml with the mulit-container "yml", then there will be no container with the "notuscanner". *
 
 
 # Database backup
