@@ -112,7 +112,7 @@ docker-compose up -d
 If you are running the container on a continuing basis, it is a good idea to make a backup of the database at regular intervals. The container is setup to properly shutdown the database to prevent corruption, but if the process is killed unexpectedly, or the host machine loses power, then it is still possible for the database to become corrupt. To make a backup of the current database in the container:
 
 ```
-docker exec -it <container name> su -c "/usr/lib/postgresql/12/bin/pg_dumpall" postgres > db-backup-file.sql
+docker exec -it <container name> su -c "/usr/lib/postgresql/13/bin/pg_dumpall" postgres > db-backup-file.sql
 ```
 
 # Database restoral
