@@ -7,7 +7,7 @@
 # but the output will benefit all. 
 
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="22.4-beta"
+TAG="latest"
 SQLBU="${TAG}.base.sql"
 TAR="${TAG}.var-lib.tar.xz"
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G

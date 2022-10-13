@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #set -Eeuo pipefail
+echo "starting container at: $(date)"
 if ! [ -f /.fs-setup-complete ]; then
-	echo "Setting up contianer filesystem"
+	echo "Setting up container filesystem"
 	/scripts/fs-setup.sh
 else
 	echo "Looks like this container has already been started once."
