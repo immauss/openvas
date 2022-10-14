@@ -92,17 +92,18 @@ fi
 
 
 # Now rebuild the image
-cd ~/Projects/openvas
-echo "Pulling latest from github"
-git pull
-if [ $? -ne 0 ]; then
-	echo "git pull failed. Rebuild image manually: $?"
-	exit
-fi
+#cd ~/Projects/openvas
+#echo "Pulling latest from github"
+#git pull
+#if [ $? -ne 0 ]; then
+	#echo "git pull failed. Rebuild image manually: $?"
+	#exit
+#fi
+# Update timestamp
 date > update.ts
-git commit update.ts -m "Data update for $Date"
-echo "And pushing to github"
-git push 
+#git commit update.ts -m "Data update for $Date"
+#echo "And pushing to github"
+#git push 
 
 #Build new image here
 #docker build -t immauss/openvas:latest .

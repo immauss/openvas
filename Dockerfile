@@ -62,8 +62,8 @@ RUN bash /links.sh
 # Split these off in a new layer makes refresh builds faster.
 COPY update.ts /
 COPY build.rc /gvm-versions
-RUN curl -L --url https://www.immauss.com/openvas/22.4-beta.base.sql.xz -o /usr/lib/base.sql.xz && \
-    curl -L --url https://www.immauss.com/openvas/22.4-beta.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
+RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
+    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
 # Make sure we didn't just pull zero length files 
 RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
     bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "

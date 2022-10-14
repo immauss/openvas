@@ -42,6 +42,6 @@ cd /home/scott/Projects/openvas
 docker buildx build --push --platform $arch -f Dockerfile -t immauss/openvas:$tag .
 docker rm -f $tag
 docker pull immauss/openvas:$tag
-docker run -d --name $tag immauss/openvas:$tag 
+docker run -d --name $tag -e SKIPSYNC=true immauss/openvas:$tag 
 docker logs -f $tag
 
