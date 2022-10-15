@@ -6,6 +6,8 @@
 # to github. It's probably not going to be useful to anyone but me
 # but the output will benefit all. 
 
+# Set start dir
+WorkDir=$(pwd)
 # Tag to work with. Normally latest but might be using new tag during upgrades.
 TAG="latest"
 SQLBU="${TAG}.base.sql"
@@ -107,7 +109,7 @@ date > update.ts
 
 #Build new image here
 #docker build -t immauss/openvas:latest .
-cd $BUILD
+cd $WorkDir
 docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
