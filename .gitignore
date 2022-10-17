@@ -7,3 +7,4 @@ tmp
 testing/bind
 testing/archive
 *.swp
+gvm-tools
