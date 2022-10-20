@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:22.04
+FROM immauss/ovasbase:latest
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,9 +35,9 @@ RUN bash /build.d/pg-gvm.sh
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
-FROM immauss/ovasbase:22.04
+FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="22.04-beta" \
+      version="22.4.03" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       

@@ -1,4 +1,7 @@
 #!/bin/bash
+apt install -y libpython3.9-dev
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade pip setuptools wheel
 INSTALL_PREFIX="/usr/local/"
 set -Eeuo pipefail
 # Source this for the latest release versions

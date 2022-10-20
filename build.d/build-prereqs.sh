@@ -10,4 +10,4 @@ PACKAGES=$(cat package-list-build)
 apt-get install -yq --no-install-recommends $PACKAGES
 
 
-python3 -m pip install psutil
+#python3 -m pip install psutil
