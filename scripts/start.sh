@@ -61,6 +61,7 @@ case $1 in
 ;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
+	echo "single" > /usr/local/etc/running-as
 	exec /scripts/single.sh $@
 ;;
 
