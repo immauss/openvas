@@ -26,7 +26,7 @@ case  $FUNC in
 		# openvas
 		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
 		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || FAIL=1 
-			if [ $FAIL -eq 1]; then SERVCE="openas"; fi
+			if [ $FAIL -eq 1 ]; then SERVCE="openas"; fi
 		# gvmd
 		nmap -p 9390 localhost| grep -qs "9390.*open" || FAIL=2 
 			if [ $FAIL -eq 2 ]; then SERVICE="$SERVICE gvmd"; fi
