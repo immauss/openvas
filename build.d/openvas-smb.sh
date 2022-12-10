@@ -7,6 +7,7 @@ echo "Building openvas_smb"
 cd /build
 wget --no-verbose https://github.com/greenbone/openvas-smb/archive/$openvas_smb.tar.gz
 tar -zxf $openvas_smb.tar.gz
+sed -i 's/ncacn_ip_tcp:%s/ncacn_ip_tcp:%s[sign]/'   openvas-smb*/samba/lib/com/dcom/main.c
 cd /build/*/
 mkdir build
 cd build
