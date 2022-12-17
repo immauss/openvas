@@ -39,6 +39,11 @@ case  $FUNC in
 		# postgresql
 		nmap -p 5432 localhost| grep -qs "5432.*open" || FAIL=5 
 			if [ $FAIL -eq 5 ]; then SERVICE="$SERVICE postgresql"; fi
+		# Disk Space
+		HIGHDISK=$(df -h | tr -d % | awk /sda/'{ if ( $5 > 95 ) print $4}')
+		if ! [ -z $HIGHDISK ]; then
+			echo "Available Container Disk Space low. ($HIGHDISK)" >> /usr/local/var/log/gvm/healthchecks.log
+		fi
 		if [ $FAIL -ne 0 ]; then
 			echo " HEALTHECHECK FAILED ! " >> /usr/local/var/log/gvm/healthchecks.log
 			echo " These services failed"  >> /usr/local/var/log/gvm/healthchecks.log
