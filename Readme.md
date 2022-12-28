@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.03 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
+22.4.05 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -26,6 +26,14 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
 
+### 28 December 2022 ##
+## 22.4.05 ##
+Now with more health checks !! 
+ I was noticing that some people were having odd issues which i suspected were symptoms of processes dieing in the container. The new healthchck.sh is looking at all the core processes and reporting in the container logs if anything fails. This should help to troubleshoot some of the more unusual errors. I also did some testing with memory restrictions and found that with 256M of memory, things start to fail. So make sure your system has at least 512M of free memory before starting the container. If you are planning to run larger scans, you will probably want to have even more. 
+ 
+ -Scott
+
+- - - -
 ### 29 September 2022 ###
 ## 22.4.02 !!! ##
 Moving sucks. But we are (kind of) settled now and I finally polished of the 22.4 branch. The main branch is now based on 22.4 and works with upgrades from 21.4 in single and multi-container mode. If you've paid attention to Greenbone, you know that the community edition now has a container setup available so you might be wondering if I'll continue with this. I will. Mainly because my setup has a few advantages. 
