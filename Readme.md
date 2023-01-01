@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.05 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
+22.4.06 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,7 +25,14 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# Happy New Year !!
 
+## 22.4.06 ## 
+This is a minor update including a minor relase from Greenbone (gvmd and gvmlibs 22.4.1 ) and debian updates.
+
+-Scott
+
+- - - -
 ### 28 December 2022 ##
 ## 22.4.05 ##
 Now with more health checks !! 
