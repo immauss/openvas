@@ -35,7 +35,7 @@ echo "Building with $tag and $arch"
 set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
 	cd /home/scott/Projects/openvas/ovasbase
-	docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase:$tag  .
+	docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase  .
 	cd ..
 fi
 cd /home/scott/Projects/openvas
