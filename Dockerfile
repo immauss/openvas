@@ -34,7 +34,8 @@ COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
-COPY branding /
+RUN mkdir /branding
+COPY branding/* /branding/
 RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 FROM immauss/ovasbase:latest
