@@ -1,12 +1,12 @@
 pg_gvm=v22.4.0
-notus_scanner=v22.4.2
+notus_scanner=v22.4.4
 gvmd=v22.4.2
 openvas=v22.4.1
 openvas_smb=v22.4.0
-gvm_libs=v22.4.2
+gvm_libs=v22.4.4
 openvas_scanner=v22.4.1
 gsa=v22.4.1
 ospd=v21.4.4
-ospd_openvas=v22.4.4
-python_gvm=v22.9.1
-gvm_tools=v22.9.0
+ospd_openvas=v22.4.6
+python_gvm=v23.2.0
+gvm_tools=v23.2.0
