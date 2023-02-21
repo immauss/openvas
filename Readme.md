@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.06 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
+22.4.07 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,6 +25,16 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 21 Feb 2023 #
+## 22.4.07 ##
+
+This is another minor update, but with a major fix. 
+Thanks to @gooseleggs, there is now a fix for issues with scanning Windows servers. 
+There are also  a few other minor bug fixes. 
+
+-Scott
+- - - -
+
 # Happy New Year !!
 
 ## 22.4.06 ## 
