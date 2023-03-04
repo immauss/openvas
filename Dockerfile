@@ -76,6 +76,6 @@ RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; 
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
-HEALTHCHECK --interval=60s --start-period=300s --timeout=3s \
+HEALTHCHECK --interval=60s --start-period=300s --timeout=10s \
   CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
