@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.07 | This is the latest based on GVMd 22.4 availalbe on x86_64, arm64, and armv7.
+22.4.08 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,6 +25,12 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 5 March 2023 #
+## 22.4.08 ##
+
+Minor update fixing the health check. If you were seeing an unhealthy state from docker, but the logs said everything was OK, then this will fix it. In short, the timeout of 3 seconds was not enough for all the health check script was checking. The timeout is now set to 10s. 
+
+
 # 21 Feb 2023 #
 ## 22.4.07 ##
 
@@ -38,7 +44,7 @@ There are also  a few other minor bug fixes.
 # Happy New Year !!
 
 ## 22.4.06 ## 
-This is a minor update including a minor relase from Greenbone (gvmd and gvmlibs 22.4.1 ) and debian updates.
+This is a minor update including a minor release from Greenbone (gvmd and gvmlibs 22.4.1 ) and debian updates.
 
 -Scott
 
@@ -46,7 +52,7 @@ This is a minor update including a minor relase from Greenbone (gvmd and gvmlibs
 ### 28 December 2022 ##
 ## 22.4.05 ##
 Now with more health checks !! 
- I was noticing that some people were having odd issues which i suspected were symptoms of processes dieing in the container. The new healthchck.sh is looking at all the core processes and reporting in the container logs if anything fails. This should help to troubleshoot some of the more unusual errors. I also did some testing with memory restrictions and found that with 256M of memory, things start to fail. So make sure your system has at least 512M of free memory before starting the container. If you are planning to run larger scans, you will probably want to have even more. 
+ I was noticing that some people were having odd issues, which I suspected were symptoms of processes dying in the container. The new healthchck.sh is looking at all the core processes and reporting in the container logs if anything fails. This should help to troubleshoot some of the more unusual errors. I also did some testing with memory restrictions and found that with 256M of memory, things start to fail. So make sure your system has at least 512M of free memory before starting the container. If you are planning to run larger scans, you will probably want to have even more. 
  
  -Scott
 
