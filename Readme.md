@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.08 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
+22.4.10 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,6 +25,17 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 18 March 2023 #
+## 22.4.10 ##
+
+Thanks to @gaby for reporting the isolated network issue with the gpg-key pull in issue #173. I've moved this to the build process to make sure the image will run with without a connection to the internet!
+
+22.4.09 was also pushed out last week, but it was just a rebase to pickup the latest updates from Debian in the base image. 
+
+-Scott
+
+- - - - 
+
 # 5 March 2023 #
 ## 22.4.08 ##
 
