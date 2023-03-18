@@ -141,7 +141,7 @@ ln -s /data/local-etc/openvas /usr/local/etc/openvas
 chown -R postgres:postgres /data/database /data/var-log/postgresql /run/postgres
 chmod 750 /data/database
 chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
-chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad
+chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad /etc/openvas/gnupg
 chmod 777 /run 
 chmod 740 /run/mosquitto /var/log/mosquitto
 chown mosquitto /run/mosquitto /var/log/mosquitto 

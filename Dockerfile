@@ -62,6 +62,8 @@ COPY confs/gvmd_log.conf /usr/local/etc/gvm/
 COPY confs/openvas_log.conf /usr/local/etc/openvas/
 COPY build.d/links.sh /
 RUN bash /links.sh 
+COPY build.d/gpg-keys.sh /
+RUN bash /gpg-keys.sh
 # Split these off in a new layer makes refresh builds faster.
 COPY update.ts /
 COPY build.rc /gvm-versions
