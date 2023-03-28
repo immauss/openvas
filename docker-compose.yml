@@ -1,13 +1,19 @@
 version: "3.3"
+networks:
+  web:
+    external: true
 services:
   openvas:
-    ports:
-      - "8080:9392"
     environment:
       - "PASSWORD=Your admin password here"
+    dns:
+      - 1.1.1.1
     volumes:
       - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas
+    image: immauss/openvas:22.4.10
+    ports:
+      - "9392:9392"
+    restart: always
 volumes:
   openvas:
