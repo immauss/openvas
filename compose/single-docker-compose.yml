@@ -20,8 +20,5 @@ services:
       - "openvas:/data"
     container_name: openvas
     image: immauss/openvas
-  scannable:
-    image: immauss/scannable
-    container_name: scannable
 volumes:
   openvas:
