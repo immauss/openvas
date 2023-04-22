@@ -12,6 +12,7 @@ RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 GMP=${GMP:-9390}
+REPORT_LINES=${REPORT_LINES:-1000}
 
 function DBCheck {
         echo "Checking for existing DB"
@@ -210,6 +211,9 @@ fi
 
 
 touch /setup
+# Set number of lines in reports
+echo "Setting Report Lines to $REPORT_LINES"
+su -c "gvmd --modify-setting 76374a7a-0569-11e6-b6da-28d24461215b --value=$REPORT_LINES" gvm
 
 echo "Starting Postfix for report delivery by email"
 # Configure postfix

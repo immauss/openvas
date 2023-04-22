@@ -24,6 +24,7 @@ HTTPS=${HTTPS:-false}
 #GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
 GVMD_ARGS=${GVMD_ARGS:-blank}
+REPORT_LINES=${REPORT_LINES:-1000}
 if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
@@ -345,8 +346,11 @@ echo "reset "
 set -Eeuo pipefail
 touch /setup
 
+# Set number of lines in reports
+echo " set Report Lines to $REPORT_LINES"
+su -c "gvmd --modify-setting 76374a7a-0569-11e6-b6da-28d24461215b --value=$REPORT_LINES" gvm 
 
-
+# If this exists ...
 if [ -f /var/run/ospd.pid ]; then
   rm /var/run/ospd.pid
 fi
