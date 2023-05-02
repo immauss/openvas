@@ -74,7 +74,10 @@ docker rm updater
 
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
-tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg var-lib
+tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg \
+	--exclude=var-lib/gvm/CA \
+	--exclude=var-lib/gvm/private \
+	var-lib
 xz -1 $SQLBU
 SQL_SIZE=$( ls -l $SQLBU.xz | awk '{print $5}')
 FEED_SIZE=$( ls -l $TAR | awk '{print $5'})

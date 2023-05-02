@@ -120,7 +120,7 @@ echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	gvm-manage-certs -a
+    	gvm-manage-certs -afv
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
@@ -160,10 +160,18 @@ if [ $NEWDB = "true" ]; then
         su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
         chown postgres:postgres -R /data/database
         su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
-        if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
-                echo "Generating certs..."
-        gvm-manage-certs -a
-        fi
+        #if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
+                #echo "Generating certs..."
+        	#gvm-manage-certs -afv
+        #fi
+	gvm-manage-certs -V
+	NOCERTS=$?
+	while [ $NOCERTS -ne 0 ] ; do
+		gvm-manage-certs -vaf 
+		gvm-manage-certs -V
+		NOCERTS=$?
+	done
+
 	cd /data
         echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
         tar xf /usr/lib/var-lib.tar.xz
