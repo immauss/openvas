@@ -86,6 +86,7 @@ fi
 
 # Fix up /var/lib/notus
 if ! [ -L /var/lib/notus ]; then
+    #this is here in case Greenbone ever decides to add something, it gets copied to the container.
 	cp -rpf /var/lib/notus/* /data/var/lib/notus
 	rm -rf /var/lib/notus
 	ln -s /data/var-lib/notus /var/lib/notus
@@ -138,7 +139,7 @@ ln -s /data/local-etc/openvas /usr/local/etc/openvas
 
 
 # Fix ownership and permissions
-chown -R postgres:postgres /data/database /data/var-log/postgresql /run/postgres
+chown -R postgres:postgres /data/database /data/var-log/postgresql /run/postgresql 
 chmod 750 /data/database
 chmod 770 /run/gvm /run/ospd /var/lib/gvm/gvmd/gnupg /run/gsad
 chown -R gvm:gvm  /data/var-lib/openvas /data/local-share/gvm /data/var-log/gvm /data/var-lib/gvm /run/gvm* /run/ospd /run/gsad /etc/openvas/gnupg

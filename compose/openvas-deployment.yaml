@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: openvas
+  name: openvas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: openvas
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: openvas
+    spec:
+      containers:
+        - env:
+            - name: DEBUG
+              value: "false"
+            - name: HTTPS
+              value: "false"
+            - name: NEWDB
+              value: "false"
+            - name: PASSWORD
+              value: admin
+            - name: QUIET
+              value: "false"
+            - name: REDISDBS
+              value: "512"
+            - name: RELAYHOST
+              value: 172.17.0.1
+            - name: RESTORE
+              value: "false"
+            - name: SKIPSYNC
+              value: "true"
+            - name: SMTPPORT
+              value: "25"
+            - name: USERNAME
+              value: admin
+          image: 'immauss/openvas:latest'
+          name: openvas
+          ports:
+            - containerPort: 9392
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: openvas
+      restartPolicy: Always
+      volumes:
+        - name: openvas
+          persistentVolumeClaim:
+            claimName: openvas
+status: {}
