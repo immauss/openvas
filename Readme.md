@@ -33,6 +33,10 @@ Another minor update to align with the latest from Greenbone and few minor bug f
 - Added a check by gvm-manage-certs to validate the cert config and regenerate if out of date. This should refresh any out of date certs in the future.
 - Corrected typos in fs-setup.sh (Thanks @shandshellin)
 
+For the curious, 22.4.12 was another minor update from Greenbone, but it failed to build on arm7. Before I had a chance to work it out, GB made another update, and resoveled the issue. 
+
+-Scott
+
 - - - -
 
 # 4 April 2023 #
