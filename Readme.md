@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.11 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
+22.4.13 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,6 +25,16 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 3 May 2023 #
+## 22.4.13 ##
+
+Another minor update to align with the latest from Greenbone and few minor bug fixes including:
+- Removed the /var/lib/CA and /var/lib/private from the feeds archive. This was overwriting the freshly generated certs early in the start scripts.  (Thanks @sergeymeleschenko)
+- Added a check by gvm-manage-certs to validate the cert config and regenerate if out of date. This should refresh any out of date certs in the future.
+- Corrected typos in fs-setup.sh (Thanks @shandshellin)
+
+- - - -
+
 # 4 April 2023 #
 ## 22.4.11 ##
 
