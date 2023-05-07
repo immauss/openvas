@@ -53,7 +53,7 @@ while  [ $CONTINUE -eq 0 ] && [ $COUNTER -le $WAIT ]; do
 done
 
 if [ $COUNTER -gt $WAIT ]; then
-	echo "Waited for succes in logs for > $WAIT minutes. "
+	echo "Waited for success in logs for > $WAIT minutes. "
 	echo "Bailing out now."
 	docker logs -n 30 updater
 	exit
@@ -71,7 +71,8 @@ echo "Dumping container logs to /var/log/refresh.log"
 date >> /var/log/refresh.log
 docker logs updater >> /var/log/refresh.log
 docker rm updater
-
+# Give the data a timestamp
+date > /data/var-lib/update.ts
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
 tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg \
@@ -105,7 +106,7 @@ fi
 	#exit
 #fi
 # Update timestamp
-date > update.ts
+
 #git commit update.ts -m "Data update for $Date"
 #echo "And pushing to github"
 #git push 
@@ -113,6 +114,7 @@ date > update.ts
 #Build new image here
 #docker build -t immauss/openvas:latest .
 cd $WorkDir
+date > update.ts
 docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."

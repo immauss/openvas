@@ -127,7 +127,7 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
-	cat /update.ts
+	cat /data/var-lib/update.ts
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
@@ -439,7 +439,7 @@ echo "gvmd --version"
 echo "$GVMVER"
 echo ""
 echo "Image DB date:"
-cat /update.ts
+cat /data/var-lib/update.ts
 echo "Versions:"
 cat /gvm-versions
 echo "++++++++++++++++"
