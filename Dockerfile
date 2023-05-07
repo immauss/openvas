@@ -40,7 +40,7 @@ RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="22.4.03" \
+      version="22.4.13" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       

@@ -72,7 +72,7 @@ date >> /var/log/refresh.log
 docker logs updater >> /var/log/refresh.log
 docker rm updater
 # Give the data a timestamp
-date > /data/var-lib/update.ts
+date > var-lib/update.ts
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
 tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg \
