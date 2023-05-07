@@ -63,7 +63,7 @@ fi
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	gvm-manage-certs -a
+    	su -c "gvm-manage-certs -a" gvm 
 fi
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 

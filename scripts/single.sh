@@ -120,14 +120,14 @@ echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	gvm-manage-certs -afv
+    	su -c "gvm-manage-certs -afv" gvm 
 fi
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "base data from:"
-	cat /data/var-lib/update.ts
+	#cat /data/var-lib/update.ts
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
@@ -160,15 +160,12 @@ if [ $NEWDB = "true" ]; then
         su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
         chown postgres:postgres -R /data/database
         su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
-        #if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
-                #echo "Generating certs..."
-        	#gvm-manage-certs -afv
-        #fi
-	gvm-manage-certs -V
+
+	su -c "gvm-manage-certs -V" gvm 
 	NOCERTS=$?
 	while [ $NOCERTS -ne 0 ] ; do
-		gvm-manage-certs -vaf 
-		gvm-manage-certs -V
+		su -c "gvm-manage-certs -vaf " gvm
+		su -c "gvm-manage-certs -V " gvm 
 		NOCERTS=$?
 	done
 
@@ -439,7 +436,7 @@ echo "gvmd --version"
 echo "$GVMVER"
 echo ""
 echo "Image DB date:"
-cat /data/var-lib/update.ts
+#cat /data/var-lib/update.ts
 echo "Versions:"
 cat /gvm-versions
 echo "++++++++++++++++"
