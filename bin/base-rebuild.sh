@@ -20,7 +20,7 @@ while ! [ -z "$1" ]; do
 	-N)
 	shift
 	NOBASE=true;
-	echo "Skipping ovasebase build"
+	echo "Skipping ovasbase build"
 	;;
   esac
 done
