@@ -129,6 +129,13 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	# the dump is putting this command in the backup even though the value is null. 
+	# this causes errors on start up as with the value as a null, it looks like a syntax error.
+	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
+	if grep -qs "^CREATE AGGREGATE public\.group_concat()" /data/base-db.sql; then
+		sed -i '/CREATE AGGREGATE public\.group_concat()/,+4d' /data/base-db.sql
+		sed -i '/^ALTER AGGREGATE public\.group_concat()/d' /data/base-db.sql
+	fi
 	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
 	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
 	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
@@ -386,8 +393,8 @@ if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
 	echo "Setup environment"
 	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
 	echo "Import the key "
-	gpg --import /tmp/GBCommunitySigningKey.asc
-	gpg --import-ownertrust < /tmp/ownertrust.txt
+	gpg --import /etc/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /etc/ownertrust.txt
 	echo "Setup key for openvas .."
 	cp -r /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
@@ -435,8 +442,11 @@ echo ""
 echo "gvmd --version"
 echo "$GVMVER"
 echo ""
-echo "Image DB date:"
-cat /data/var-lib/update.ts
+if [ -f /data/var-lib/update.ts ]; then
+	echo "Initial Image DB creation date:"
+	cat /data/var-lib/update.ts
+fi
+
 echo "Versions:"
 cat /gvm-versions
 echo "++++++++++++++++"
