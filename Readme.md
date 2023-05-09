@@ -26,8 +26,14 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
 # 9 May 2023 #
+## 22.4.14 ##
+
 Yet another minor update from GB.
 Also some bug fixes, mostly in the way version numbers are displayed during startup. 
+
+-Scott
+
+- - - - 
 
 # 3 May 2023 #
 ## 22.4.13 ##
