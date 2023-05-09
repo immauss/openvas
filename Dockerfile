@@ -40,7 +40,7 @@ RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 FROM immauss/ovasbase:latest
 LABEL maintainer="scott@immauss.com" \
-      version="22.4.13" \
+      version="22.4.14" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
       
@@ -65,14 +65,13 @@ RUN bash /links.sh
 COPY build.d/gpg-keys.sh /
 RUN bash /gpg-keys.sh
 # Split these off in a new layer makes refresh builds faster.
-COPY update.ts /
 COPY build.rc /gvm-versions
+# Pull and then Make sure we didn't just pull zero length files 
 RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
-    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
-# Make sure we didn't just pull zero length files 
-RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
+    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
+    bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
     bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-#RUN mkdir /scripts
+
 # packages to add to ovasbase
 #RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
