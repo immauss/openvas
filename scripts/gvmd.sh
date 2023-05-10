@@ -26,21 +26,21 @@ function DBCheck {
         fi
 }
 # Prep the gpg keys
-#export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
-#export GNUPGHOME=/tmp/openvas-gnupg
-#if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
-	#echo " Get the Greenbone public Key"
-	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
-	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
-	##echo "Setup environment"
-	#mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
-	#echo "Import the key "
-	#gpg --import /tmp/GBCommunitySigningKey.asc
-	#gpg --import-ownertrust < /tmp/ownertrust.txt
-	#echo "Setup key for openvas .."
-	#cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
-	#chown -R gvm:gvm $OPENVAS_GNUPG_HOME
-#fi
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/etc/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+	echo " Get the Greenbone public Key"
+	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /etc/GBCommunitySigningKey.asc
+	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /etc/ownertrust.txt
+	echo "Setup environment"
+	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
+	echo "Import the key "
+	gpg --import /etc/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /etc/ownertrust.txt
+	echo "Setup key for openvas .."
+	cp -r /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
 
 # Need to find a way to wait for the DB to be ready:
 while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
@@ -71,8 +71,6 @@ if [ $LOADDEFAULT = "true" ] ; then
 	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
-	echo "base data from:"
-	cat /update.ts
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
@@ -87,6 +85,10 @@ if [ $LOADDEFAULT = "true" ] ; then
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
+	if [ -f /data/var-lib/update.ts ]; then
+		echo "Initial Image DB creation date:"
+		cat /data/var-lib/update.ts
+	fi
 fi
 
 
