@@ -10,3 +10,4 @@ ospd=v21.4.4
 ospd_openvas=v22.5.1
 python_gvm=v23.4.2
 gvm_tools=v23.4.0
+greenbone_feed_sync=v23.4.0

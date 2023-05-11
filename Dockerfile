@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:latest AS Builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,13 +32,15 @@ COPY build.d/notus-scanner.sh /build.d/
 RUN bash /build.d/notus-scanner.sh
 COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
+COPY build.d/gb-feed-sync.sh /build.d/
+RUN bash /build.d/gb-feed-sync.sh
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 RUN mkdir /branding
 COPY branding/* /branding/
 RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:latest AS installed
 LABEL maintainer="scott@immauss.com" \
       version="22.4.15" \
       url="https://hub.docker.com/r/immauss/openvas" \
@@ -67,6 +69,7 @@ RUN bash /gpg-keys.sh
 # Split these off in a new layer makes refresh builds faster.
 COPY build.rc /gvm-versions
 # Pull and then Make sure we didn't just pull zero length files 
+
 RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
     curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
     bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
