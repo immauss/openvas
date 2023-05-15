@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.15 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
+22.4.16 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -24,6 +24,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 - - - -
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
+- - - - 
+# 15 May 2023 #
+## 22.4.16 ##
+
+I realized last week, that GB has created a new single script for NVT and data sync and it has it's own repo. So ... I rolled it into the build and replaced all the bits that called the old scripts. It does make the startup less noisy on synchronization. 
+
+Coming soon. I'll be spliting the build out to make refreshes easier and more reliable. The secondary result of that will be a new tag, slim. The slim tag will be as the name implies, smaller. The only difference will be it will not contain the prexisting data base and feed sync archives.
 - - - - 
 # 10 May 2023 #
 ## 22.4.15 ##
