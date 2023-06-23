@@ -1,6 +1,6 @@
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest AS Builder
+FROM immauss/ovasbase:latest AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,13 +40,13 @@ RUN mkdir /branding
 COPY branding/* /branding/
 RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
-FROM immauss/ovasbase:latest AS installed
+# This target is for the image with no database
+# Makes rebuilds for data refresh and scripting changes faster. 
+FROM immauss/ovasbase:latest AS slim
 LABEL maintainer="scott@immauss.com" \
-      version="22.4.16" \
+      version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
-      source="https://github.com/immauss/openvas"
-      
-      
+      source="https://github.com/immauss/openvas"     
 #EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
@@ -68,8 +68,20 @@ COPY build.d/gpg-keys.sh /
 RUN bash /gpg-keys.sh
 # Split these off in a new layer makes refresh builds faster.
 COPY build.rc /gvm-versions
-# Pull and then Make sure we didn't just pull zero length files 
 
+COPY scripts/* /scripts/
+# Healthcheck needs be an on image script that will know what service is running and check it. 
+# Current image function stored in /usr/local/etc/running-as
+HEALTHCHECK --interval=60s --start-period=300s --timeout=10s \
+  CMD /scripts/healthcheck.sh || exit 1
+ENTRYPOINT [ "/scripts/start.sh" ]
+
+FROM slim AS final
+LABEL maintainer="scott@immauss.com" \
+      version="$VER-full" \
+      url="https://hub.docker.com/r/immauss/openvas" \
+      source="https://github.com/immauss/openvas"
+# Pull and then Make sure we didn't just pull zero length files 
 RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
     curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
     bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \

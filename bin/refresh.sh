@@ -95,27 +95,10 @@ if [ $? -ne 0 ]; then
 	logger -t db-refresh "SCP of new db failed $?"
 	exit
 fi
-
-
 # Now rebuild the image
-#cd ~/Projects/openvas
-#echo "Pulling latest from github"
-#git pull
-#if [ $? -ne 0 ]; then
-	#echo "git pull failed. Rebuild image manually: $?"
-	#exit
-#fi
-# Update timestamp
-
-#git commit update.ts -m "Data update for $Date"
-#echo "And pushing to github"
-#git push 
-
-#Build new image here
-#docker build -t immauss/openvas:latest .
 cd $WorkDir
 date > update.ts
-docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+docker buildx build --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit

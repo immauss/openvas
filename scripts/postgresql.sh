@@ -7,6 +7,15 @@ cleanup() {
     echo "Container stopped, performing shutdown"
     su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
 }
+# Check for an existing DB.
+function DBCheck {
+        DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+        if [ "$DB" = "gvmd" ]; then
+		echo 1
+	else
+		echo 0
+        fi
+}
 # Clear out the old sockets so we can test for it in gvmd
 if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
 	rm -f /run/postgresql/.s.PGSQL.5432
@@ -62,6 +71,8 @@ su -c " psql -lqt " postgres
 DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
 if [ "$DB" = "gvmd" ]; then
 	LOADDEFAULT="false"
+elif ! [ -f /usr/lib/base-db.xz ]; then
+	LOADDEFAULT="false"
 else
 	LOADDEFAULT="true"
 fi
@@ -69,10 +80,35 @@ fi
 # Pass this variable to gvmd via /run
 echo $LOADDEFAULT > /run/loaddefault
 #
+# If no default is being loaded, then we need to create an empty database. 
+if [ $LOADDEFAULT = "false" ]; then
+	if [ $(DBCheck) -eq 1 ]; then
+		echo " It looks like there is already a gvmd database."
+		echo " Failing out to prevent overwriting the existing DB"
+		exit 
+	fi
+	echo "Creating Greenbone Vulnerability Manager database"
+	su -c "createuser -DRS gvm" postgres
+	su -c "createdb -O gvm gvmd" postgres
+	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+	chown postgres:postgres -R /data/database
+	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
 
+	su -c "gvm-manage-certs -V" gvm 
+	NOCERTS=$?
+	while [ $NOCERTS -ne 0 ] ; do
+		su -c "gvm-manage-certs -vaf " gvm
+		su -c "gvm-manage-certs -V " gvm 
+		NOCERTS=$?
+	done
+fi
+
+
+
+tail -f /data/var-log/postgresql/postgresql-gvmd.log &
 # This is part of making sure we shutdown postgres properly on container shutdown and only needs to exist 
 # in postgresql instance
-#tail -f /var/log/postgresql/postgresql-13-main.log &
-tail -f /data/var-log/postgresql/postgresql-gvmd.log &
 wait $!
-#wait $(ps axwu | awk /postgres.*postgres.-D/'{print $2}' |head -1)

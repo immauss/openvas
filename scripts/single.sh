@@ -122,6 +122,12 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
     	su -c "gvm-manage-certs -afv" gvm 
 fi
+# if there is no existing DB, and there is no base db archive, then we need to create a new DB.
+if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/base.sql.xz ]; then
+		echo "Looks like we need to create an empty databse."
+		NEWDB="true"
+fi
+echo -e "NEWDB=$NEWDB\nLOADDEFAULT=$LOADDEFAULT"
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
@@ -158,15 +164,15 @@ if [ $NEWDB = "true" ]; then
 		echo " Failing out to prevent overwriting the existing DB"
 		exit 
 	fi
-        echo "Creating Greenbone Vulnerability Manager database"
-        su -c "createuser -DRS gvm" postgres
-        su -c "createdb -O gvm gvmd" postgres
-        su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
-        su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
-        su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
-        su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
-        chown postgres:postgres -R /data/database
-        su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
+	echo "Creating Greenbone Vulnerability Manager database"
+	su -c "createuser -DRS gvm" postgres
+	su -c "createdb -O gvm gvmd" postgres
+	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+	chown postgres:postgres -R /data/database
+	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
 
 	su -c "gvm-manage-certs -V" gvm 
 	NOCERTS=$?
@@ -176,10 +182,7 @@ if [ $NEWDB = "true" ]; then
 		NOCERTS=$?
 	done
 
-	cd /data
-        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-        tar xf /usr/lib/var-lib.tar.xz
-        touch /data/setup
+
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then

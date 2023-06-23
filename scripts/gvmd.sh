@@ -65,6 +65,17 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
     	su -c "gvm-manage-certs -a" gvm 
 fi
+# At this point, we have a few possible scenarios:
+# 1. New build that needs a default DB loaded from the image.
+# 2. Slim image with no data and empty DB created via postgresql.sh startup. 
+# 3. existing Database ready to be used. 
+# 4. Old databse that needs to be upgraded from pg12
+# 5. Old databse that needs gvmd --migrate but is already on pg13
+# LOADDEFAULT is set in /run/loaddefault via postgresql.sh 
+# SHIT... that's a mess. 
+
+
+
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
 if [ $LOADDEFAULT = "true" ] ; then
@@ -104,11 +115,12 @@ fi
 # Also need to extract feeds so notus has it's bits.
 DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 echo "Current GVMd database version is $DB"
+
 if [ $DB -lt 250 ]; then
 	echo "Extract feeds for 22.4"
-        cd /data
-        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-        tar xf /usr/lib/var-lib.tar.xz
+		cd /data
+		echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+		tar xf /usr/lib/var-lib.tar.xz
 	date
 	echo "Groking the database so migration won't fail"
 	echo "This could take a while. (10-15 minutes). "
@@ -132,6 +144,7 @@ else
 	echo "Migrate the database if needed."
 	su -c "gvmd --migrate" gvm 
 fi
+
 
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
