@@ -1,3 +1,5 @@
+# Environment variables for all
+
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
 FROM immauss/ovasbase:latest AS builder
@@ -5,6 +7,7 @@ FROM immauss/ovasbase:latest AS builder
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+ENV VER="22.4.17-beta"
 
 # Build/install gvm (by default, everything installs in /usr/local)
 RUN mkdir /build.d

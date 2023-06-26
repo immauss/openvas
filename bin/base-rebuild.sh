@@ -39,7 +39,8 @@ if  [ "$NOBASE" == "false" ]; then
 	cd ..
 fi
 cd /home/scott/Projects/openvas
-docker buildx build --push --platform $arch -f Dockerfile -t immauss/openvas:$tag .
+docker buildx build --push --platform $arch -f Dockerfile --target slim -t immauss/openvas:$tag .
+docker buildx build --push --platform $arch -f Dockerfile --target final -t immauss/openvas:$tag .
 docker rm -f $tag
 docker pull immauss/openvas:$tag
 docker run -d --name $tag -e SKIPSYNC=true immauss/openvas:$tag 
