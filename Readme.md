@@ -14,7 +14,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.16 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
+22.4.18 | This is the latest based on GVMd 22.5 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,6 +25,18 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 7 July 2023 #
+## 22.4.18 ##
+
+So .... GB has updated gvmd to 22.5.x. This build includes 22.5.0, though there is a 22.5.3 as of this writing .... I'll try to get that built and test, but first I need to go through the process of updating my base DB since there is new DB version with the new version of gvmd. This version will start just fine, but it takes a while as it has to go through the database migration.
+
+If you take a look at the Dockerfile, you may also notice I've done some giggering with the stages. There is now a slim build and a corresponding slim tag in docker hub. If you try to use this image, it will work, but it has NO database preinstalled. So you'll be waiting for the download and database population. This is primarily to make the database refresh process faster and more efficient.
+
+-Scott
+
+- - - -
+
+- - - -
 # 15 May 2023 #
 ## 22.4.16 ##
 
