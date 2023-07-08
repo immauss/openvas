@@ -16,7 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.18 | This is the latest based on GVMd 22.5 available on x86_64, arm64, and armv7.
+22.4.19 | This is the latest based on GVMd 22.5.3 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -27,6 +27,16 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 ## Documentation ##
 The current docs are maintained on github [here](https://immauss.github.io/openvas/)
 - - - - 
+# 9 July 2023 #
+## 22.4.19 ##
+
+OK 22.4.19 with the latest (22.5.3) of gvmd and now gsad joins it with a version 22.5 as well. 
+Enjoy! 
+
+-Scott
+
+- - - -
+
 # 7 July 2023 #
 ## 22.4.18 ##
 
