@@ -10,6 +10,8 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
 
+[Sponsor immauss](https://github.com/sponsors/immauss)
+
 
 # Docker Tags  #
 tag              | Description
@@ -31,6 +33,9 @@ The current docs are maintained on github [here](https://immauss.github.io/openv
 So .... GB has updated gvmd to 22.5.x. This build includes 22.5.0, though there is a 22.5.3 as of this writing .... I'll try to get that built and test, but first I need to go through the process of updating my base DB since there is new DB version with the new version of gvmd. This version will start just fine, but it takes a while as it has to go through the database migration.
 
 If you take a look at the Dockerfile, you may also notice I've done some giggering with the stages. There is now a slim build and a corresponding slim tag in docker hub. If you try to use this image, it will work, but it has NO database preinstalled. So you'll be waiting for the download and database population. This is primarily to make the database refresh process faster and more efficient.
+
+I'm now a member of Git Hub's sponsor program. If you like what you see here, and would like to contribute, please visit:
+[Sponsor Immauss](https://github.com/sponsors/immauss)
 
 -Scott
 
