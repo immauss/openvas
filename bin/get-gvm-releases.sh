@@ -23,10 +23,10 @@ for repo in pg-gvm notus-scanner gvmd openvas openvas-smb gvm-libs openvas-scann
 	fi	
 done
 for repo in python-gvm gvm-tools greenbone-feed-sync; do 
-	python_gvm=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest | jq -r ".tarball_url" | awk -F/ '{print $NF}' )
-	echo "$repo current version is $python_gvm"
+	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest | jq -r ".tarball_url" | awk -F/ '{print $NF}' )
+	echo "$repo current version is $VERSION"
 	VAR=$(echo $repo | tr - _ )
-	echo "$VAR=$python_gvm" >> build.rc
+	echo "$VAR=$VERSION" >> build.rc
 	COUNT=$( expr $COUNT + 1 )
 	LF=$( expr $COUNT % 2)
 	if [ $LF -eq 1 ]; then
