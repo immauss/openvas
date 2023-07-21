@@ -17,9 +17,9 @@ for repo in pg-gvm notus-scanner gvmd openvas openvas-smb gvm-libs openvas-scann
 	COUNT=$( expr $COUNT + 1 )
 	LF=$( expr $COUNT % 2)
 	if [ $LF -eq 1 ]; then
-		echo -n "| $VAR | \$${repo} |" >> versions.md
+		echo -n "| $VAR | $VERSION |" >> versions.md
 	else
-		echo " | $VAR | \$${repo} |" >> versions.md
+		echo " | $VAR | $VERSION |" >> versions.md
 	fi	
 done
 for repo in python-gvm gvm-tools greenbone-feed-sync; do 
@@ -30,8 +30,8 @@ for repo in python-gvm gvm-tools greenbone-feed-sync; do
 	COUNT=$( expr $COUNT + 1 )
 	LF=$( expr $COUNT % 2)
 	if [ $LF -eq 1 ]; then
-		echo -n "| $VAR | \$${repo} |" >> versions.md
+		echo -n "| $VAR | $VERSION |" >> versions.md
 	else
-		echo " | $VAR | \$${repo} |" >> versions.md
+		echo " | $VAR | $VERSION |" >> versions.md
 	fi	
 done
