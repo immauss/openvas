@@ -23,22 +23,16 @@ pre-20.08   | This is the last image from before the 20.08 update.
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 
 # Greenbone Versions in Latest image: #
-Component | Version
-----------|----------
-|pg_gvm|v22.5.1|
-|notus_scanner|v22.5.0|
-|gvmd|v22.5.5|
-|openvas|v22.7.3|
-|openvas_smb|v22.5.3|
-|gvm_libs|v22.6.3|
-|openvas_scanner|v22.7.3|
-|gsad|v22.5.1|
-|gsa|v22.5.0|
-|ospd|v21.4.4|
-|ospd_openvas|v22.5.3|
-|python_gvm|v23.5.1|
-|gvm_tools|v23.4.0|
-|greenbone_feed_sync|v23.7.0|
+Component | Version | | Component | Version
+----------|----------|-|----------|---------
+|pg_gvm|v22.5.1| |gvmd|v22.5.5|
+|notus_scanner|v22.5.0| |openvas|v22.7.3|
+|openvas_smb|v22.5.3| |gvm_libs|v22.6.3|
+|openvas_scanner|v22.7.3| |gsad|v22.5.1|
+|gsa|v22.5.0| |ospd|v21.4.4|
+|ospd_openvas|v22.5.3| |python_gvm|v23.5.1|
+|gvm_tools|v23.4.0| |greenbone_feed_sync|v23.7.0|
+
 
 
 - - - -
