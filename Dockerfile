@@ -1,10 +1,13 @@
+# Environment variables for all
+
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest
+FROM immauss/ovasbase:latest AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+ENV VER="22.4.17-beta"
 
 # Build/install gvm (by default, everything installs in /usr/local)
 RUN mkdir /build.d
@@ -32,19 +35,21 @@ COPY build.d/notus-scanner.sh /build.d/
 RUN bash /build.d/notus-scanner.sh
 COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
+COPY build.d/gb-feed-sync.sh /build.d/
+RUN bash /build.d/gb-feed-sync.sh
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 RUN mkdir /branding
 COPY branding/* /branding/
 RUN bash /branding/branding.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
-FROM immauss/ovasbase:latest
+# This target is for the image with no database
+# Makes rebuilds for data refresh and scripting changes faster. 
+FROM immauss/ovasbase:latest AS slim
 LABEL maintainer="scott@immauss.com" \
-      version="22.4.03" \
+      version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
-      source="https://github.com/immauss/openvas"
-      
-      
+      source="https://github.com/immauss/openvas"     
 #EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
@@ -65,14 +70,26 @@ RUN bash /links.sh
 COPY build.d/gpg-keys.sh /
 RUN bash /gpg-keys.sh
 # Split these off in a new layer makes refresh builds faster.
-COPY update.ts /
 COPY build.rc /gvm-versions
+
+COPY scripts/* /scripts/
+# Healthcheck needs be an on image script that will know what service is running and check it. 
+# Current image function stored in /usr/local/etc/running-as
+HEALTHCHECK --interval=60s --start-period=300s --timeout=10s \
+  CMD /scripts/healthcheck.sh || exit 1
+ENTRYPOINT [ "/scripts/start.sh" ]
+
+FROM slim AS final
+LABEL maintainer="scott@immauss.com" \
+      version="$VER-full" \
+      url="https://hub.docker.com/r/immauss/openvas" \
+      source="https://github.com/immauss/openvas"
+# Pull and then Make sure we didn't just pull zero length files 
 RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
-    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz
-# Make sure we didn't just pull zero length files 
-RUN bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
+    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
+    bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
     bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
-#RUN mkdir /scripts
+
 # packages to add to ovasbase
 #RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/

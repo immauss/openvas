@@ -53,7 +53,7 @@ while  [ $CONTINUE -eq 0 ] && [ $COUNTER -le $WAIT ]; do
 done
 
 if [ $COUNTER -gt $WAIT ]; then
-	echo "Waited for succes in logs for > $WAIT minutes. "
+	echo "Waited for success in logs for > $WAIT minutes. "
 	echo "Bailing out now."
 	docker logs -n 30 updater
 	exit
@@ -71,10 +71,14 @@ echo "Dumping container logs to /var/log/refresh.log"
 date >> /var/log/refresh.log
 docker logs updater >> /var/log/refresh.log
 docker rm updater
-
+# Give the data a timestamp
+date > var-lib/update.ts
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
-tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg var-lib
+tar cJf $TAR --exclude=var-lib/gvm/gvmd/gnupg \
+	--exclude=var-lib/gvm/CA \
+	--exclude=var-lib/gvm/private \
+	var-lib
 xz -1 $SQLBU
 SQL_SIZE=$( ls -l $SQLBU.xz | awk '{print $5}')
 FEED_SIZE=$( ls -l $TAR | awk '{print $5'})
@@ -91,26 +95,10 @@ if [ $? -ne 0 ]; then
 	logger -t db-refresh "SCP of new db failed $?"
 	exit
 fi
-
-
 # Now rebuild the image
-#cd ~/Projects/openvas
-#echo "Pulling latest from github"
-#git pull
-#if [ $? -ne 0 ]; then
-	#echo "git pull failed. Rebuild image manually: $?"
-	#exit
-#fi
-# Update timestamp
-date > update.ts
-#git commit update.ts -m "Data update for $Date"
-#echo "And pushing to github"
-#git push 
-
-#Build new image here
-#docker build -t immauss/openvas:latest .
 cd $WorkDir
-docker buildx build -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+date > update.ts
+docker buildx build --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit

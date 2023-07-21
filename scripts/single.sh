@@ -120,17 +120,28 @@ echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	gvm-manage-certs -a
+    	su -c "gvm-manage-certs -afv" gvm 
 fi
+# if there is no existing DB, and there is no base db archive, then we need to create a new DB.
+if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/base.sql.xz ]; then
+		echo "Looks like we need to create an empty databse."
+		NEWDB="true"
+fi
+echo -e "NEWDB=$NEWDB\nLOADDEFAULT=$LOADDEFAULT"
 
 if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
-	echo "base data from:"
-	cat /update.ts
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	# the dump is putting this command in the backup even though the value is null. 
+	# this causes errors on start up as with the value as a null, it looks like a syntax error.
+	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
+	if grep -qs "^CREATE AGGREGATE public\.group_concat()" /data/base-db.sql; then
+		sed -i '/CREATE AGGREGATE public\.group_concat()/,+4d' /data/base-db.sql
+		sed -i '/^ALTER AGGREGATE public\.group_concat()/d' /data/base-db.sql
+	fi
 	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
 	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
 	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
@@ -142,6 +153,8 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
+	echo "Base DB and feeds collected on:"
+	cat /data/var-lib/update.ts
 fi
 
 # If NEWDB is true, then we need to create an empty database. 
@@ -151,23 +164,25 @@ if [ $NEWDB = "true" ]; then
 		echo " Failing out to prevent overwriting the existing DB"
 		exit 
 	fi
-        echo "Creating Greenbone Vulnerability Manager database"
-        su -c "createuser -DRS gvm" postgres
-        su -c "createdb -O gvm gvmd" postgres
-        su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
-        su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
-        su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
-        su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
-        chown postgres:postgres -R /data/database
-        su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
-        if [ ! /data/var-lib/gvm/CA/servercert.pem ]; then
-                echo "Generating certs..."
-        gvm-manage-certs -a
-        fi
-	cd /data
-        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-        tar xf /usr/lib/var-lib.tar.xz
-        touch /data/setup
+	echo "Creating Greenbone Vulnerability Manager database"
+	su -c "createuser -DRS gvm" postgres
+	su -c "createdb -O gvm gvmd" postgres
+	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+	chown postgres:postgres -R /data/database
+	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
+
+	su -c "gvm-manage-certs -V" gvm 
+	NOCERTS=$?
+	while [ $NOCERTS -ne 0 ] ; do
+		su -c "gvm-manage-certs -vaf " gvm
+		su -c "gvm-manage-certs -V " gvm 
+		NOCERTS=$?
+	done
+
+
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
@@ -270,33 +285,12 @@ if [ $SKIPSYNC == "false" ]; then
    fi
    
    if [ $QUIET == "true" ]; then 
-	   echo " Pulling NVTs from greenbone" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling latest GVMD Data from greenbone" 
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
-   
+	   echo "Syncing all feeds from GB" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync --type all --quiet" gvm 
    else
-	   echo " Pulling NVTs from greenbone" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
-	   sleep 2
-	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type SCAP" gvm
-	   sleep 2
-	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type CERT" gvm
-	   sleep 2
-	   echo " Pulling latest GVMD Data from Greenbone" 
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
-   
+	   echo "Syncing all feeds from GB" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync --type all" gvm 
    fi
-
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
@@ -372,21 +366,21 @@ allow_anonymous true" >> /etc/mosquitto.conf
 
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 # Prep the gpg keys
-#export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
-#export GNUPGHOME=/tmp/openvas-gnupg
-#if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
-	#echo " Get the Greenbone public Key"
-	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
-	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
-	#echo "Setup environment"
-	#mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
-	#echo "Import the key "
-	#gpg --import /tmp/GBCommunitySigningKey.asc
-	#gpg --import-ownertrust < /tmp/ownertrust.txt
-	#echo "Setup key for openvas .."
-	#cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
-	#chown -R gvm:gvm $OPENVAS_GNUPG_HOME
-#fi
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/etc/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+	echo " Get the Greenbone public Key"
+	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /etc/GBCommunitySigningKey.asc
+	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /etc/ownertrust.txt
+	echo "Setup environment"
+	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
+	echo "Import the key "
+	gpg --import /etc/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /etc/ownertrust.txt
+	echo "Setup key for openvas .."
+	cp -r /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
 
 /usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
@@ -430,8 +424,11 @@ echo ""
 echo "gvmd --version"
 echo "$GVMVER"
 echo ""
-echo "Image DB date:"
-cat /update.ts
+if [ -f /data/var-lib/update.ts ]; then
+	echo "Initial Image DB creation date:"
+	cat /data/var-lib/update.ts
+fi
+
 echo "Versions:"
 cat /gvm-versions
 echo "++++++++++++++++"

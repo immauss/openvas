@@ -10,21 +10,115 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
 
+[Sponsor immauss](https://github.com/sponsors/immauss)
+
 
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.11 | This is the latest based on GVMd 22.4 available on x86_64, arm64, and armv7.
+22.4.21 | This is the latest based on GVMd 22.5.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 
+# Greenbone Versions in Latest image: #
+Component | Version | | Component | Version
+----------|----------|-|----------|---------
+|pg_gvm|v22.5.1| |gvmd|v22.5.5|
+|notus_scanner|v22.5.0| |openvas|v22.7.3|
+|openvas_smb|v22.5.3| |gvm_libs|v22.6.3|
+|openvas_scanner|v22.7.3| |gsad|v22.5.1|
+|gsa|v22.5.0| |ospd|v21.4.4|
+|ospd_openvas|v22.5.3| |python_gvm|v23.5.1|
+|gvm_tools|v23.4.0| |greenbone_feed_sync|v23.7.0|
+
+
 
 - - - -
 ## Documentation ##
-The current docs are maintained on github [here](https://immauss.github.io/openvas/)
+The current container docs are maintained on github [here](https://immauss.github.io/openvas/)
+
+For docs on the web interface and scanning, use Greenbone's docs [here](https://docs.greenbone.net/GSM-Manual/gos-22.04/en/). Chapter's 8-14 cover the bits you'll need.
 - - - - 
+# 21 July 2023 #
+## 22.4.21 ##
+It's been a busy month. This latest release updates the openvas-scanner to prevent the "out-of-date" scanner warnings. There is also currently a bug with GSA that is preventing user creation from the web interface. GB has resolved the issue, but it has not been released yet. In the interim, if you need to create a new user, use the following:
+```
+docker exec -it -u gvm openvas gvmd --role="Admin" --create-user="$USERNAME" --password="$PASSWORD"
+```
+
+-Scott
+
+# 13 July  2023 #
+##  22.4.20 ##
+
+GB pushed a new gmvd (22.5.4) that resolved some issues with PostgreSQL connections.
+
+-Scott
+- - - - 
+# 9 July 2023 #
+## 22.4.19 ##
+
+OK 22.4.19 with the latest (22.5.3) of gvmd and now gsad joins it with a version 22.5 as well. 
+Enjoy! 
+
+-Scott
+
+- - - -
+
+# 7 July 2023 #
+## 22.4.18 ##
+
+So .... GB has updated gvmd to 22.5.x. This build includes 22.5.0, though there is a 22.5.3 as of this writing .... I'll try to get that built and test, but first I need to go through the process of updating my base DB since there is new DB version with the new version of gvmd. This version will start just fine, but it takes a while as it has to go through the database migration.
+
+If you take a look at the Dockerfile, you may also notice I've done some giggering with the stages. There is now a slim build and a corresponding slim tag in docker hub. If you try to use this image, it will work, but it has NO database preinstalled. So you'll be waiting for the download and database population. This is primarily to make the database refresh process faster and more efficient.
+
+I'm now a member of Git Hub's sponsor program. If you like what you see here, and would like to contribute, please visit:
+[Sponsor Immauss](https://github.com/sponsors/immauss)
+
+-Scott
+
+- - - -
+
+- - - -
+# 15 May 2023 #
+## 22.4.16 ##
+
+I realized last week, that GB has created a new single script for NVT and data sync and it has it's own repo. So ... I rolled it into the build and replaced all the bits that called the old scripts. It does make the startup less noisy on synchronization. 
+
+Coming soon. I'll be spliting the build out to make refreshes easier and more reliable. The secondary result of that will be a new tag, slim. The slim tag will be as the name implies, smaller. The only difference will be it will not contain the prexisting data base and feed sync archives.
+- - - - 
+# 10 May 2023 #
+## 22.4.15 ##
+
+Added changes for version notices to the multi-container scripts. 
+Thanks @NicoWde
+
+# 9 May 2023 #
+## 22.4.14 ##
+
+Yet another minor update from GB.
+Also some bug fixes, mostly in the way version numbers are displayed during startup. 
+
+-Scott
+
+- - - - 
+
+# 3 May 2023 #
+## 22.4.13 ##
+
+Another minor update to align with the latest from Greenbone and few minor bug fixes including:
+- Removed the /var/lib/CA and /var/lib/private from the feeds archive. This was overwriting the freshly generated certs early in the start scripts.  (Thanks @sergeymeleschenko)
+- Added a check by gvm-manage-certs to validate the cert config and regenerate if out of date. This should refresh any out of date certs in the future.
+- Corrected typos in fs-setup.sh (Thanks @shandshellin)
+
+For the curious, 22.4.12 was another minor update from Greenbone, but it failed to build on arm7. Before I had a chance to work it out, GB made another update, and resoveled the issue. 
+
+-Scott
+
+- - - -
+
 # 4 April 2023 #
 ## 22.4.11 ##
 

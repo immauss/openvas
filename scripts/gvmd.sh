@@ -26,21 +26,21 @@ function DBCheck {
         fi
 }
 # Prep the gpg keys
-#export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
-#export GNUPGHOME=/tmp/openvas-gnupg
-#if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
-	#echo " Get the Greenbone public Key"
-	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
-	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /tmp/ownertrust.txt
-	##echo "Setup environment"
-	#mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
-	#echo "Import the key "
-	#gpg --import /tmp/GBCommunitySigningKey.asc
-	#gpg --import-ownertrust < /tmp/ownertrust.txt
-	#echo "Setup key for openvas .."
-	#cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
-	#chown -R gvm:gvm $OPENVAS_GNUPG_HOME
-#fi
+export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
+export GNUPGHOME=/etc/openvas-gnupg
+if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+	echo " Get the Greenbone public Key"
+	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /etc/GBCommunitySigningKey.asc
+	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /etc/ownertrust.txt
+	echo "Setup environment"
+	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
+	echo "Import the key "
+	gpg --import /etc/GBCommunitySigningKey.asc
+	gpg --import-ownertrust < /etc/ownertrust.txt
+	echo "Setup key for openvas .."
+	cp -r /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
+fi
 
 # Need to find a way to wait for the DB to be ready:
 while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
@@ -63,16 +63,25 @@ fi
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	gvm-manage-certs -a
+    	su -c "gvm-manage-certs -a" gvm 
 fi
+# At this point, we have a few possible scenarios:
+# 1. New build that needs a default DB loaded from the image.
+# 2. Slim image with no data and empty DB created via postgresql.sh startup. 
+# 3. existing Database ready to be used. 
+# 4. Old databse that needs to be upgraded from pg12
+# 5. Old databse that needs gvmd --migrate but is already on pg13
+# LOADDEFAULT is set in /run/loaddefault via postgresql.sh 
+# SHIT... that's a mess. 
+
+
+
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
 if [ $LOADDEFAULT = "true" ] ; then
 	DBCheck
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
-	echo "base data from:"
-	cat /update.ts
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
@@ -87,6 +96,10 @@ if [ $LOADDEFAULT = "true" ] ; then
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
+	if [ -f /data/var-lib/update.ts ]; then
+		echo "Initial Image DB creation date:"
+		cat /data/var-lib/update.ts
+	fi
 fi
 
 
@@ -102,11 +115,12 @@ fi
 # Also need to extract feeds so notus has it's bits.
 DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 echo "Current GVMd database version is $DB"
+
 if [ $DB -lt 250 ]; then
 	echo "Extract feeds for 22.4"
-        cd /data
-        echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-        tar xf /usr/lib/var-lib.tar.xz
+		cd /data
+		echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
+		tar xf /usr/lib/var-lib.tar.xz
 	date
 	echo "Groking the database so migration won't fail"
 	echo "This could take a while. (10-15 minutes). "
@@ -131,6 +145,7 @@ else
 	su -c "gvmd --migrate" gvm 
 fi
 
+
 if [ $SKIPSYNC == "false" ]; then
    echo "Updating NVTs and other data"
    echo "This could take a while if you are not using persistent storage for your NVTs"
@@ -148,32 +163,12 @@ if [ $SKIPSYNC == "false" ]; then
 	   QUIET="false"
    fi
    
-   if [ $QUIET == "true" ]; then 
-	   echo " Pulling NVTs from greenbone" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm 2&> /dev/null
-	   sleep 2
-	   echo " Pulling latest GVMD Data from greenbone" 
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm 2&> /dev/null
-   
+    if [ $QUIET == "true" ]; then 
+	   echo "Syncing all feeds from GB" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync --type all --quiet" gvm 
    else
-	   echo " Pulling NVTs from greenbone" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync" gvm
-	   sleep 2
-	   echo " Pulling scapdata from greenbone"
-	   su -c "/usr/local/sbin/greenbone-scapdata-sync" gvm
-	   sleep 2
-	   echo " Pulling cert-data from greenbone"
-	   su -c "/usr/local/sbin/greenbone-certdata-sync" gvm
-	   sleep 2
-	   echo " Pulling latest GVMD Data from Greenbone" 
-	   su -c "/usr/local/sbin/greenbone-feed-sync --type GVMD_DATA " gvm
-   
+	   echo "Syncing all feeds from GB" 
+	   su -c "/usr/local/bin/greenbone-nvt-sync --type all" gvm 
    fi
 
 fi

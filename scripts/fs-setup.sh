@@ -35,7 +35,7 @@ if ! [ -d /data/database/base ]; then
 	rm -rf /var/lib/postgresql/13/main
 	ln -s /data/database /var/lib/postgresql/13/main
 else 
-	echo "/data/database/base alredy exists ..."
+	echo "/data/database/base already exists ..."
 	echo " NOT moving data from image to /data"
 fi
 

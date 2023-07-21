@@ -9,7 +9,7 @@ rm versions.md
 echo "# Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------" > versions.md
-for repo in pg-gvm notus-scanner gvmd openvas openvas-smb gvm-libs openvas-scanner gsa ospd ospd-openvas ; do 
+for repo in pg-gvm notus-scanner gvmd openvas openvas-smb gvm-libs openvas-scanner gsa gsad ospd ospd-openvas ; do 
 	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".assets[].browser_download_url" | sed "s/^.*download\/\(v.*\)\/.*$/\1/" | head -1)
 	echo "$repo current version is $VERSION"
 	VAR=$( echo $repo | tr - _ )
@@ -22,8 +22,8 @@ for repo in pg-gvm notus-scanner gvmd openvas openvas-smb gvm-libs openvas-scann
 		echo " | $VAR | \$${repo} |" >> versions.md
 	fi	
 done
-for repo in python-gvm gvm-tools; do 
-	python_gvm=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".tarball_url" | awk -F/ '{print $NF}' )
+for repo in python-gvm gvm-tools greenbone-feed-sync; do 
+	python_gvm=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest | jq -r ".tarball_url" | awk -F/ '{print $NF}' )
 	echo "$repo current version is $python_gvm"
 	VAR=$(echo $repo | tr - _ )
 	echo "$VAR=$python_gvm" >> build.rc
