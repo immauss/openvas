@@ -16,16 +16,46 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.19 | This is the latest based on GVMd 22.5.3 available on x86_64, arm64, and armv7.
+22.4.21 | This is the latest based on GVMd 22.5.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
 v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 
+# Greenbone Versions in Latest image: #
+Component | Version | | Component | Version
+----------|----------|-|----------|---------
+|pg_gvm|v22.5.1| |gvmd|v22.5.5|
+|notus_scanner|v22.5.0| |openvas|v22.7.3|
+|openvas_smb|v22.5.3| |gvm_libs|v22.6.3|
+|openvas_scanner|v22.7.3| |gsad|v22.5.1|
+|gsa|v22.5.0| |ospd|v21.4.4|
+|ospd_openvas|v22.5.3| |python_gvm|v23.5.1|
+|gvm_tools|v23.4.0| |greenbone_feed_sync|v23.7.0|
+
+
 
 - - - -
 ## Documentation ##
-The current docs are maintained on github [here](https://immauss.github.io/openvas/)
+The current container docs are maintained on github [here](https://immauss.github.io/openvas/)
+
+For docs on the web interface and scanning, use Greenbone's docs [here](https://docs.greenbone.net/GSM-Manual/gos-22.04/en/). Chapter's 8-14 cover the bits you'll need.
+- - - - 
+# 21 July 2023 #
+## 22.4.21 ##
+It's been a busy month. This latest release updates the openvas-scanner to prevent the "out-of-date" scanner warnings. There is also currently a bug with GSA that is preventing user creation from the web interface. GB has resolved the issue, but it has not been released yet. In the interim, if you need to create a new user, use the following:
+```
+docker exec -it -u gvm openvas gvmd --role="Admin" --create-user="$USERNAME" --password="$PASSWORD"
+```
+
+-Scott
+
+# 13 July  2023 #
+##  22.4.20 ##
+
+GB pushed a new gmvd (22.5.4) that resolved some issues with PostgreSQL connections.
+
+-Scott
 - - - - 
 # 9 July 2023 #
 ## 22.4.19 ##
