@@ -16,7 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.21 | This is the latest based on GVMd 22.5.4 available on x86_64, arm64, and armv7.
+22.4.22 | This is the latest based on GVMd 22.5.4 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,13 +25,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-|pg_gvm|v22.5.1| |gvmd|v22.5.5|
-|notus_scanner|v22.5.0| |openvas|v22.7.3|
-|openvas_smb|v22.5.3| |gvm_libs|v22.6.3|
-|openvas_scanner|v22.7.3| |gsad|v22.5.1|
-|gsa|v22.5.0| |ospd|v21.4.4|
-|ospd_openvas|v22.5.3| |python_gvm|v23.5.1|
-|gvm_tools|v23.4.0| |greenbone_feed_sync|v23.7.0|
+| pg_gvm | v22.5.1 | | notus_scanner | v22.5.0 |
+| gvmd | v22.6.0 | | openvas | v22.7.3 |
+| openvas_smb | v22.5.3 | | gvm_libs | v22.6.3 |
+| openvas_scanner | v22.7.3 | | gsa | v22.5.1 |
+| gsad | v22.5.1 | | ospd | v21.4.4 |
+| ospd_openvas | v22.5.3 | | python_gvm | v23.5.1 |
+| gvm_tools | v23.4.0 | | greenbone_feed_sync | v23.7.0 |
 
 
 
@@ -41,6 +41,14 @@ The current container docs are maintained on github [here](https://immauss.githu
 
 For docs on the web interface and scanning, use Greenbone's docs [here](https://docs.greenbone.net/GSM-Manual/gos-22.04/en/). Chapter's 8-14 cover the bits you'll need.
 - - - - 
+# 25 July 2023 #
+## 22.4.22 ##
+
+Greenbone has been pushing a ton of updates lately. Yesterday, they released gvmd 22.6.0 & gsa 22.51. The gsa update most notably fixes the issue with use creation via the web interface!
+
+-Scott
+
+
 # 21 July 2023 #
 ## 22.4.21 ##
 It's been a busy month. This latest release updates the openvas-scanner to prevent the "out-of-date" scanner warnings. There is also currently a bug with GSA that is preventing user creation from the web interface. GB has resolved the issue, but it has not been released yet. In the interim, if you need to create a new user, use the following:
