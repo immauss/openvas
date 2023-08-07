@@ -98,7 +98,7 @@ fi
 # Now rebuild the image
 cd $WorkDir
 date > update.ts
-docker buildx build --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+docker buildx build -f Dockerfile.refresh --build-arg TAG=${TAG} --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
