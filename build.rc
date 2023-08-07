@@ -1,5 +1,5 @@
 gvmd=v22.6.0
-gvm_libs=v22.6.3
+gvm_libs=v22.7.0
 openvas=v22.7.3
 openvas_scanner=v22.7.3
 openvas_smb=v22.5.3
