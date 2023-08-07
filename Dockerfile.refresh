@@ -1,6 +1,7 @@
 # Environment variables for all
-ENV VER="$TAG"
 FROM immauss/openvas:latest-slim AS final
+ENV LANG=C.UTF-8
+ENV VER="$TAG"
 LABEL maintainer="scott@immauss.com" \
       version="$VER-full" \
       url="https://hub.docker.com/r/immauss/openvas" \
