@@ -16,7 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.22 | This is the latest based on GVMd 22.6 available on x86_64, arm64, and armv7.
+22.4.26 | This is the latest based on GVMd 22.6 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -25,15 +25,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v22.6.0 | | gvm_libs | v22.6.3 |
+| gvmd | v22.8.0 | | gvm_libs | v22.7.0 |
 | openvas | v22.7.3 | | openvas_scanner | v22.7.3 |
 | openvas_smb | v22.5.3 | | notus_scanner | v22.5.0 |
-| gsa | v22.5.1 | | gsad | v22.5.1 |
-| ospd | v21.4.4 | | ospd_openvas | v22.5.3 |
-| pg_gvm | v22.5.1 | | python_gvm | v23.5.1 |
+| gsa | v22.6.0 | | gsad | v22.5.2 |
+| ospd | v21.4.4 | | ospd_openvas | v22.5.4 |
+| pg_gvm | v22.6.1 | | python_gvm | v23.5.1 |
 | gvm_tools | v23.4.0 | | greenbone_feed_sync | v23.7.0 |
-
-
 
 - - - -
 ## Documentation ##
