@@ -38,6 +38,14 @@ Component | Version | | Component | Version
 The current container docs are maintained on github [here](https://immauss.github.io/openvas/)
 
 For docs on the web interface and scanning, use Greenbone's docs [here](https://docs.greenbone.net/GSM-Manual/gos-22.04/en/). Chapter's 8-14 cover the bits you'll need.
+- - - -
+# 11 August 2023 #
+## 22.4.26 ##
+
+More minor updates from Greenbone. Check the table above for exact versions.
+
+-Scott
+
 - - - - 
 # 25 July 2023 #
 ## 22.4.22 ##
