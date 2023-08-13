@@ -154,6 +154,8 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz 
+	# Store the date of the Feeds archive for later start ups. 
+	FeedDate=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5,$6,$7,$8}' | date +%s > /data/var-lib/FeedDate )
 	echo "Base DB and feeds collected on:"
 	cat /data/var-lib/update.ts
 fi
@@ -275,7 +277,22 @@ if [ $SKIPSYNC == "false" ]; then
    echo " the time will be mostly dependent on your available bandwidth."
    echo " We sleep for 2 seconds between sync command to make sure everything closes"
    echo " and it doesnt' look like we are connecting more than once."
-   
+   # First, let's make sure we are using the most updated feeds from the image ...
+   # If the timestamp is the same, or the file doesn't exist, then we start by
+   # extracting the archive in the image, this will speed up the sync with GB by
+   # reducing the amount needed to rsync.
+   ImageFeeds=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5,$6,$7,$8}' | date +%s)
+   if [ -f /date/var-lib/FeedDate ]; then 
+	   InstalledFeeds=$(cat /date/var-lib/FeedDate)
+   else
+	   InstalledFeeds=0
+   fi
+   if [ $InstalledFeeds -ne $ImageFeeds ] then
+	   cd /data
+	   tar xf /usr/lib/var-lib.tar.xz
+   fi
+
+	   
    # This will make the feed syncs a little quieter
    if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
 	   QUIET="true"
