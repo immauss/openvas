@@ -16,7 +16,7 @@
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.26 | This is the latest based on GVMd 22.6 available on x86_64, arm64, and armv7.
+22.4.27 | This is the latest based on GVMd 22.6 available on x86_64, arm64, and armv7.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -39,6 +39,13 @@ The current container docs are maintained on github [here](https://immauss.githu
 
 For docs on the web interface and scanning, use Greenbone's docs [here](https://docs.greenbone.net/GSM-Manual/gos-22.04/en/). Chapter's 8-14 cover the bits you'll need.
 - - - -
+# 18 August 2023 #
+## 22.4.27 ##
+To help reduce feed update times, now if you are using a data volume, when you update to the latest image, the startup scripts will extract the newer feeds data archive on the image to your local volume. 
+
+-Scott
+
+
 # 11 August 2023 #
 ## 22.4.26 ##
 

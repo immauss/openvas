@@ -153,11 +153,11 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-	tar xf /usr/lib/var-lib.tar.xz 
-	# Store the date of the Feeds archive for later start ups. 
-	FeedDate=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5,$6,$7,$8}' | date +%s > /data/var-lib/FeedDate )
+	tar xf /usr/lib/var-lib.tar.xz
 	echo "Base DB and feeds collected on:"
 	cat /data/var-lib/update.ts
+	# Store the date of the Feeds archive for later start ups. 
+	cat /data/var-lib/update.ts | date +%s > /data/var-lib/FeedDate 
 fi
 
 # If NEWDB is true, then we need to create an empty database. 
@@ -281,13 +281,16 @@ if [ $SKIPSYNC == "false" ]; then
    # If the timestamp is the same, or the file doesn't exist, then we start by
    # extracting the archive in the image, this will speed up the sync with GB by
    # reducing the amount needed to rsync.
-   ImageFeeds=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5,$6,$7,$8}' | date +%s)
-   if [ -f /date/var-lib/FeedDate ]; then 
-	   InstalledFeeds=$(cat /date/var-lib/FeedDate)
+ls -l /usr/lib/var-lib.tar.xz 
+   ImageFeeds=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $6,$7,$8}' | date +%s)
+   echo "ImageFeeds=$ImageFeeds"
+   if [ -f /data/var-lib/FeedDate ]; then 
+	   InstalledFeeds=$(cat /data/var-lib/FeedDate)
+	   echo "InstalledFeeds=$InstalledFeeds"
    else
 	   InstalledFeeds=0
    fi
-   if [ $InstalledFeeds -ne $ImageFeeds ] then
+   if [ $InstalledFeeds -ne $ImageFeeds ]; then
 	   cd /data
 	   tar xf /usr/lib/var-lib.tar.xz
    fi

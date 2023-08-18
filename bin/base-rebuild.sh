@@ -29,10 +29,10 @@ if [ -z  $tag ]; then
 fi
 echo "TAG $tag"
 if [ "$tag" == "beta" ]; then
-	arch="linux/amd64,linux/arm64,linux/arm/v7"
-elif [ -z $arch ]; then
 	echo "tag set to beta. Only building x86_64."
 	arch="linux/amd64"
+elif [ -z $arch ]; then
+	arch="linux/amd64,linux/arm64,linux/arm/v7"
 fi
 
 echo "Building with $tag and $arch"
