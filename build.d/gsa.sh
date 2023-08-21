@@ -49,7 +49,7 @@ GSAD_VERSION=$(echo $gsad| sed "s/^v\(.*$\)/\1/")
 curl -f -L https://github.com/greenbone/gsad/archive/refs/tags/v$GSAD_VERSION.tar.gz -o gsad-$GSAD_VERSION.tar.gz
 tar xvf gsad-$GSAD_VERSION.tar.gz
 cd /build/*/
-cmake /build/gsad-$GSAD_VERSION \
+cmake -j$(nproc) /build/gsad-$GSAD_VERSION \
 	-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DSYSCONFDIR=/usr/local/etc \
