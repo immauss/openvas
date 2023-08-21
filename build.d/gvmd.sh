@@ -12,7 +12,7 @@ cd build
 ls -l /usr/include/postgresql/13/server
 cmake -DPostgreSQL_TYPE_INCLUDE_DIR=/usr/include/postgresql/13/server \
   -DCMAKE_BUILD_TYPE=Release ..
-make
+make -j$(nproc)
 make install
 cd /build
 rm -rf *

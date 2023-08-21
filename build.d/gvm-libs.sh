@@ -14,7 +14,7 @@ sed -i '/^.*-D_DEFAULT_SOURCE.*/i \ \ \ \ -D_FILE_OFFSET_BITS=64 \\' CMakeLists.
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make
+make -j$(nproc)
 make install
 cd /build
 rm -rf *

@@ -14,7 +14,7 @@ cd /build/*/
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make
+make -j$(nproc)
 make install
 cd /build
 rm -rf *
