@@ -22,6 +22,11 @@ while ! [ -z "$1" ]; do
 	NOBASE=true;
 	echo "Skipping ovasbase build"
 	;;
+	-n)
+	shift
+	RUNAFTER=0
+	echo "OK, we'll skip running the image after build"
+	;;
   esac
 done
 if [ -z  $tag ]; then
@@ -46,7 +51,8 @@ cd /home/scott/Projects/openvas
 docker buildx build --build-arg TAG=${tag} --push --platform $arch -f Dockerfile --target slim -t immauss/openvas:${tag}-slim .
 docker buildx build --build-arg TAG=${tag} --push --platform $arch -f Dockerfile --target final -t immauss/openvas:${tag} .
 docker rm -f $tag
-docker pull immauss/openvas:$tag
-docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 immauss/openvas:$tag 
-docker logs -f $tag
-
+if [ $RUNAFTER -eq 1 ]; then
+	docker pull immauss/openvas:$tag
+	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 immauss/openvas:$tag 
+	docker logs -f $tag
+fi
