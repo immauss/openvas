@@ -1,2 +1,4 @@
-This Dockerfile and associated bits is used to create the base image for builds.
-I'ts primarily to speed up builds so I don't have do all these bits every build. 
+This Dockerfile and associated bits are used to create the base image for builds.
+It's primarily to speed up builds so I don't have do all these bits every time. 
+It is found on docker hub as ..
+immauss/ovasbase
