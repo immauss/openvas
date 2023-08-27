@@ -281,16 +281,18 @@ if [ $SKIPSYNC == "false" ]; then
    # If the timestamp is the same, or the file doesn't exist, then we start by
    # extracting the archive in the image, this will speed up the sync with GB by
    # reducing the amount needed to rsync.
-ls -l /usr/lib/var-lib.tar.xz 
-   ImageFeeds=$(ls -l /usr/lib/var-lib.tar.xz | awk '{print $6,$7,$8}' | date +%s)
+   echo "Checking age of current data feeds from Greenbone."
+   ImageFeeds=$(stat -c %Y /usr/lib/var-lib.tar.xz)
    echo "ImageFeeds=$ImageFeeds"
    if [ -f /data/var-lib/FeedDate ]; then 
 	   InstalledFeeds=$(cat /data/var-lib/FeedDate)
-	   echo "InstalledFeeds=$InstalledFeeds"
+	   
    else
 	   InstalledFeeds=0
    fi
+   echo "InstalledFeeds=$InstalledFeeds"
    if [ $InstalledFeeds -ne $ImageFeeds ]; then
+	   echo "Updating local feeds with newer image feeds."
 	   cd /data
 	   tar xf /usr/lib/var-lib.tar.xz
    fi
