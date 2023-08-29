@@ -32,7 +32,7 @@ If applicable, add screenshots to help explain your problem.
  - Memory available to OS:  [ 4G ]
  - Container environment used with version: [ docker , podman, kubernets, etc ]
 
-**logs**
+**logs** ( commands assume the container name is 'openvas' )
 Please attach the output from one of the following commands:
 
 # docker #
