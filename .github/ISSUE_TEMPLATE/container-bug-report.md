@@ -35,18 +35,19 @@ If applicable, add screenshots to help explain your problem.
 **logs**
 Please attach the output from the following commands:
 
-# for docker #
+# docker #
 ``` 
 docker logs openvas > logfile.log 
 ```
-#Podman#
+# Podman #
 ```
 podman logs openvas > logfile.log
 ```
-#docker-compose #
+# docker-compose #
 ```
 docker-compose logs > logfile.log
 ```
+Please "attach" the file instead of pasting the conents to the issue. 
 
 **Additional context**
 Add any other context about the problem here.
