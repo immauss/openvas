@@ -33,20 +33,17 @@ If applicable, add screenshots to help explain your problem.
  - Container environment used with version: [ docker , podman, kubernets, etc ]
 
 **logs**
-Please attach the output from the following commands:
+Please attach the output from one of the following commands:
 
 # docker #
-``` 
 docker logs openvas > logfile.log 
-```
+
 # Podman #
-```
 podman logs openvas > logfile.log
-```
+
 # docker-compose #
-```
 docker-compose logs > logfile.log
-```
+
 Please "attach" the file instead of pasting the conents to the issue. 
 
 **Additional context**
