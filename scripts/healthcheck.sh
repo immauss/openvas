@@ -6,6 +6,29 @@ ContainerShutdown() {
 	# Kill the tail that holds the container open
 	kill $(ps auxw | awk /tail/'{print $2}' )
 }
+
+# Check the Disk Space
+HIGHROOT=$(df -h / | tr -d % | awk /overlay/'{ if ( $5 > 95 ) print $4}')
+ROOTPSPC=$(df / | tr -d %| awk /overlay/'{print $4}')	
+if ! [ -z $HIGHROOT ]; then
+	echo -e "Available Container Disk Space low. (/ = ${HIGHROOT} available).\n if < 100M, container will shutdown." >> /usr/local/var/log/gvm/healthchecks.log
+	SERVICE="$SERVICE root disk low\n"
+	if [ $ROOTPSPC -lt 100000 ]; then
+		ContainerShutdown
+	fi
+fi
+
+HIGHDATA=$(df -h | tr -d % | awk /data/'{ if ( $5 > 95 ) print $4}')		
+DATAPSPC=$(df | tr -d %| awk /data/'{print $4}')	
+if ! [ -z $HIGHDATA ]; then
+	echo "Available Container Disk Space low. (/data = ${HIGHDATA} available).\n if < 100M, container will shutdown.)" >> /usr/local/var/log/gvm/healthchecks.log
+	SERVICE="$SERVICE data disk low\n"
+	FAIL=7
+	if [ $DATAPSPC -lt 100000 ]; then
+		ContainerShutdown
+	fi
+fi
+
 case  $FUNC in
 	openvas)
 		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
@@ -44,31 +67,6 @@ case  $FUNC in
 		# postgresql
 		nmap -p 5432 localhost| grep -qs "5432.*open" || FAIL=5 
 			if [ $FAIL -eq 5 ]; then SERVICE="$SERVICE postgresql\n"; fi
-		# Disk Space
-
-		HIGHROOT=$(df -h / | tr -d % | awk /overlay/'{ if ( $5 > 95 ) print $4}')
-		ROOTPCNT=$(df / | tr -d %| awk /overlay/'{print $4}')	
-		echo "ROOT $HIGHROOT $ROOTPCNT"
-		if ! [ -z $HIGHROOT ]; then
-			echo -e "Available Container Disk Space low. (/ = ${HIGHROOT} available).\n if < 100M, container will shutdown." >> /usr/local/var/log/gvm/healthchecks.log
-			SERVICE="$SERVICE root disk low\n"
-			FAIL=6
-			if [ $ROOTPCNT -lt 100000 ]; then
-				ContainerShutdown
-			fi
-		fi
-
-		HIGHDATA=$(df -h | tr -d % | awk /data/'{ if ( $5 > 95 ) print $4}')		
-		DATAPCNT=$(df | tr -d %| awk /data/'{print $4}')	
-		echo "DATA $HIGHDATA $HIGHPCNT"	
-		if ! [ -z $HIGHDATA ]; then
-			echo "Available Container Disk Space low. (/data = ${HIGHDATA} available).\n if < 100M, container will shutdown.)" >> /usr/local/var/log/gvm/healthchecks.log
-			SERVICE="$SERVICE data disk low\n"
-			FAIL=7
-			if [ $DATAPCNT -lt 100000 ]; then
-				ContainerShutdown
-			fi
-		fi
 
 		if [ $FAIL -ne 0 ]; then
 			echo " HEALTHECHECK FAILED !" >> /usr/local/var/log/gvm/healthchecks.log
