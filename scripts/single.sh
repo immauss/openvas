@@ -157,7 +157,7 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "Base DB and feeds collected on:"
 	cat /data/var-lib/update.ts
 	# Store the date of the Feeds archive for later start ups. 
-	cat /data/var-lib/update.ts | date +%s > /data/var-lib/FeedDate 
+	stat -c %Y  /data/var-lib/update.ts  > /data/var-lib/FeedDate 
 fi
 
 # If NEWDB is true, then we need to create an empty database. 
@@ -295,6 +295,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   echo "Updating local feeds with newer image feeds."
 	   cd /data
 	   tar xf /usr/lib/var-lib.tar.xz
+	   # Replace the FeedDate with date from the Image feeds.
+	   # This prevents it from extracting the archive everytime the image restarts.
+	   echo "$ImageFeeds" > /data/var-lib/FeedDate 
+
    fi
 
 	   
