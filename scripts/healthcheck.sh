@@ -9,22 +9,22 @@ ContainerShutdown() {
 
 # Check the Disk Space
 HIGHROOT=$(df -h / | tr -d % | awk /overlay/'{ if ( $5 > 95 ) print $4}')
-ROOTPSPC=$(df / | tr -d %| awk /overlay/'{print $4}')	
+ROOTSPC=$(df / | tr -d %| awk /overlay/'{print $4}')	
 if ! [ -z $HIGHROOT ]; then
 	echo -e "Available Container Disk Space low. (/ = ${HIGHROOT} available).\n if < 100M, container will shutdown." >> /usr/local/var/log/gvm/healthchecks.log
 	SERVICE="$SERVICE root disk low\n"
-	if [ $ROOTPSPC -lt 100000 ]; then
+	if [ $ROOTSPC -lt 100000 ]; then
 		ContainerShutdown
 	fi
 fi
 
 HIGHDATA=$(df -h | tr -d % | awk /data/'{ if ( $5 > 95 ) print $4}')		
-DATAPSPC=$(df | tr -d %| awk /data/'{print $4}')	
+DATASPC=$(df | tr -d %| awk /data/'{print $4}')	
 if ! [ -z $HIGHDATA ]; then
 	echo "Available Container Disk Space low. (/data = ${HIGHDATA} available).\n if < 100M, container will shutdown.)" >> /usr/local/var/log/gvm/healthchecks.log
 	SERVICE="$SERVICE data disk low\n"
 	FAIL=7
-	if [ $DATAPSPC -lt 100000 ]; then
+	if [ $DATASPC -lt 100000 ]; then
 		ContainerShutdown
 	fi
 fi

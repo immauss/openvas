@@ -25,8 +25,7 @@ COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
-COPY build.d/gsa.sh /build.d/
-RUN bash /build.d/gsa.sh
+
 COPY build.d/ospd-openvas.sh /build.d/
 RUN bash /build.d/ospd-openvas.sh
 COPY build.d/gvm-tool.sh /build.d/
@@ -37,6 +36,11 @@ COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
 COPY build.d/gb-feed-sync.sh /build.d/
 RUN bash /build.d/gb-feed-sync.sh
+
+COPY build.d/gsa.sh /build.d/
+COPY ics-gsa/ /build.d/
+RUN bash /build.d/gsa.sh
+
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 RUN mkdir /branding

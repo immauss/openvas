@@ -12,38 +12,40 @@ tar -xf $gsa.tar.gz
 apt remove nodejs yarn -y 
 ls -l
 cd /build/*/
+# Implement ICS GSA Mods
+BUILDDIR=$(pwd)
+echo "BUILDDIR $BUILDDIR"
+/build.d/scripts/gsa-mods.sh $BUILDDIR
+
+# Now install latest nodejs & yarn ..
 export NODE_VERSION=node_14.x
 export KEYRING=/usr/share/keyrings/nodesource.gpg
 export DISTRIBUTION="bullseye"
 
+# the nodesource apt source
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor |  tee "$KEYRING" >/dev/null
 gpg --no-default-keyring --keyring "$KEYRING" --list-keys
 echo "deb [signed-by=$KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" |  tee /etc/apt/sources.list.d/nodesource.list
 echo "deb-src [signed-by=$KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" |  tee -a /etc/apt/sources.list.d/nodesource.list
-
-
- apt update
- apt install -y nodejs
-
+# add the yarn apt source
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg |  apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" |  tee /etc/apt/sources.list.d/yarn.list
 
  apt update
- apt install -y yarn
+ apt install -y nodejs yarn
 
+# Now build gsa
 yarn 
 yarn build
 
  mkdir -p $INSTALL_PREFIX/share/gvm/gsad/web/
  cp -r build/* $INSTALL_PREFIX/share/gvm/gsad/web/
 
-
-
-
 cd /build
 rm -rf *
 # Clean up after yarn
 rm -rf /usr/local/share/.cache
+
 # Now we build gsad
 GSAD_VERSION=$(echo $gsad| sed "s/^v\(.*$\)/\1/")
 curl -f -L https://github.com/greenbone/gsad/archive/refs/tags/v$GSAD_VERSION.tar.gz -o gsad-$GSAD_VERSION.tar.gz
