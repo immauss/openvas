@@ -7,13 +7,13 @@ RC=$(mktemp)
 . .token
 # 
 for repo in gvmd gvm-libs openvas openvas-scanner openvas-smb notus-scanner gsa gsad ospd ospd-openvas pg-gvm; do
-	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".assets[].browser_download_url" | sed "s/^.*download\/\(v.*\)\/.*$/\1/" | head -1)
+	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".tag_name" )
 	#echo "$repo current version is $VERSION"
 	VAR=$( echo $repo | tr - _ )
 	echo "$VAR=$VERSION" >> $RC
 done
 for repo in python-gvm gvm-tools greenbone-feed-sync; do 
-	python_gvm=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".tarball_url" | awk -F/ '{print $NF}' )
+	python_gvm=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".tag_name")
 	#echo "$repo current version is $python_gvm"
 	VAR=$(echo $repo | tr - _ )
 	echo "$VAR=$python_gvm" >> $RC

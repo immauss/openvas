@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+BUILDHOME=$(pwd)
 STARTTIME=$(date +%s)
 NOBASE="false"
 RUNAFTER="1"
@@ -6,6 +8,7 @@ ARM="false"
 ARMSTART=true
 PRUNESTART=true
 BASESTART=true
+PUBLISH=" "
 TimeMath() {
     local total_seconds="$1"
     local hours=$((total_seconds / 3600))
@@ -14,8 +17,13 @@ TimeMath() {
 
     printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
 }
+
 while ! [ -z "$1" ]; do
   case $1 in
+    --push)
+	shift
+	PUBLISH="--push"
+	;;
 	-t)
 	shift
 	tag=$1
@@ -43,6 +51,12 @@ while ! [ -z "$1" ]; do
 	RUNAFTER=0
 	echo "OK, we'll skip running the image after build"
 	;;
+	*)
+        echo "I don't know what to do with $1 option"
+	echo "Sorry ...."
+	exit
+	;;
+
   esac
 done
 if [ -z  $tag ]; then
@@ -60,13 +74,14 @@ fi
 echo "Building with $tag and $arch"
 set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
-	cd /home/scott/Projects/openvas/ovasbase
+	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
-	docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase  .
+	# Always build all archs for ovasebase.
+	docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
 	BASEFIN=$(date +%s)
 	cd ..
 fi
-cd /home/scott/Projects/openvas
+cd $BUILDHOME
 # Use this to set the version in the Dockerfile.
 # This hould have worked with cmd line args, but does not .... :(
 	DOCKERFILE=$(mktemp)
@@ -76,19 +91,19 @@ cd /home/scott/Projects/openvas
 #
 if [ "$ARM" == "true" ]; then
 	ARM64START=$(date +%s)
-	docker buildx build --build-arg TAG=${tag} --push \
+	docker buildx build --build-arg TAG=${tag}  \
 	   --platform linux/arm64 -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
 	   -f $DOCKERFILE .
 	ARM64FIN=$(date +%s)
 fi
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
-docker buildx build --build-arg TAG=${tag} --push \
+docker buildx build --build-arg TAG=${tag} $PUBLISH \
    --platform $arch -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
    -f $DOCKERFILE .
 SLIMFIN=$(date +%s)
 FINALSTART=$(date +%s)
-docker buildx build --build-arg TAG=${tag} --push --platform $arch -f Dockerfile \
+docker buildx build --build-arg TAG=${tag} $PUBLISH --platform $arch -f Dockerfile \
    --target final -t immauss/openvas:${tag} \
    -f $DOCKERFILE .
 FINALFIN=$(date +%s)
