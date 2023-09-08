@@ -1,4 +1,6 @@
 #!/bin/bash
+# 
+BUILDHOME=$(pwd)
 STARTTIME=$(date +%s)
 NOBASE="false"
 RUNAFTER="1"
@@ -60,13 +62,13 @@ fi
 echo "Building with $tag and $arch"
 set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
-	cd /home/scott/Projects/openvas/ovasbase
+	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
 	docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
 	BASEFIN=$(date +%s)
 	cd ..
 fi
-cd /home/scott/Projects/openvas
+cd $BUILDHOME
 # Use this to set the version in the Dockerfile.
 # This hould have worked with cmd line args, but does not .... :(
 	DOCKERFILE=$(mktemp)
