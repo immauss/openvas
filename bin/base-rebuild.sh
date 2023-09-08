@@ -62,7 +62,7 @@ set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
 	cd /home/scott/Projects/openvas/ovasbase
 	BASESTART=$(date +%s)
-	docker buildx build --push  --platform  $arch -f Dockerfile -t immauss/ovasbase  .
+	docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
 	BASEFIN=$(date +%s)
 	cd ..
 fi
