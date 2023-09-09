@@ -66,6 +66,7 @@ echo "TAG $tag"
 if [ "$tag" == "beta" ]; then
 	echo "tag set to beta. Only building x86_64."
 	arch="linux/amd64"
+	PUBLISH="--push"
 elif [ -z $arch ]; then
 	arch="linux/amd64,linux/arm64,linux/arm/v7"
 	ARM="true"
@@ -76,7 +77,7 @@ set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
-	# Always build all archs for ovasebase.
+	# Always build all archs for ovasbase.
 	docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
 	BASEFIN=$(date +%s)
 	cd ..

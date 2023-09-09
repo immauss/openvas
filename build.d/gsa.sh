@@ -18,7 +18,7 @@ echo "BUILDDIR $BUILDDIR"
 /build.d/scripts/gsa-mods.sh $BUILDDIR
 
 # Now install latest nodejs & yarn ..
-export NODE_VERSION=node_14.x
+export NODE_VERSION=node_16.x
 export KEYRING=/usr/share/keyrings/nodesource.gpg
 export DISTRIBUTION="bullseye"
 
