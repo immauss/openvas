@@ -1,4 +1,5 @@
 #!/bin/bash
+echo  "Procs $(nproc)" > /BuildProcs
 INSTALL_PREFIX="/usr/local/"
 set -Eeuo pipefail
 # Source this for the latest release versions
