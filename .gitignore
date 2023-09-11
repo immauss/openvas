@@ -8,3 +8,5 @@ testing/bind
 testing/archive
 *.swp
 gvm-tools
+base.sql.xz
+var-lib.tar.xz
