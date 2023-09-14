@@ -20,7 +20,7 @@ apt-get install -yq --no-install-recommends $PACKAGES
 /usr/sbin/update-ca-certificates --fresh
 
 # Now install latest nodejs & yarn ..
-export NODE_VERSION=node_16.x
+export NODE_VERSION=node_18.x
 export KEYRING=/usr/share/keyrings/nodesource.gpg
 export DISTRIBUTION="bullseye"
 
