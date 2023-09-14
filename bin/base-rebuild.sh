@@ -27,8 +27,8 @@ TimeMath() {
     printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
 }
 PullArchives() {
-	curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o base.sql.xz && \
-    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o var-lib.tar.xz && \
+
+	cp /var/lib/openvas/*.xz .
     if [ $(ls -l base.sql.xz | awk '{print $5}') -lt 1200 ]; then 
 		echo "base.sql.xz size is invalid."
 		exit 1

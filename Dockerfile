@@ -88,11 +88,7 @@ LABEL maintainer="scott@immauss.com" \
       version="$VER-full" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
-# Pull and then Make sure we didn't just pull zero length files 
-#RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
-#    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
-#    bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
-#    bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
+
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 # packages to add to ovasbase
