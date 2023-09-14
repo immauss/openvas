@@ -34,13 +34,10 @@ services:
       - "openvas:/data"
       - "ovasrun:/run"
     environment:
-      - "PASSWORD=$PASSWORD"
-      - "USERNAME=$USERNAME"
       - "RELAYHOST=$RELAYHOST"
       - "SMTPPORT=$SMTPPORT"
       - "QUIET=$QUIET"  # dump feed sync noise to /dev/null
       - "SKIPSYNC=$SKIPSYNC" # Skips the feed sync on startup.
-      - "DEBUG=$DEBUG"  # This will cause the container to stop and not actually start gvmd
       - "GMP=$GMP"    # to enable see docs
     restart: unless-stopped
   redis:

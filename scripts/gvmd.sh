@@ -92,6 +92,8 @@ if [ $LOADDEFAULT = "true" ] ; then
 	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
 	su -c "/usr/lib/postgresql/13/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
 	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	# need this to prevent a loop if gvmd restarts before postgres.
+	echo "false" > /run/loaddefault
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"

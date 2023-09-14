@@ -15,7 +15,7 @@ echo "OS is $OS"
 if [ "$OS" == "Darwin" ]; then
 	STAT="-f %a"
 else
-	STAT="-c %s"
+	STAT="-c %Y"
 fi
 echo "STAT is $STAT"
 TimeMath() {
@@ -29,11 +29,11 @@ TimeMath() {
 PullArchives() {
 	curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o base.sql.xz && \
     curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o var-lib.tar.xz && \
-    if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then 
+    if [ $(ls -l base.sql.xz | awk '{print $5}') -lt 1200 ]; then 
 		echo "base.sql.xz size is invalid."
 		exit 1
 	fi 
-    if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then 
+    if [ $(ls -l var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then 
 		echo "var-lib.tar.xz size is invalid."
 		exit 1
 	fi
@@ -150,7 +150,7 @@ FINALFIN=$(date +%s)
 #Clean up temp file
 rm $DOCKERFILE
 
-rm timing
+
 echo "Statistics:"
 # First the dependent times.
 if ! [ $PRUNESTART ]; then

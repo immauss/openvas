@@ -94,7 +94,7 @@ LABEL maintainer="scott@immauss.com" \
 #    bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
 #    bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
 COPY base.sql.xz /usr/lib/base.sql.xz
-COPY var-lib.tar.xz /usr/lib/var-lib/xz
+COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 # packages to add to ovasbase
 #RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
