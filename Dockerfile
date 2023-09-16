@@ -7,6 +7,7 @@ FROM immauss/ovasbase:latest AS builder
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+ARG TAG
 ENV VER="$TAG"
 
 # Build/install gvm (by default, everything installs in /usr/local)

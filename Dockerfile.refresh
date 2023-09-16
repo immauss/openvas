@@ -1,6 +1,7 @@
 # Environment variables for all
 FROM immauss/openvas:latest-slim AS final
 ENV LANG=C.UTF-8
+ARG TAG
 ENV VER="$TAG"
 LABEL maintainer="scott@immauss.com" \
       version="$VER-full" \
