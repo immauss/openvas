@@ -18,7 +18,7 @@ echo "BUILDDIR $BUILDDIR"
 /ics-gsa/scripts/gsa-mods.sh $BUILDDIR
 
 # Now build gsa
-npm install && npm run build
+npm ci && npm run build
 
  mkdir -p $INSTALL_PREFIX/share/gvm/gsad/web/
  cp -r build/* $INSTALL_PREFIX/share/gvm/gsad/web/
