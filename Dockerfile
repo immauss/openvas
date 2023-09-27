@@ -41,6 +41,8 @@ RUN bash /build.d/gb-feed-sync.sh
 COPY build.d/gsa.sh /build.d/
 COPY ics-gsa /ics-gsa
 RUN bash /build.d/gsa.sh
+COPY build.d/gsad.sh /build.d
+RUN bash /build.d/gsad.sh
 
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
