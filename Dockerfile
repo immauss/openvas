@@ -38,17 +38,16 @@ RUN bash /build.d/pg-gvm.sh
 COPY build.d/gb-feed-sync.sh /build.d/
 RUN bash /build.d/gb-feed-sync.sh
 
-COPY build.d/gsa.sh /build.d/
+#COPY build.d/gsa.sh /build.d/
 COPY ics-gsa /ics-gsa
-RUN bash /build.d/gsa.sh
+#RUN bash /build.d/gsa.sh
 COPY build.d/gsad.sh /build.d
 RUN bash /build.d/gsad.sh
 
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 RUN mkdir /branding
-COPY branding/* /branding/
-RUN bash /branding/branding.sh
+
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
@@ -70,15 +69,18 @@ COPY --from=0 usr/local/sbin /usr/local/sbin
 COPY --from=0 usr/local/share /usr/local/share
 COPY --from=0 usr/share/postgresql /usr/share/postgresql
 COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
+ 
 COPY confs/gvmd_log.conf /usr/local/etc/gvm/
 COPY confs/openvas_log.conf /usr/local/etc/openvas/
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /
 RUN bash /gpg-keys.sh
-# Split these off in a new layer makes refresh builds faster.
+# Copy in the prebuilt gsa react code.
+COPY gsa-final/ /usr/local/share/gvm/gsad/web/
 COPY build.rc /gvm-versions
-
+COPY branding/* /branding/
+RUN bash /branding/branding.sh
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as

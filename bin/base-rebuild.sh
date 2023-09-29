@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+#Get current gvm versions
+. build.rc
+# Setup some variables
 BUILDHOME=$(pwd)
 STARTTIME=$(date +%s)
 NOBASE="false"
@@ -10,6 +13,7 @@ PRUNESTART=true
 BASESTART=true
 PUBLISH=" "
 RUNOPTIONS=" "
+GSABUILD="false"
 OS=$(uname)
 echo "OS is $OS"
 if [ "$OS" == "Darwin" ]; then
@@ -41,6 +45,10 @@ PullArchives() {
 
 while ! [ -z "$1" ]; do
   case $1 in
+    -g)
+	shift
+	GSABUILD=true
+	;;
     --push)
 	shift
 	PUBLISH="--push"
@@ -108,8 +116,10 @@ if [ $DBAGE -gt 604800 ]; then
 	PullArchives
 fi
 echo "Building with $tag and $arch"
+
 set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
+	echo "Building new ovasbase image"
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
 	# Always build all archs for ovasbase.
@@ -117,21 +127,35 @@ if  [ "$NOBASE" == "false" ]; then
 	BASEFIN=$(date +%s)
 	cd ..
 fi
+# First we build GSA using a single ovasbase x86_64 container. 
+# this SIGNIFICANTLY speeds the builds.
+# first check to see if the current version has been built already
+if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then 
+	echo "Starting container to build GSA" 
+		docker run -it --rm \
+			-v $(pwd)/ics-gsa:/ics-gsa \
+			-v $(pwd)/tmp/build:/build \
+			-v $(pwd):/build.d \
+			-v $(pwd)/gsa-final:/final \
+			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh "
+else
+	echo "Looks like we have already build gsa $gsa"
+fi
 cd $BUILDHOME
 # Use this to set the version in the Dockerfile.
-# This hould have worked with cmd line args, but does not .... :(
+# This should have worked with cmd line args, but does not .... :(
 	DOCKERFILE=$(mktemp)
 	sed "s/\$VER/$tag/" Dockerfile > $DOCKERFILE
 # Because the arm64 build seems to always fail when building a the same time as the other archs ....
 # We'll build it first to have it cached for the final build. But we only need the slim
 #
-if [ "$ARM" == "true" ]; then
-	ARM64START=$(date +%s)
-	docker buildx build --build-arg TAG=${tag}  \
-	   --platform linux/arm64 -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
-	   -f $DOCKERFILE .
-	ARM64FIN=$(date +%s)
-fi
+# if [ "$ARM" == "true" ]; then
+# 	ARM64START=$(date +%s)
+# 	docker buildx build --build-arg TAG=${tag}  \
+# 	   --platform linux/arm64 -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
+# 	   -f $DOCKERFILE .
+# 	ARM64FIN=$(date +%s)
+# fi
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
 docker buildx build --build-arg TAG=${tag} $PUBLISH \
