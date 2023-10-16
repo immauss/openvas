@@ -24,16 +24,4 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 	--mqtt-broker-port 1883 \
 	--notus-feed-dir /var/lib/notus/advisories \
 	-f
-#while ! [ -S /var/run/ospd/ospd-openvas.sock ]; do 
-	#echo " Waiting for ospd.sock"
-	#sleep 1
-#done
-#
-#
-#echo "Starting the notus-scanner ...."
-#/usr/local/bin/notus-scanner \
-	#--products-directory /var/lib/notus/products \
-	#--log-file /var/log/gvm/notus-scanner.log \
-	#-b mosquitto \
-	#-p 1883 -f
-#
+

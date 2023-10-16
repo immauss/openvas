@@ -55,6 +55,10 @@ case $1 in
 	echo "Starting the mosquitto !!"
 	exec /scripts/mosquitto.sh 
 ;;
+	remote)
+	echo "Start remote scanner !!"
+	exec /scripts/remote-scanner.sh
+;;
 	debug)
 	echo "Starting bash shell!!"
 	/bin/bash -c "sleep 30d"
