@@ -11,3 +11,5 @@ gvm-tools
 base.sql.xz
 var-lib.tar.xz
 timing
+certs.tar.xz
+cs-gsa
