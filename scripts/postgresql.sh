@@ -84,7 +84,7 @@ fi
 echo $LOADDEFAULT > /run/loaddefault
 #
 # If no default is being loaded, then we need to create an empty database. 
-if [ $LOADDEFAULT = "false" ]; then
+if [ -z $DB ] && [ $LOADDEFAULT = "false" ]; then
 	if [ $(DBCheck) -eq 1 ]; then
 		echo " It looks like there is already a gvmd database."
 		echo " Failing out to prevent overwriting the existing DB"
