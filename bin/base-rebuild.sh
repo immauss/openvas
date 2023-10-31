@@ -100,6 +100,7 @@ if [ "$tag" == "beta" ]; then
 	NOBASE=true
 elif [ -z $arch ]; then
 	arch="linux/amd64,linux/arm64,linux/arm/v7"
+	#arch="linux/amd64,linux/arm64"
 	ARM="true"
 fi
 # Check to see if we need to pull the latest DB. 
