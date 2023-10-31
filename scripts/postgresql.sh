@@ -20,7 +20,7 @@ function DBCheck {
 if [ -S /run/postgresql/.s.PGSQL.5432 ]; then
 	rm -f /run/postgresql/.s.PGSQL.5432
 fi
-# Until If find a better way, Force this here.
+# Until I find a better way, Force this here.
 chown -R postgres /run/postgresql 
 
 # Postgres config should be tighter.
@@ -69,9 +69,12 @@ trap 'cleanup' SIGTERM
 echo "Checking for existing DB"
 su -c " psql -lqt " postgres
 DB=$(su -c " psql -lqt" postgres | awk /gvmd/'{print $1}')
+# Do we need to load the default DB from archives in the image?
+echo "DB is $DB"
+ls -l /usr/lib/*.xz 
 if [ "$DB" = "gvmd" ]; then
 	LOADDEFAULT="false"
-elif ! [ -f /usr/lib/base-db.xz ]; then
+elif ! [ -f /usr/lib/base.sql.xz ]; then
 	LOADDEFAULT="false"
 else
 	LOADDEFAULT="true"
@@ -81,7 +84,7 @@ fi
 echo $LOADDEFAULT > /run/loaddefault
 #
 # If no default is being loaded, then we need to create an empty database. 
-if [ $LOADDEFAULT = "false" ]; then
+if [ -z $DB ] && [ $LOADDEFAULT = "false" ]; then
 	if [ $(DBCheck) -eq 1 ]; then
 		echo " It looks like there is already a gvmd database."
 		echo " Failing out to prevent overwriting the existing DB"
@@ -97,13 +100,13 @@ if [ $LOADDEFAULT = "false" ]; then
 	chown postgres:postgres -R /data/database
 	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
 
-	su -c "gvm-manage-certs -V" gvm 
-	NOCERTS=$?
-	while [ $NOCERTS -ne 0 ] ; do
+#	su -c "gvm-manage-certs -V" gvm 
+#	NOCERTS=$?
+#	while [ $NOCERTS -ne 0 ] ; do
 		su -c "gvm-manage-certs -vaf " gvm
-		su -c "gvm-manage-certs -V " gvm 
-		NOCERTS=$?
-	done
+#		su -c "gvm-manage-certs -V " gvm 
+#		NOCERTS=$?
+#	done
 fi
 
 

@@ -7,6 +7,7 @@ FROM immauss/ovasbase:latest AS builder
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+ARG TAG
 ENV VER="$TAG"
 
 # Build/install gvm (by default, everything installs in /usr/local)
@@ -25,8 +26,7 @@ COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
-COPY build.d/gsa.sh /build.d/
-RUN bash /build.d/gsa.sh
+
 COPY build.d/ospd-openvas.sh /build.d/
 RUN bash /build.d/ospd-openvas.sh
 COPY build.d/gvm-tool.sh /build.d/
@@ -37,11 +37,17 @@ COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
 COPY build.d/gb-feed-sync.sh /build.d/
 RUN bash /build.d/gb-feed-sync.sh
+
+#COPY build.d/gsa.sh /build.d/
+COPY ics-gsa /ics-gsa
+#RUN bash /build.d/gsa.sh
+COPY build.d/gsad.sh /build.d
+RUN bash /build.d/gsad.sh
+
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 RUN mkdir /branding
-COPY branding/* /branding/
-RUN bash /branding/branding.sh
+
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
@@ -63,15 +69,18 @@ COPY --from=0 usr/local/sbin /usr/local/sbin
 COPY --from=0 usr/local/share /usr/local/share
 COPY --from=0 usr/share/postgresql /usr/share/postgresql
 COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
+ 
 COPY confs/gvmd_log.conf /usr/local/etc/gvm/
 COPY confs/openvas_log.conf /usr/local/etc/openvas/
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /
 RUN bash /gpg-keys.sh
-# Split these off in a new layer makes refresh builds faster.
+# Copy in the prebuilt gsa react code.
+COPY gsa-final/ /usr/local/share/gvm/gsad/web/
 COPY build.rc /gvm-versions
-
+COPY branding/* /branding/
+RUN bash /branding/branding.sh
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
@@ -84,13 +93,9 @@ LABEL maintainer="scott@immauss.com" \
       version="$VER-full" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
-# Pull and then Make sure we didn't just pull zero length files 
-#RUN curl -L --url https://www.immauss.com/openvas/latest.base.sql.xz -o /usr/lib/base.sql.xz && \
-#    curl -L --url https://www.immauss.com/openvas/latest.var-lib.tar.xz -o /usr/lib/var-lib.tar.xz && \
-#    bash -c " if [ $(ls -l /usr/lib/base.sql.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi " && \
-#    bash -c " if [ $(ls -l /usr/lib/var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then exit 1; fi "
+
 COPY base.sql.xz /usr/lib/base.sql.xz
-COPY var-lib.tar.xz /usr/lib/var-lib/xz
+COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 # packages to add to ovasbase
 #RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/

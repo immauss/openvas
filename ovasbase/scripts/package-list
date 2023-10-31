@@ -32,7 +32,6 @@ libpaho-mqtt-dev
   lsof
   mosquitto
   nmap
-  nodejs
   nsis
   openssh-client
   perl-base
@@ -67,5 +66,4 @@ python3-paho-mqtt
   xml-twig-tools
   xsltproc
   xz-utils
-  yarnpkg
   zip

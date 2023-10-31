@@ -10,7 +10,7 @@ echo "# Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------" > versions.md
 
-for repo in gvmd gvm-libs openvas openvas-scanner openvas-smb notus-scanner gsa gsad ospd ospd-openvas pg-gvm; do
+for repo in gvmd gvm-libs openvas openvas-smb notus-scanner gsa gsad ospd ospd-openvas pg-gvm; do
 	VERSION=$(curl -s -H "Authorization: token $Oauth" -L https://api.github.com/repos/greenbone/$repo/releases/latest |  jq -r ".tag_name") 
 	echo "$repo current version is $VERSION"
 	VAR=$( echo $repo | tr - _ )
