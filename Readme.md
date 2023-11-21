@@ -15,7 +15,7 @@ OR
 [Sponsor by PayPal](https:/www.immauss.com/container_subscriptions)
 
 ## Current Silver Sponsors ##
-[![NOSinformatica](https://raw.githubusercontent.com/immauss/openvas/master/images/NOSinformatica.png)]("https://nosinformatica.com/")
+[![NOS Informatica](https://raw.githubusercontent.com/immauss/openvas/master/images/NOSinformatica.png)](https://nosinformatica.com/ "NOS Informatica")
 - - - -
 ## Documentation ##
 The current container docs are maintained on github [here](https://immauss.github.io/openvas/)
