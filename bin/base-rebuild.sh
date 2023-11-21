@@ -103,6 +103,14 @@ elif [ -z $arch ]; then
 	#arch="linux/amd64,linux/arm64"
 	ARM="true"
 fi
+# Make the version # in the image meta data consistent
+# This will leave the 
+if [ "$tag" != "latest" ]; then
+	echo $tag > ver.current
+fi
+VER=$(cat ver.current)
+#
+
 # Check to see if we need to pull the latest DB. 
 # yes if it doesn't already exists
 # Yes if the existing is < 7 days old.
@@ -140,26 +148,18 @@ if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then
 			-v $(pwd)/gsa-final:/final \
 			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh "
 else
-	echo "Looks like we have already build gsa $gsa"
+	echo "Looks like we have already built gsa $gsa"
 fi
 cd $BUILDHOME
 # Use this to set the version in the Dockerfile.
 # This should have worked with cmd line args, but does not .... :(
 	DOCKERFILE=$(mktemp)
-	sed "s/\$VER/$tag/" Dockerfile > $DOCKERFILE
-# Because the arm64 build seems to always fail when building a the same time as the other archs ....
-# We'll build it first to have it cached for the final build. But we only need the slim
-#
-# if [ "$ARM" == "true" ]; then
-# 	ARM64START=$(date +%s)
-# 	docker buildx build --build-arg TAG=${tag}  \
-# 	   --platform linux/arm64 -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
-# 	   -f $DOCKERFILE .
-# 	ARM64FIN=$(date +%s)
-# fi
+	sed "s/\$VER/$VER/" Dockerfile > $DOCKERFILE
+#DOCKERFILE="Dockerfile"
+
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
-docker buildx build --build-arg TAG=${tag} $PUBLISH \
+docker buildx build $PUBLISH \
    --platform $arch -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
    -f $DOCKERFILE .
 SLIMFIN=$(date +%s)
@@ -167,7 +167,7 @@ SLIMFIN=$(date +%s)
 
 
 FINALSTART=$(date +%s)
-docker buildx build --build-arg TAG=${tag} $PUBLISH --platform $arch -f Dockerfile \
+docker buildx build $PUBLISH --platform $arch -f Dockerfile \
    --target final -t immauss/openvas:${tag} \
    -f $DOCKERFILE .
 FINALFIN=$(date +%s)

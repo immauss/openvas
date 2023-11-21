@@ -118,10 +118,10 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 # 	-f
 /usr/local/bin/ospd-openvas --config /etc/gvm/ospd-openvas.conf -f 
 exit
-gvmd --verbose --create-scanner=“DEMO NAME” \
+gvmd --verbose --create-scanner=“Container_Scanner” \
 --scanner-host=172.17.0.4 \
 --scanner-port=9390 \
 --scanner-type=OSP-Sensor \
---scanner-ca-pub=/var/lib/gvm/CA/cacert.pem \
+--scanner-ca-pub=/var/lib/gvm/CA/cacert.pem \ß
 --scanner-key-pub=/var/lib/gvm/CA/clientcert.pem \
 --scanner-key-priv=/var/lib/gvm/private/CA/clientkey.pem
