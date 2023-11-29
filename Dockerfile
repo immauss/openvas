@@ -101,6 +101,6 @@ COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
-HEALTHCHECK --interval=120s --start-period=300s --timeout=120s \
+HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
   CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
