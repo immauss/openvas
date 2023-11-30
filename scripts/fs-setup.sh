@@ -64,6 +64,17 @@ if ! [ -L /var/log ]; then
 	ln -s /data/var-log /var/log
 fi
 
+# Here we make sure the main log directory exists and all
+# of the logs we expect are there and the right permissions. 
+# This ensure they will get sent to docker via the tail -F 
+# at the end of the init script. 
+mkdir -p /var/log/gvm
+for log in gvmd.log  healthchecks.log  notus-scanner.log  openvas.log  ospd-openvas.log  redis-server.log; do
+	touch /var/log/gvm/$log
+done 
+chmod 644 /var/log/gvm/*
+chown gvm:gvm /var/log/gvm/gvmd.log
+
 # Fix up local/share
 if ! [ -L /usr/local/share ]; then
 	cp -rpf /usr/local/share/* /data/local-share
