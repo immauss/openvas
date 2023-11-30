@@ -11,7 +11,9 @@ WorkDir=$(pwd)
 # Tag to work with. Normally latest but might be using new tag during upgrades.
 TAG="latest"
 SQLBU="${TAG}.base.sql"
-TAR="${TAG}.var-lib.tar.xz"
+VER=$(cat ver.current)
+DOCKERFILE=$(mktemp)
+sed "s/\$VER/$VER/" Dockerfile.refresh > $DOCKERFILE
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas/" # Must have a trailing "/"
 STIME="10m" # time between resync and archiving.
@@ -102,7 +104,7 @@ echo "Now rebuild the image"
 cd $WorkDir
 echo "$(pwd) Is current working directory."
 date > update.ts
-docker buildx build -f Dockerfile.refresh --build-arg TAG=${TAG} --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+docker buildx build -f $DOCKERFILE --build-arg TAG=${TAG} --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
