@@ -104,13 +104,13 @@ echo "Now rebuild the image"
 cd $WorkDir
 echo "$(pwd) Is current working directory."
 date > update.ts
-docker buildx build -f $DOCKERFILE --build-arg TAG=${TAG} --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+docker buildx build -f $DOCKERFILE --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
 fi
 
-# echo "Cleaning up"
-# cd $TWD
-# rm -rf *
-# echo "All done"
+echo "Cleaning up"
+cd $TWD
+rm -rf *
+echo "All done"
