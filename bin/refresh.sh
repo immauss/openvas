@@ -112,5 +112,10 @@ fi
 
 echo "Cleaning up"
 cd $TWD
-rm -rf *
+if [ $? -eq 0 ]; then 
+	rm -rf *
+else
+	echo "What happend to $TWD ???"
+	exit 1
+fi
 echo "All done"
