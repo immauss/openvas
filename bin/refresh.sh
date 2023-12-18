@@ -11,6 +11,7 @@ WorkDir=$(pwd)
 # Tag to work with. Normally latest but might be using new tag during upgrades.
 TAG="latest"
 SQLBU="${TAG}.base.sql"
+TAR="${TAG}.var-lib.tar.xz"
 VER=$(cat ver.current)
 DOCKERFILE=$(mktemp)
 sed "s/\$VER/$VER/" Dockerfile.refresh > $DOCKERFILE
