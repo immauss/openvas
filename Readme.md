@@ -10,7 +10,7 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
 
-[Sponsor immauss](https://github.com/sponsors/immauss)
+[Sponsor immauss on GitHub](https://github.com/sponsors/immauss)
 OR
 [Sponsor by PayPal](https:/www.immauss.com/container_subscriptions)
 
