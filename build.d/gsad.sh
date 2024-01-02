@@ -13,9 +13,11 @@ cd /build/*/
 # Implement ICS GSA Mods
 BUILDDIR=$(pwd)
 echo "BUILDDIR $BUILDDIR"
+
+
 /ics-gsa/scripts/gsad-mods.sh $BUILDDIR
 
-cmake -j$(nproc) /build/gsad-$GSAD_VERSION \
+cmake /build/gsad-$GSAD_VERSION \
 	-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DSYSCONFDIR=/usr/local/etc \

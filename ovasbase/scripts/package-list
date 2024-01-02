@@ -1,69 +1,69 @@
-  bison
-  curl
-  dpkg
-  fakeroot
+bison
+curl
+dpkg
+fakeroot
 gir1.2-json-1.0
-  gnupg
-  gnutls-bin
-  gpgsm
-  heimdal-multidev
-  libgcrypt20
-  libglib2.0
-  libgnutls30
-  libgpgme11
-  libhiredis0.14
-  libical3
+gnupg
+gnutls-bin
+gpgsm
+heimdal-multidev
+libgcrypt20
+libglib2.0
+libgnutls30
+libgpgme11
+libhiredis0.14
+libical3
 libjson-glib-1.0-0
 libjson-glib-1.0-common
-  libksba8
-  libldap-2.4-2
-  libmicrohttpd12
-  libnet1
+libksba8
+libldap-common
+libmicrohttpd12
+libnet1
 libpaho-mqtt-dev
-  libpcap0.8
-  libpopt0
-  libpq5
-  libradcli4
-  libsnmp40
-  libssh-gcrypt-4
-  libunistring2
-  libxml2
-  libxslt1.1
-  lsof
-  mosquitto
-  nmap
-  nsis
-  openssh-client
-  perl-base
-  pkg-config
-  postfix
-  postgresql-13
-  procps
-  python3
-  python3-cffi
-  python3-defusedxml
-  python3-impacket
-  python3-lxml
-  python3-packaging
+libpcap0.8
+libpopt0
+libpq5
+libradcli4
+libsnmp40
+libssh-gcrypt-4
+libunistring2
+libxml2
+libxslt1.1
+lsof
+mosquitto
+nmap
+nsis
+openssh-client
+perl-base
+pkg-config
+postfix
+postgresql-13
+procps
+python3-psutil
+python3
+python3-cffi
+python3-defusedxml
+python3-lxml
+python3-packaging
 python3-paho-mqtt
-  python3-paramiko
-  python3-pip
-  python3-redis
-  python3-setuptools
-  python3-wrapt
-  redis-server
-  rpm
-  rsync
-  smbclient
-  snmp
-  socat
-  sshpass
-  texlive-fonts-recommended
-  texlive-latex-extra
-  uuid
-  wget
-  xmlstarlet
-  xml-twig-tools
-  xsltproc
-  xz-utils
-  zip
+python3-paramiko
+python3-pip
+python3-redis
+python3-setuptools
+python3-wrapt
+redis-server
+rpm
+rsync
+smbclient
+snmp
+socat
+sshpass
+texlive-fonts-recommended
+texlive-latex-extra
+uuid
+wget
+xmlstarlet
+xml-twig-tools
+xsltproc
+xz-utils
+zip

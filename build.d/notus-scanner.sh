@@ -13,8 +13,8 @@ wget --no-verbose https://github.com/greenbone/notus-scanner/archive/$notus_scan
 tar -zxf $notus_scanner.tar.gz
 ls -l
 cd /build/*/
- python3 -m pip install . 
- ls -l /usr/local/bin/ |  tee /local-bin.txt
+python3 -m pip install --break-system-packages  . 
+ls -l /usr/local/bin/ |  tee /local-bin.txt
 
 
 cd /build

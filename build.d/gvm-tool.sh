@@ -4,4 +4,4 @@ set -Eeuo pipefail
 . build.rc
 
 echo "pip install GVM-tools"
-python3 -m pip install gvm-tools==$gvm_tools
+python3 -m pip install --break-system-packages gvm-tools==$gvm_tools

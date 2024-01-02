@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:stable
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 COPY scripts /scripts

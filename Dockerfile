@@ -46,7 +46,9 @@ RUN bash /build.d/gsad.sh
 
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
-RUN mkdir /branding
+RUN mkdir /branding 
+COPY build.d/coallate.sh /
+RUN bash /coallate.sh 
 
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
@@ -59,19 +61,22 @@ LABEL maintainer="scott@immauss.com" \
 #EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
-COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
-COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
-COPY --from=0 lib/systemd/system /lib/systemd/system
-COPY --from=0 usr/local/bin /usr/local/bin
-COPY --from=0 usr/local/include /usr/local/include
-COPY --from=0 usr/local/lib /usr/local/lib
-COPY --from=0 usr/local/sbin /usr/local/sbin
-COPY --from=0 usr/local/share /usr/local/share
-COPY --from=0 usr/share/postgresql /usr/share/postgresql
-COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
- 
-COPY confs/gvmd_log.conf /usr/local/etc/gvm/
-COPY confs/openvas_log.conf /usr/local/etc/openvas/
+# Move all of this to a sinlge "build" folder and reduce the number of layers by copying the 
+# entire folder in one line to root/ 
+#COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
+#COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
+#COPY --from=0 lib/systemd/system /lib/systemd/system
+#COPY --from=0 usr/local/bin /usr/local/bin
+#COPY --from=0 usr/local/include /usr/local/include
+#COPY --from=0 usr/local/lib /usr/local/lib
+#COPY --from=0 usr/local/sbin /usr/local/sbin
+#COPY --from=0 usr/local/share /usr/local/share
+#COPY --from=0 usr/share/postgresql /usr/share/postgresql
+#COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
+COPY --from=0 /final .
+
+COPY confs/* /data/local-etc/gvm/
+
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /

@@ -7,8 +7,14 @@ cd /build
 wget --no-verbose https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas.tar.gz
 tar -zxf $ospd_openvas.tar.gz
 cd /build/*/
+echo " Find"
+find . -name setup.py
+echo " Found ?"
 pwd 
-ls -l
-python3 -m pip install .
+
+
+
+python3 -m pip install --break-system-packages .
+
 cd /build
 rm -rf *

@@ -99,13 +99,13 @@ if [ "$tag" == "beta" ]; then
 	RUNOPTIONS="--volume beta:/data"
 	NOBASE=true
 elif [ -z $arch ]; then
-	arch="linux/amd64,linux/arm64,linux/arm/v7"
-	#arch="linux/amd64,linux/arm64"
+	#arch="linux/amd64,linux/arm64,linux/arm/v7"
+	arch="linux/amd64,linux/arm64"
 	ARM="true"
 fi
 # Make the version # in the image meta data consistent
 # This will leave the 
-if [ "$tag" != "latest" ]; then
+if [ "$tag" != "latest" ] && [ "$tag" != "beta" ]; then
 	echo $tag > ver.current
 fi
 VER=$(cat ver.current)
@@ -132,7 +132,8 @@ if  [ "$NOBASE" == "false" ]; then
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
 	# Always build all archs for ovasbase.
-	docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
+	#docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
+	docker buildx build --push  --platform  linux/amd64,linux/arm64 -f Dockerfile -t immauss/ovasbase:latest  .
 	BASEFIN=$(date +%s)
 	cd ..
 fi
