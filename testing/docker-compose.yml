@@ -18,7 +18,7 @@ services:
     volumes:
       - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas:22.4-beta
+    image: immauss/openvas:beta
   scannable:
     image: immauss/scannable
 volumes:

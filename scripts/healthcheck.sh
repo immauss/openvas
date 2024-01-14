@@ -49,6 +49,21 @@ case  $FUNC in
 		# There's probably a pg_ctl command that is better for this.
 		nmap -p 5432 localhost| grep -qs "5432.*open" || exit 1
 	;;
+	remote)
+		FAIL=0		
+		# redis
+		redis-cli -s /run/redis/redis.sock ping || FAIL=4 
+			if [ $FAIL -eq 4 ]; then SERVICE="$SERVICE redis\n"; fi
+
+		if [ $FAIL -ne 0 ]; then
+			echo " HEALTHECHECK FAILED !" >> /usr/local/var/log/gvm/healthchecks.log
+			echo " These services failed:"  >> /usr/local/var/log/gvm/healthchecks.log
+			echo -e "$SERVICE" >> /usr/local/var/log/gvm/healthchecks.log
+			exit 1
+		else
+			echo " Healthchecks completed with no issues." >> /usr/local/var/log/gvm/healthchecks.log
+
+		fi	
 	single)
 		FAIL=0
 		# openvas

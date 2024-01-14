@@ -9,6 +9,8 @@ mkdir -p /final/usr/local/etc/gvm /final/etc/gvm /final/etc/logrotate.d /final/u
 
 cp -rp /etc/gvm/* /final/etc/gvm/ 
 cp -rp /etc/logrotate.d/gvmd /final/etc/logrotate.d/
+cp -rp /usr/local/etc/* /final/usr/local/etc/
+cp -rp /etc/openvas /final/etc/
 #cp -rp /lib/systemd/system/* /final/lib/systemd/system/
 cp -rp /usr/local/bin/* /final/usr/local/bin/
 cp -rp /usr/local/include/* /final/usr/local/include/
@@ -17,7 +19,8 @@ cp -rp /usr/local/sbin/* /final/usr/local/sbin/
 cp -rp /usr/local/share/* /final/usr/local/share/ 
 cp -rp /usr/share/postgresql/* /final/usr/share/postgresql/
 cp -rp /usr/lib/postgresql/* /final/usr/lib/postgresql/ 
-
+ls -ltr /etc/ > /final/etc-contents.txt
+ls -ltr
 #COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
 #COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
 #COPY --from=0 lib/systemd/system /lib/systemd/system

@@ -426,7 +426,9 @@ fi
 
 # start notus-scanner 
 
-/usr/local/bin/notus-scanner --products-directory /var/lib/notus/products --log-file /var/log/gvm/notus-scanner.log
+/usr/local/bin/notus-scanner # --products-directory /var/lib/notus/products \
+#    --log-level DEBUG
+#	--log-file /var/log/gvm/notus-scanner.log
 
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.

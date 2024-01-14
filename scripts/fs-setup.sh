@@ -119,31 +119,13 @@ fi
 # Defaults should be in /usr/local/etc/
 # Configs live in sub dirs gvm & openvas
 # gvm logging
-if [ -f /data/local-etc/gvm/gvmd_log.conf ]; then
-	echo "Using existing gvm logging config"
-else
-	echo "Using default gvm logging config"
-	cp /usr/local/etc/gvm/gvmd_log.conf /data/local-etc/gvm/
-fi
-# gvm password policy
-if [ -f /data/local-etc/gvm/pwpolicy.conf ]; then
-	echo "Using existing password policy config"
-else
-	echo "Using default gvm logging config"
-	cp /usr/local/etc/gvm/pwpolicy.conf /data/local-etc/gvm/
-fi
 
+cp -rpn /etc/gvm/* /usr/local/etc/gvm/* /data/local-etc/gvm/ 
 rm -rf /etc/gvm /usr/local/etc/gvm
 ln -s /data/local-etc/gvm /etc/gvm
 ln -s /data/local-etc/gvm /usr/local/etc/gvm
-# openvas logging
-if [ -f /data/local-etc/openvas/openvas_log.conf ]; then
-	echo "Using existing openvas logging config"
-else
-	echo "Using default openvas logging config"
-	cp /usr/local/etc/openvas/openvas_log.conf /data/local-etc/openvas/
-fi
 
+cp -rpn /etc/openvas/* /usr/local/etc/openvas/* /data/local-etc/openvas/ 
 rm -rf /etc/openvas /usr/local/etc/openvas
 ln -s /data/local-etc/openvas /etc/openvas
 ln -s /data/local-etc/openvas /usr/local/etc/openvas

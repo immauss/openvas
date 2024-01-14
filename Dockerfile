@@ -75,8 +75,7 @@ ENV LANG=C.UTF-8
 #COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
 COPY --from=0 /final .
 
-COPY confs/* /data/local-etc/gvm/
-
+COPY confs/* /usr/local/etc/gvm/
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /
