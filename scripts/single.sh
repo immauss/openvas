@@ -387,6 +387,12 @@ service postfix start
 # Start the mqtt 
 
 chmod  777 /run/mosquitto
+# This should be in fs-setup or the log should be moved in the conf to /var/log/gvm
+if ! [ -d /var/log/mosquitto ]; then
+	mkdir -p /var/log/mosquitto
+	
+fi
+chmod 777 /var/log/mosquitto
 echo "listener 1883
 allow_anonymous true" >> /etc/mosquitto.conf
 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &

@@ -17,6 +17,9 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
     volumes:
       - "openvas:/data"
+    cap_add:
+      - NET_ADMIN # for capturing packages in promiscuous mode
+      - NET_RAW # for raw sockets e.g. used for the boreas alive detection
     container_name: openvas
     image: immauss/openvas:beta
   scannable:

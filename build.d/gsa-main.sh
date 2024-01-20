@@ -17,6 +17,7 @@ BUILDDIR=$(pwd)
 echo "BUILDDIR $BUILDDIR"
 /ics-gsa/scripts/gsa-mods.sh $BUILDDIR
 
+apt update && apt install npm -y 
 #update npm and the browserlist
 # these were recomended by npm
 echo "Updating npm"
