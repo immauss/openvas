@@ -6,6 +6,7 @@ gir1.2-json-1.0
 gnupg 
 gnutls-bin 
 gpgsm 
+libgpgme11
 mosquitto
 net-tools
 nmap 
