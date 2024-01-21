@@ -110,6 +110,7 @@ COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 # packages to add to ovasbase
 #RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
+RUN apt update && apt -y install libical3 libpaho-mqtt1.3 libradcli4 libssh-gcrypt-4 libhiredis0.14
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \

@@ -24,5 +24,4 @@ libssh-gcrypt-dev
 libunistring-dev 
 libxml2-dev 
 postgresql-server-dev-13
-postgresql-server-dev-15 
 uuid-dev 

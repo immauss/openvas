@@ -7,6 +7,7 @@ gnupg
 gnutls-bin 
 gpgsm 
 libgpgme11
+libical3
 mosquitto
 net-tools
 nmap 
