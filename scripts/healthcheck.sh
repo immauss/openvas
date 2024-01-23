@@ -34,7 +34,7 @@ case  $FUNC in
 		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
 		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || exit 1
 	;;
-	gvmd|remote)
+	gvmd)
 		#gvmd listens on 9390, but not http
 		nmap -p 9390 localhost| grep -qs "9390.*open" || exit 1
 	;;
@@ -64,6 +64,7 @@ case  $FUNC in
 			echo " Healthchecks completed with no issues." >> /usr/local/var/log/gvm/healthchecks.log
 
 		fi	
+		;;
 	single)
 		FAIL=0
 		# openvas
