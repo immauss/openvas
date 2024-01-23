@@ -86,7 +86,7 @@ COPY build.rc /gvm-versions
 COPY branding/* /branding/
 RUN bash /branding/branding.sh
 COPY scripts/* /scripts/
-RUN apt update && apt install libcap2-bin net-tools -y 
+#RUN apt update && apt install libcap2-bin net-tools -y 
 # allow openvas to access raw sockets and all kind of network related tasks
 RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
 # allow nmap to send e.g. UDP or TCP SYN probes without root permissions
@@ -107,10 +107,7 @@ LABEL maintainer="scott@immauss.com" \
 
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
-# packages to add to ovasbase
-#RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
-RUN apt update && apt -y install libical3 libpaho-mqtt1.3 libradcli4 libssh-gcrypt-4 libhiredis0.14
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
