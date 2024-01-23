@@ -388,16 +388,22 @@ service postfix start
 
 chmod  777 /run/mosquitto
 # This should be in fs-setup or the log should be moved in the conf to /var/log/gvm
-if ! [ -d /var/log/mosquitto ]; then
-	mkdir -p /var/log/mosquitto
-	
+if ! [ -f /var/log/gvm/mosquitto.log ]; then
+	touch /var/log/gvm/mosquitto.log
 fi
-chmod 777 /var/log/mosquitto
+chmod 777 /var/log/gvm/mosquitto.log	
 echo "listener 1883
-allow_anonymous true" >> /etc/mosquitto.conf
+pid_file /run/mosquitto/mosquitto.pid
+persistence true
+persistence_location /var/lib/mosquitto/
+include_dir /etc/mosquitto/conf.d
+log_dest none # file /var/log/gvm/mosquitto.log
+allow_anonymous true" > /etc/mosquitto/mosquitto.conf
 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
 
-echo "Starting Open Scanner Protocol daemon for OpenVAS..."
+echo "Sleeping for mosquitto"
+sleep 5
+
 # Prep the gpg keys
 export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
 export GNUPGHOME=/etc/openvas-gnupg
@@ -411,10 +417,10 @@ if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
 	gpg --import /etc/GBCommunitySigningKey.asc
 	gpg --import-ownertrust < /etc/ownertrust.txt
 	echo "Setup key for openvas .."
-	cp -r /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
+	cp -vr /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 fi
-
+echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 /usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
