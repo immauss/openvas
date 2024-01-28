@@ -46,9 +46,9 @@ RUN bash /build.d/gsad.sh
 
 COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
-RUN mkdir /branding 
-COPY build.d/coallate.sh /
-RUN bash /coallate.sh 
+#RUN mkdir /branding 
+#COPY build.d/coallate.sh /
+#RUN bash /coallate.sh 
 
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
@@ -63,17 +63,19 @@ ENV LANG=C.UTF-8
 # Copy the install from stage 0
 # Move all of this to a sinlge "build" folder and reduce the number of layers by copying the 
 # entire folder in one line to root/ 
-#COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
-#COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
-#COPY --from=0 lib/systemd/system /lib/systemd/system
-#COPY --from=0 usr/local/bin /usr/local/bin
-#COPY --from=0 usr/local/include /usr/local/include
-#COPY --from=0 usr/local/lib /usr/local/lib
-#COPY --from=0 usr/local/sbin /usr/local/sbin
-#COPY --from=0 usr/local/share /usr/local/share
-#COPY --from=0 usr/share/postgresql /usr/share/postgresql
-#COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
-COPY --from=0 /final .
+COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
+COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
+COPY --from=0 lib/systemd/system /lib/systemd/system
+COPY --from=0 usr/local/bin /usr/local/bin
+COPY --from=0 usr/local/include /usr/local/include
+COPY --from=0 usr/local/lib /usr/local/lib
+COPY --from=0 usr/local/sbin /usr/local/sbin
+COPY --from=0 usr/local/share /usr/local/share
+COPY --from=0 usr/share/postgresql /usr/share/postgresql
+COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
+#COPY --from=0 /final .
+
+
 
 COPY confs/* /usr/local/etc/gvm/
 COPY build.d/links.sh /
@@ -107,7 +109,10 @@ LABEL maintainer="scott@immauss.com" \
 
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
+# packages to add to ovasbase
+#RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
+#RUN apt update && apt -y install libmicrohttpd12 libnet1 libgssapi3-heimdal libhdb9-heimdal libical3 libpaho-mqtt1.3 libradcli4 libssh-gcrypt-4 libhiredis0.14
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
