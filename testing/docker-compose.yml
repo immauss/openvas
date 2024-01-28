@@ -23,6 +23,7 @@ services:
     container_name: openvas
     image: immauss/openvas:beta
   scannable:
+    container_name: scannable
     image: immauss/scannable
 volumes:
   openvas:
