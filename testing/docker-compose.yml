@@ -1,6 +1,8 @@
 version: "3"
 services:
   openvas:
+    security_opt:
+      - seccomp:openvas.json
     ports:
       - "8080:9392"
     environment:
@@ -15,8 +17,9 @@ services:
       - "RESTORE=false"  # This probably not be used from compose... see docs.
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "HTTPS=false"  # wether to use HTTPS or not
+      - GVMD_ARGS="--max-ips-per-target=65534 --schedule-timeout=-1 --auth-timeout=1440"
     volumes:
-      - "openvas:/data"
+      - "openvas-n1:/data"
     cap_add:
       - NET_ADMIN # for capturing packages in promiscuous mode
       - NET_RAW # for raw sockets e.g. used for the boreas alive detection
@@ -26,4 +29,4 @@ services:
     container_name: scannable
     image: immauss/scannable
 volumes:
-  openvas:
+  openvas-n1:
