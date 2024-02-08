@@ -4,7 +4,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues-raw/immauss/openvas.svg)](https://github.com/immauss/openvas/issues)
 [![Discord](https://img.shields.io/discord/809911669634498596?label=Discord&logo=discord)](https://discord.gg/DtGpGFf7zV)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
-[![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
+![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
@@ -180,7 +180,7 @@ The following options can be set as environment variables when starting the cont
 **You should only use these for the initial setup of the container. Always change the password afterward. If you start the container from the command line with the PASSWORD env set, then the password is readily readable in your command history and in /proc etc ....**
 **If you choose to create a new user at startup, the "admin" user will still exist with the default admin password. The admin user is needed as it is the owner of the "feed import process" and gvmd will not let it be deleted. Make sure you change the password for admin in this scenario. 
 you have been warned.  :)
-- RELAYHOST : The IP address or hostname of the email relay to send emails through. Default = 172.17.01 (This is default for the docker host. If you are running the mail relay on your docker host, this should work, but you will need to make sure you allow the connections through the host`s firewall/iptables)
+- RELAYHOST : The IP address or hostname of the email relay to send emails through. Default = 172.17.0.1 (This is default for the docker host. If you are running the mail relay on your docker host, this should work, but you will need to make sure you allow the connections through the host`s firewall/iptables)
 ```
 -e RELAYHOST=mail.example.com 
 ```
@@ -203,5 +203,13 @@ you have been warned.  :)
 - RESTORE : Set this to true to in order to use the database restore function. After the db is restored, the container will exit. This is to prevent the possibility of container restart with the RESTORE option still set which would again restore the DB from the backup file. (See the Restore section above for more details) Default = false
 ```
 -e RESTORE=true
+```
+- GVMD_ARGS : Any additional arguments you would like to add to the gvmd start command.
+```
+-e GVMD_ARGS="--max-ips-per-target=65534 --schedule-timeout=-1 --auth-timeout=1440"
+```
+-GSA_ARGS : Any addition argumetns you would like ot add to the gsad start command. 
+```
+-e GSA_ARGS="--ssl-private-key=<file location> --ssl-certificate=<file location> "
 ```
 
