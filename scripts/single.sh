@@ -23,8 +23,8 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 #GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
-GVMD_ARGS=${GVMD_ARGS:-blank}
-GSAD_ARGS=${GSAD_ARGS:-blank}
+GVMD_ARGS="${GVMD_ARGS:-blank}"
+GSAD_ARGS="${GSAD_ARGS:-blank}"
 REPORT_LINES=${REPORT_LINES:-1000}
 if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
