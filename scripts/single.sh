@@ -420,6 +420,11 @@ if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
 	cp -vr /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 fi
+
+# Create openvas.conf 
+echo "table_driven_lsc = yes
+mqtt_server_uri = tcp://localhost:1883" > /etc/openvas/openvas.conf
+
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 /usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
