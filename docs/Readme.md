@@ -208,8 +208,15 @@ you have been warned.  :)
 ```
 -e GVMD_ARGS="--max-ips-per-target=65534 --schedule-timeout=-1 --auth-timeout=1440"
 ```
--GSA_ARGS : Any addition argumetns you would like ot add to the gsad start command. 
+- GSA_ARGS : Any addition argumetns you would like ot add to the gsad start command. 
 ```
 -e GSA_ARGS="--ssl-private-key=<file location> --ssl-certificate=<file location> "
 ```
+- REPORT_LINES : This sets the allowed number of lines for reports. The default is 1000.
+```
+-e REPORT_LINES=10000
+```
+
+
+
 
