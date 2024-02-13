@@ -90,14 +90,14 @@ RUN bash /branding/branding.sh
 COPY scripts/* /scripts/
 #RUN apt update && apt install libcap2-bin net-tools -y 
 # allow openvas to access raw sockets and all kind of network related tasks
-RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
+#RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
 # allow nmap to send e.g. UDP or TCP SYN probes without root permissions
-ENV NMAP_PRIVILEGED=1
-RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap
+#ENV NMAP_PRIVILEGED=1
+#RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap
 
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
-HEALTHCHECK --interval=60s --start-period=300s --timeout=10s \
+HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
   CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
 
@@ -109,10 +109,7 @@ LABEL maintainer="scott@immauss.com" \
 
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
-# packages to add to ovasbase
-#RUN apt-get update && apt-get -y install libpaho-mqtt-dev python3-paho-mqtt gir1.2-json-1.0 libjson-glib-1.0-0 libjson-glib-1.0-common
 COPY scripts/* /scripts/
-#RUN apt update && apt -y install libmicrohttpd12 libnet1 libgssapi3-heimdal libhdb9-heimdal libical3 libpaho-mqtt1.3 libradcli4 libssh-gcrypt-4 libhiredis0.14
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \

@@ -20,7 +20,6 @@ libradcli4
 libssh-gcrypt-4 
 mosquitto
 net-tools
-net-tools
 nmap 
 nsis 
 openssh-client 
