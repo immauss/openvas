@@ -23,8 +23,8 @@ DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
 #GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
-GVMD_ARGS="${GVMD_ARGS:-blank}"
-GSAD_ARGS="${GSAD_ARGS:-blank}"
+GVMD_ARGS=${GVMD_ARGS:-blank}
+GSAD_ARGS=${GSAD_ARGS:-blank}
 REPORT_LINES=${REPORT_LINES:-1000}
 if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
@@ -421,6 +421,7 @@ if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 fi
 echo "Starting Open Scanner Protocol daemon for OpenVAS..."
+
 /usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
@@ -437,7 +438,7 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 
 
 # start notus-scanner 
-
+echo "Starting the notus-scanner"
 /usr/local/bin/notus-scanner # --products-directory /var/lib/notus/products \
 #    --log-level DEBUG
 #	--log-file /var/log/gvm/notus-scanner.log
