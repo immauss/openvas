@@ -206,6 +206,10 @@ if [ $RUNAFTER -eq 1 ]; then
 	if [ "$tag" != "beta" ]; then
 		docker pull immauss/openvas:$tag
 	fi
-	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS immauss/openvas:$tag 
+	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS \
+		--cap-add=NET_ADMIN \
+		--cap-add=NET_RAW \
+		--cap-add=NET_BIND_SERVICE \
+		immauss/openvas:$tag 
 	docker logs -f $tag
 fi

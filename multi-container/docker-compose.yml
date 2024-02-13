@@ -60,6 +60,9 @@ services:
       - "openvas:/data"
       - "ovasrun:/run"
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN # for capturing packages in promiscuous mode
+      - NET_RAW # for raw sockets e.g. used for the boreas alive detection
   gsad:
     container_name: ovas_gsad
     image: immauss/openvas:${TAG}
