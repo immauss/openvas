@@ -8,7 +8,7 @@
 
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
-[![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://immauss.com "Immauss Cybersecurity")
+[![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
 
 [Sponsor immauss on GitHub](https://github.com/sponsors/immauss)
 OR
