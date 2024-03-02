@@ -433,7 +433,8 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 	--socket-mode 0o770 \
 	--mqtt-broker-address localhost \
 	--mqtt-broker-port 1883 \
-	--notus-feed-dir /var/lib/notus/advisories
+	--notus-feed-dir /var/lib/notus/advisories \
+	--disable-notus-hashsum-verification true
 
 # wait for ospd to start by looking for the socket creation.
 #while  [ ! -S /var/run/ospd/ospd-openvas.sock]; do
