@@ -22,8 +22,20 @@ services:
       - NET_RAW # for raw sockets e.g. used for the boreas alive detection
     container_name: openvas
     image: immauss/openvas:beta
-  scannable:
-    container_name: scannable
+  scannable-ubuntu:
+    container_name: ubuntu
     image: immauss/scannable
+  scannable-debian:
+    container_name: debian
+    image: immauss/scannable:debian
+  scannable-rocky:
+    container_name: rocky
+    image: immauss/scannable:rocky
+  scannable-slack:
+    container_name: slack
+    image: immauss/scannable:slack
+  scannable-suse:
+    container_name: suse
+    image: immauss/scannable:suse
 volumes:
   openvas:
