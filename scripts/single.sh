@@ -127,6 +127,8 @@ fi
 if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/base.sql.xz ]; then
 		echo "Looks like we need to create an empty databse."
 		NEWDB="true"
+		# Set SKIPSYNC to true so we pull new feeds
+		SKIPSYNC="false"
 fi
 echo -e "NEWDB=$NEWDB\nLOADDEFAULT=$LOADDEFAULT"
 
@@ -280,27 +282,27 @@ if [ $SKIPSYNC == "false" ]; then
    # First, let's make sure we are using the most updated feeds from the image ...
    # If the timestamp is the same, or the file doesn't exist, then we start by
    # extracting the archive in the image, this will speed up the sync with GB by
-   # reducing the amount needed to rsync.
-   echo "Checking age of current data feeds from Greenbone."
-   ImageFeeds=$(stat -c %Y /usr/lib/var-lib.tar.xz)
-   echo "ImageFeeds=$ImageFeeds"
-   if [ -f /data/var-lib/FeedDate ]; then 
-	   InstalledFeeds=$(cat /data/var-lib/FeedDate)
-	   
-   else
-	   InstalledFeeds=0
-   fi
-   echo "InstalledFeeds=$InstalledFeeds"
-   if [ $InstalledFeeds -ne $ImageFeeds ]; then
-	   echo "Updating local feeds with newer image feeds."
-	   cd /data
-	   tar xf /usr/lib/var-lib.tar.xz
-	   # Replace the FeedDate with date from the Image feeds.
-	   # This prevents it from extracting the archive everytime the image restarts.
-	   echo "$ImageFeeds" > /data/var-lib/FeedDate 
-
-   fi
-
+   # reducing the amount needed to rsync. But only if there is an archive. (ie .. not a slim image)
+	if [ -f /usr/lib/var-lib.tar.xz ]; then
+		echo "Checking age of current data feeds from Greenbone."
+		ImageFeeds=$(stat -c %Y /usr/lib/var-lib.tar.xz)
+		echo "ImageFeeds=$ImageFeeds"
+		if [ -f /data/var-lib/FeedDate ]; then 
+			InstalledFeeds=$(cat /data/var-lib/FeedDate)
+			
+		else
+			InstalledFeeds=0
+		fi
+		echo "InstalledFeeds=$InstalledFeeds"
+		if [ $InstalledFeeds -ne $ImageFeeds ]; then
+			echo "Updating local feeds with newer image feeds."
+			cd /data
+			tar xf /usr/lib/var-lib.tar.xz
+			# Replace the FeedDate with date from the Image feeds.
+			# This prevents it from extracting the archive everytime the image restarts.
+			echo "$ImageFeeds" > /data/var-lib/FeedDate 
+		fi
+	fi
 	   
    # This will make the feed syncs a little quieter
    if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
