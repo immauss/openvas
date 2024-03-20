@@ -7,6 +7,7 @@ gnupg
 gnutls-bin 
 gpgsm 
 libcap2-bin 
+libcurl4
 libgpgme11
 libgssapi3-heimdal 
 libhdb9-heimdal 
