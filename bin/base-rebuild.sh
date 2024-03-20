@@ -209,3 +209,19 @@ if [ $RUNAFTER -eq 1 ]; then
 	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS immauss/openvas:$tag 
 	docker logs -f $tag
 fi
+
+# Update the versions in the Readme.md 
+if [ "$PUSH" != " " ]; then
+	# Readme Template
+	READMETMP="templ.readme"
+	# Current GB Versions
+	VERSIONS="versions.md"
+	# Use Perl for  editing
+	perl -0777 -pe "{
+		open(my \$fh, '<', '${VERSIONS}');
+		local \$/;
+		\$replacement = <\$fh>;
+		s/XXXXXXXXXXXXX/\$replacement/g;
+		}" "${READMETMP}" > Readme.md
+	sed -i "s/XYXYXYXYXYX/$(cat ver.current)/" Readme.md
+fi
