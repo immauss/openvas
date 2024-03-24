@@ -238,12 +238,13 @@ fi
 
 # IF the GVMd database version is less than 250, then we must be on version 21.4. 
 # So we need to grok the database or the migration will fail. . . . 
-if [ "$NEWDB" == "false" ]; then
+if [ "$NEWDB" == "false" ] && ! [ -f /feed-syncing ]; then
 	echo "Checking DB Version"
 	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 else 
 	DB=250
 fi
+
 echo "Current GVMd database version is $DB"
 if [ $DB -lt 250 ]; then
 	date
@@ -258,15 +259,6 @@ if [ $DB -lt 250 ]; then
 	date
 else 
 
-	# Before migration, make sure the 21.04 tables are availabe incase this is an upgrade from 20.08
-	# But only if we didn't just delete most of these functions for the upgrade to 22.4
-	# This whole things can probably be removed, but just incase .....
-	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
-	touch /usr/local/var/log/db-restore.log
-	chown postgres /usr/local/var/log/db-restore.log /data/dbupdate.sql
-	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 	echo "Migrate the database if needed."
 	su -c "gvmd --migrate" gvm 
 fi
@@ -305,21 +297,21 @@ if [ $SKIPSYNC == "false" ]; then
 	fi
 	   
    # This will make the feed syncs a little quieter
+   # We touch a file here to note that the sync was started
+   # Then remove it after sync is complete.
+   # This used to detect a failed sync when the container restarts
+   touch /feed-syncing
    if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
-	   QUIET="true"
 	   echo " Fine, ... we'll be quiet, but we warn you if there are errors"
 	   echo " syncing the feeds, you'll miss them."
-   else
-	   QUIET="false"
-   fi
-   
-   if [ $QUIET == "true" ]; then 
 	   echo "Syncing all feeds from GB" 
 	   su -c "/usr/local/bin/greenbone-nvt-sync --type all --quiet" gvm 
    else
 	   echo "Syncing all feeds from GB" 
 	   su -c "/usr/local/bin/greenbone-nvt-sync --type all" gvm 
    fi
+   # if the feed-sync fails, the container will exit and this will not be run.
+   rm /feed-syncing
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
