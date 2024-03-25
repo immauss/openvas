@@ -212,6 +212,7 @@ fi
 
 # Update the versions in the Readme.md 
 if [ "$PUBLISH" != " " ]; then
+	echo "Updating Readme.md with current versions"
 	# Readme Template
 	READMETMP="templ.readme"
 	# Current GB Versions
