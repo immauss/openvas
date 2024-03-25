@@ -211,7 +211,7 @@ if [ $RUNAFTER -eq 1 ]; then
 fi
 
 # Update the versions in the Readme.md 
-if [ "$PUSH" != " " ]; then
+if [ "$PUBLISH" != " " ]; then
 	# Readme Template
 	READMETMP="templ.readme"
 	# Current GB Versions
