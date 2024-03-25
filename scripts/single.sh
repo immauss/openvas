@@ -238,7 +238,9 @@ fi
 
 # IF the GVMd database version is less than 250, then we must be on version 21.4. 
 # So we need to grok the database or the migration will fail. . . . 
-if [ "$NEWDB" == "false" ] && ! [ -f /feed-syncing ]; then
+# We also look for a failed sync at startup on a slim image here because that wil cause
+# the psql command to fail and crash the container. 
+if [ "$NEWDB" == "false" ] && ! [ -f /data/feed-syncing ]; then
 	echo "Checking DB Version"
 	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 else 
@@ -269,8 +271,6 @@ if [ $SKIPSYNC == "false" ]; then
    echo "This could take a while if you are not using persistent storage for your NVTs"
    echo " or this is the first time pulling to your persistent storage."
    echo " the time will be mostly dependent on your available bandwidth."
-   echo " We sleep for 2 seconds between sync command to make sure everything closes"
-   echo " and it doesnt' look like we are connecting more than once."
    # First, let's make sure we are using the most updated feeds from the image ...
    # If the timestamp is the same, or the file doesn't exist, then we start by
    # extracting the archive in the image, this will speed up the sync with GB by
@@ -300,7 +300,7 @@ if [ $SKIPSYNC == "false" ]; then
    # We touch a file here to note that the sync was started
    # Then remove it after sync is complete.
    # This used to detect a failed sync when the container restarts
-   touch /feed-syncing
+   touch /data/feed-syncing
    if [ $QUIET == "TRUE" ] || [ $QUIET == "true" ]; then
 	   echo " Fine, ... we'll be quiet, but we warn you if there are errors"
 	   echo " syncing the feeds, you'll miss them."
@@ -311,7 +311,7 @@ if [ $SKIPSYNC == "false" ]; then
 	   su -c "/usr/local/bin/greenbone-nvt-sync --type all" gvm 
    fi
    # if the feed-sync fails, the container will exit and this will not be run.
-   rm /feed-syncing
+   rm /data/feed-syncing
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
