@@ -6,6 +6,13 @@
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
 ![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+# Feed-sync issues and failing container starts #
+### 27 March 2024 ###
+Please read [here](https://github.com/immauss/openvas/discussions/264)  
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
