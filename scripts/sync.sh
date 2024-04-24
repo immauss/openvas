@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-echo " Pulling NVTs from greenbone" 
-su -c "/usr/local/bin/greenbone-nvt-sync" gvm
-sleep 2
-echo " Pulling scapdata from greenbone"
-su -c "/usr/local/bin/greenbone-feed-sync --type SCAP" gvm
-sleep 2
-echo " Pulling cert-data from greenbone"
-su -c "/usr/local/bin/greenbone-feed-sync --type CERT" gvm
-sleep 2
-echo " Pulling latest GVMD Data from Greenbone" 
-su -c "/usr/local/bin/greenbone-feed-sync --type GVMD_DATA " gvm
+wait=2
+
+# # Then pull the remaining feeds from the GB community feeds.
+# for feed in nvt gvmd-data scap cert nasl report-format scan-config port-list; do
+#     echo "Synchronizing the $feed feed."
+#     /usr/local/bin/greenbone-feed-sync --type=$feed $1
+#     echo "Sleep for $wait seconds"
+#     sleep $wait
+# done
+# Sync the notus feed from the Immauss feed server.
+echo "Synchronizing the Notus feed from Immauss Cybersecurity"
+echo "And all others from the GB Community feed"
+/usr/local/bin/greenbone-feed-sync --notus-url "rsync://rsync.immauss.com/feeds/notus/"  --verbose 

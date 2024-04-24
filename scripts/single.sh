@@ -305,10 +305,10 @@ if [ $SKIPSYNC == "false" ]; then
 	   echo " Fine, ... we'll be quiet, but we warn you if there are errors"
 	   echo " syncing the feeds, you'll miss them."
 	   echo "Syncing all feeds from GB" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync --type all --quiet" gvm 
+	   /scripts/sync.sh --quiet 
    else
 	   echo "Syncing all feeds from GB" 
-	   su -c "/usr/local/bin/greenbone-nvt-sync --type all" gvm 
+	   /scripts/sync.sh
    fi
    # if the feed-sync fails, the container will exit and this will not be run.
    rm /data/feed-syncing

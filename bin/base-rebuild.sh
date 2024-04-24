@@ -140,8 +140,10 @@ fi
 # First we build GSA using a single ovasbase x86_64 container. 
 # this SIGNIFICANTLY speeds the builds.
 # first check to see if the current version has been built already
+
 if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then 
 	echo "Starting container to build GSA" 
+	    docker pull immauss/ovasbase
 		docker run -it --rm \
 			-v $(pwd)/ics-gsa:/ics-gsa \
 			-v $(pwd)/tmp/build:/build \

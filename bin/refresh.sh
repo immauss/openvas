@@ -9,7 +9,7 @@
 # Set start dir
 WorkDir=$(pwd)
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="latest"
+TAG="beta"
 SQLBU="${TAG}.base.sql"
 TAR="${TAG}.var-lib.tar.xz"
 VER=$(cat ver.current)
@@ -32,8 +32,6 @@ elif [ $SPACE -le 4 ]; then
 	echo "only ${SPACE}G of space on /var/lib/docker ... bailing out."
 	exit
 fi
-
-
 # Force a pull of the latest image.
 docker pull immauss/openvas:$TAG
 echo "Starting container for an update"
@@ -91,8 +89,8 @@ if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 	logger -t db-refresh "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
 	exit
 fi
-cp latest.base.sql.xz /home/scott/Projects/openvas/base.sql.xz
-cp latest.var-lib.tar.xz /home/scott/Projects/openvas/var-lib.tar.xz
+cp $TAG.base.sql.xz /home/scott/Projects/openvas/base.sql.xz
+cp $TAG.var-lib.tar.xz /home/scott/Projects/openvas/var-lib.tar.xz
 
 # echo " Push updates to www"
 # scp *.xz push@www.immauss.com:/var/www/html/drupal/openvas/
@@ -105,7 +103,7 @@ echo "Now rebuild the image"
 cd $WorkDir
 echo "$(pwd) Is current working directory."
 date > update.ts
-docker buildx build -f $DOCKERFILE --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64,linux/arm/v7 --push .
+docker buildx build -f $DOCKERFILE --target final -t immauss/openvas:$TAG --platform linux/arm64,linux/amd64 --push .
 if [ $? -ne 0 ]; then
 	echo "Build failed."
 	exit
