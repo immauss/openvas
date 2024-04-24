@@ -6,12 +6,8 @@
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
 ![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-# Feed-sync issues and failing container starts #
-### 27 March 2024 ###
-Please read [here](https://github.com/immauss/openvas/discussions/264)  
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-
+# Newly added Rocky Linux notus data
+Make sure you read [here](https://www.immauss.com/gb-feeds)  about the addtion of Rocky Linux .notus files to the image. 
 
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
