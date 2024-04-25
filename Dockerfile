@@ -58,7 +58,7 @@ LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"     
-#EXPOSE 9392
+EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the install from stage 0
 # Move all of this to a sinlge "build" folder and reduce the number of layers by copying the 
