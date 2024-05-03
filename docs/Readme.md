@@ -118,7 +118,7 @@ docker exec -it <container name> su -c "/usr/lib/postgresql/13/bin/pg_dumpall" -
 
 # Database restoral
 
-Restoral is a bit more difficult. This assumes you are using a volume named "openvas". No other container should be accessing this volume at the time of restoral. This could be an empty container or a previously used container. The below command will:
+Restoral is a bit more difficult. This assumes you are using a volume named "openvas". No other container should be accessing this volume at the time of restoral. This could be an empty volume or a previously used volume. The below command will:
 1. Start a temporary container
 2. Perform initial setup for gvm
 3. Setup and start postgresql
