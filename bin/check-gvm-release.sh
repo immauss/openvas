@@ -26,5 +26,13 @@ if [ $? -ne 0 ]; then
 else
 	echo "no changes"
 fi
-cat $RC
+count=0
+for ver  in $(cat $RC); do
+	echo -ne "$ver\t"
+	((count++))
+	if [ $count -eq 3 ]; then
+		count=0
+		echo
+	fi
+done
 rm $RC
