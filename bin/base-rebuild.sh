@@ -149,7 +149,7 @@ if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then
 			-v $(pwd)/tmp/build:/build \
 			-v $(pwd):/build.d \
 			-v $(pwd)/gsa-final:/final \
-			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh "
+			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh $tag"
 else
 	echo "Looks like we have already built gsa $gsa"
 fi

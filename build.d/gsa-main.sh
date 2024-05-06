@@ -1,6 +1,8 @@
 #!/bin/bash
 # for some reason, the npm commands do not exit correctly so this will break the build. 
 #set -Eeuo pipefail
+# We pass the build tag as an arg here, so let's give it a meaningful name.
+tag="$1"
 # Source this for the latest release versions
 . build.rc
 echo "Downloading latest gsa code"  
@@ -15,7 +17,7 @@ cd /build/*/
 # Implement ICS GSA Mods
 BUILDDIR=$(pwd)
 echo "BUILDDIR $BUILDDIR"
-/ics-gsa/scripts/gsa-mods.sh $BUILDDIR
+/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
 
 apt update && apt install npm -y 
 #update npm and the browserlist
