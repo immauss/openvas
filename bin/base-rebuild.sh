@@ -49,9 +49,13 @@ while ! [ -z "$1" ]; do
 	shift
 	GSABUILD=true
 	;;
-    --push)
+	--push)
 	shift
 	PUBLISH="--push"
+	;;
+	--load)
+	shift
+	PUBLISH="--load"
 	;;
 	-t)
 	shift
