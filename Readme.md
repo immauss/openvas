@@ -6,9 +6,6 @@
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/immauss)
 ![GitHub Repo stars](https://img.shields.io/github/stars/immauss/openvas?style=social)
 
-# Newly added Rocky Linux notus data
-Make sure you read [here](https://www.immauss.com/gb-feeds)  about the addtion of Rocky Linux .notus files to the image. 
-
 # A Greenbone Vulnerability Management docker image
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
@@ -27,22 +24,22 @@ For docs on the web interface and scanning, use Greenbone's docs [here](https://
 - - - -
 
 # Docker Tags  #
-tag              | Description | Supported
-----------------|-------------------------------------------------------------------|-------------------
-22.4.44 | This is the latest based on GVMd 23 available on x86_64 and arm64. | Yes
-21.04.09 | This is the last 21.4 build.  | only for upgrade to 22.4
-20.08.04.6 | The last 20.08 image | No
-pre-20.08   | This is the last image from before the 20.08 update. | No 
-v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever) | Absolutely not
+tag              | Description
+----------------|-------------------------------------------------------------------
+22.4.45 | This is the latest based on GVMd 23 available on x86_64 and arm64.
+21.04.09 | This is the last 21.4 build.  
+20.08.04.6 | The last 20.08 image
+pre-20.08   | This is the last image from before the 20.08 update. 
+v1.0             | old out of date image for posterity. (Dont` use this one. . . . ever)
 
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v23.5.2 | | gvm_libs | v22.9.0 |
-| openvas | v23.0.1 | | openvas_smb | v22.5.6 |
-| notus_scanner | v22.6.2 | | gsa | v23.0.0 |
+| gvmd | v23.6.2 | | gvm_libs | v22.9.1 |
+| openvas | v23.2.0 | | openvas_smb | v22.5.6 |
+| notus_scanner | v22.6.3 | | gsa | v23.0.0 |
 | gsad | v22.9.1 | | ospd | v21.4.4 |
-| ospd_openvas | v22.7.0 | | pg_gvm | v22.6.5 |
+| ospd_openvas | v22.7.1 | | pg_gvm | v22.6.5 |
 | python_gvm | v24.3.0 | | gvm_tools | v24.3.0 |
 | greenbone_feed_sync | v24.3.0 |
 
