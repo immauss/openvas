@@ -10,9 +10,14 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
 
-[Sponsor immauss on GitHub](https://github.com/sponsors/immauss)
+# A big THANKYOU to Absolute Ops, our newest Platinum Sponsor
+
+[![AbsoluteOps](https://raw.githubusercontent.com/immauss/openvas/master/images/absolute-ops.png)](https://www.absoluteops.com/ "AbsoluteOps") 
+
+## To become a sponsor, visit our sponsor links.
+[On GitHub](https://github.com/sponsors/immauss)
 OR
-[Sponsor by PayPal](https:/www.immauss.com/container_subscriptions)
+[By PayPal](https:/www.immauss.com/container_subscriptions)
 
 ## Current Silver Sponsors ##
 [![NOS Informatica](https://raw.githubusercontent.com/immauss/openvas/master/images/NOSinformatica.png)](https://nosinformatica.com/ "NOS Informatica")
