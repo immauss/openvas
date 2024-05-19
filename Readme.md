@@ -31,7 +31,7 @@ For docs on the web interface and scanning, use Greenbone's docs [here](https://
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.45 | This is the latest based on GVMd 23 available on x86_64 and arm64.
+22.4.46 | This is the latest based on GVMd 23 available on x86_64 and arm64.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -41,7 +41,7 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
 | gvmd | v23.6.2 | | gvm_libs | v22.9.1 |
-| openvas | v23.2.0 | | openvas_smb | v22.5.6 |
+| openvas | v23.3.0 | | openvas_smb | v22.5.6 |
 | notus_scanner | v22.6.3 | | gsa | v23.0.0 |
 | gsad | v22.9.1 | | ospd | v21.4.4 |
 | ospd_openvas | v22.7.1 | | pg_gvm | v22.6.5 |
