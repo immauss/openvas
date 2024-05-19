@@ -10,7 +10,7 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
 
-# A big THANKYOU to Absolute Ops, our newest Platinum Sponsor
+# A big THANK YOU to Absolute Ops, our newest Platinum Sponsor
 
 [![AbsoluteOps](https://raw.githubusercontent.com/immauss/openvas/master/images/absolute-ops.png)](https://www.absoluteops.com/ "AbsoluteOps") 
 
