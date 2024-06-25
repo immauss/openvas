@@ -21,7 +21,7 @@ services:
       - NET_ADMIN # for capturing packages in promiscuous mode
       - NET_RAW # for raw sockets e.g. used for the boreas alive detection
     container_name: openvas
-    image: immauss/openvas:22.4.46
+    image: immauss/openvas:latest
   scannable-ubuntu:
     container_name: ubuntu
     image: immauss/scannable
