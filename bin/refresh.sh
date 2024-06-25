@@ -41,9 +41,10 @@ echo "Sleeping for $STIME to make sure the feeds are updated in the db"
 sleep $STIME
 CONTINUE=0
 COUNTER=0
+FINISHED_STRING="^OSPD.*$(date +%Y-%m-%d).*INFO: (ospd_openvas.daemon) Finished loading VTs. The VT cache has been updated from version"
 WAIT="45" # Time after sync to wait for DB to finish updating.
 while  [ $CONTINUE -eq 0 ] && [ $COUNTER -le $WAIT ]; do
-	if docker logs updater 2>&1 | grep -qs "Updating VTs in database ... done"; then
+	if docker logs updater 2>&1 | grep -qs "$FINISHED_STRING"; then
 		CONTINUE=1
 		echo "looks like it's done"
 	else
