@@ -332,7 +332,7 @@ echo "Time to fixup the gvm accounts."
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
 	# Change the admin password
 	echo "Setting admin password"
-	su -c "gvmd --user=\"$USERNAME\" --new-password='$PASSWORD' " gvm  
+	su -c "gvmd --user=\"$USERNAME\" --new-password=\"$PASSWORD\" " gvm  
 elif [ "$USERNAME" != "admin" ] ; then 
 	# create user and set password
 	echo "Creating new user $USERNAME with supplied password."
