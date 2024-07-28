@@ -8,6 +8,7 @@ gnutls-bin
 gpgsm 
 libcap2-bin 
 libcurl4
+libcjson1
 libgpgme11
 libgssapi3-heimdal 
 libhdb9-heimdal 

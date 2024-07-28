@@ -4,6 +4,7 @@ gcc-mingw-w64
 heimdal-dev 
 libbsd-dev
 libcurl4-openssl-dev
+libcjson-dev
 libgcrypt20-dev 
 libglib2.0-dev 
 libgnutls28-dev
