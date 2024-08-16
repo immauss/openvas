@@ -109,7 +109,7 @@ elif [ -z $arch ]; then
 fi
 # Make the version # in the image meta data consistent
 # This will leave the 
-if [ "$tag" != "latest" ] && [ "$tag" != "beta" ]; then
+if [ "$tag" != "latest" ] && [ "$tag" != "beta" ] && [ "$tag" != "test" ]; then
 	echo $tag > ver.current
 fi
 VER=$(cat ver.current)

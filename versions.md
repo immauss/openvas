@@ -1,7 +1,7 @@
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v23.8.0 | | gvm_libs | v22.10.0 |
+| gvmd | v23.8.1 | | gvm_libs | v22.10.0 |
 | openvas | v23.8.0 | | openvas_smb | v22.5.6 |
 | notus_scanner | v22.6.3 | | gsa | v23.2.1 |
 | gsad | v22.11.0 | | ospd | v21.4.4 |
