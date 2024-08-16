@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: scannable-ubuntu
+  name: scannable-ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: scannable-ubuntu
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: scannable-ubuntu
+    spec:
+      containers:
+        - image: immauss/scannable
+          name: ubuntu
+          resources: {}
+      restartPolicy: Always
+status: {}

@@ -17,7 +17,8 @@ cd /build/*/
 # Implement ICS GSA Mods
 BUILDDIR=$(pwd)
 echo "BUILDDIR $BUILDDIR"
-/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
+patch -p1 < /ics-gsa/ics-gsa.patch
+#/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
 
 apt update && apt install npm -y 
 #update npm and the browserlist

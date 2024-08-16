@@ -17,3 +17,5 @@ certs.tar.xz
 ver.current
 gvm-tools
 *.xz
+gsa.dev
+*not
