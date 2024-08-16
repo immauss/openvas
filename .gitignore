@@ -19,3 +19,4 @@ gvm-tools
 *.xz
 gsa.dev
 *not
+.DS_Store
