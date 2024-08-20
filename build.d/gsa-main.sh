@@ -16,8 +16,9 @@ tar -xf $gsa.tar.gz
 cd /build/*/
 # Implement ICS GSA Mods
 BUILDDIR=$(pwd)
+apt update && apt install patch -y
 echo "BUILDDIR $BUILDDIR"
-patch -p1 < /ics-gsa/ics-gsa.patch
+patch -p1 -R < /ics-gsa/ics-gsa.patch
 #/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
 
 apt update && apt install npm -y 

@@ -1,4 +1,5 @@
 #!/bin/bash
+apt update && apt install patch -y 
 echo  "Procs $(nproc)" > /usr/local/include/BuildProcs
 INSTALL_PREFIX="/usr/local/"
 set -Eeuo pipefail
