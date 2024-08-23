@@ -1,6 +1,6 @@
 #!/bin/bash
 # for some reason, the npm commands do not exit correctly so this will break the build. 
-#set -Eeuo pipefail
+set -Eeuo pipefail
 # We pass the build tag as an arg here, so let's give it a meaningful name.
 tag="$1"
 # Source this for the latest release versions
@@ -18,7 +18,7 @@ cd /build/*/
 BUILDDIR=$(pwd)
 apt update && apt install patch -y
 echo "BUILDDIR $BUILDDIR"
-patch -p1 -R < /ics-gsa/ics-gsa.patch
+patch -p1 < /ics-gsa/ics-gsa.patch
 #/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
 
 apt update && apt install npm -y 
@@ -27,12 +27,15 @@ apt update && apt install npm -y
 echo "Updating npm"
 npm install -g npm@10.1.0
 
-echo "Updating npm browserlist"
-yes | npx update-browserslist-db@latest
+echo "Updating browser list
+    yes | npx update-browserslist-db@latest || true
+
+
 
 # Now build gsa
 echo "Building GSA"
-npm install && npm run build
+npm install 
+npm run build 
 
  echo "Storing react bits for later image builds"
  cp -vr build/* /final 
