@@ -27,7 +27,7 @@ apt update && apt install npm -y
 echo "Updating npm"
 npm install -g npm@10.1.0
 
-echo "Updating browser list
+echo "Updating browser list"
     yes | npx update-browserslist-db@latest || true
 
 

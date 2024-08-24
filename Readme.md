@@ -10,12 +10,6 @@
 ### Brought to you by ###
 [![Immauss Cybersecurity](https://github.com/immauss/openvas/raw/master/images/ics-hz.png)](https://www.immauss.com "Immauss Cybersecurity")
 
-# A big THANK YOU to Absolute Ops, our newest Platinum Sponsor
-
-[![AbsoluteOps](https://raw.githubusercontent.com/immauss/openvas/master/images/absolute-ops.png)](https://www.absoluteops.com/ "AbsoluteOps") 
-
-## To become a sponsor, visit our sponsor links.
-[On GitHub](https://github.com/sponsors/immauss)
 [Sponsor immauss on GitHub](https://github.com/sponsors/immauss)
 OR
 [Sponsor by PayPal](https:/www.immauss.com/container_subscriptions)
@@ -32,7 +26,7 @@ For docs on the web interface and scanning, use Greenbone's docs [here](https://
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-22.4.47 | This is the latest based on GVMd 23 available on x86_64 and arm64.
+22.4.48 | This is the latest based on GVMd 23 available on x86_64 and arm64.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -41,12 +35,12 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v23.6.2 | | gvm_libs | v22.9.1 |
-| openvas | v23.4.0 | | openvas_smb | v22.5.6 |
-| notus_scanner | v22.6.3 | | gsa | v23.0.0 |
-| gsad | v22.9.1 | | ospd | v21.4.4 |
+| gvmd | v23.8.1 | | gvm_libs | v22.10.0 |
+| openvas | v23.8.5 | | openvas_smb | v22.5.6 |
+| notus_scanner | v22.6.4 | | gsa | v23.2.1 |
+| gsad | v22.11.0 | | ospd | v21.4.4 |
 | ospd_openvas | v22.7.1 | | pg_gvm | v22.6.5 |
-| python_gvm | v24.3.0 | | gvm_tools | v24.3.0 |
+| python_gvm | v24.7.0 | | gvm_tools | v24.7.0 |
 | greenbone_feed_sync | v24.3.0 |
 
 # 25 August 2023 #
