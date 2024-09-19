@@ -8,6 +8,7 @@ LABEL maintainer="scott@immauss.com" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
 # Add the archives.
+COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/

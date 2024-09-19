@@ -7,10 +7,13 @@ if ! [ -f /.fs-setup-complete ]; then
 else
 	echo "Looks like this container has already been started once."
 	echo "Just doing a little cleanup instead of the whole fs-setup."
+	ls -l /.fs-setup-complete
         # we assume it has run already so let's make sure there are no
         # existing pid and sock files to cause issues.
+		echo "removing Socket files .... "
         find / -iname "*.sock" -exec rm -f {} \;
-        find /run -iname "*.pid" -exec rm -f {} \;
+		echo "removing pids"
+	    find /run -iname "*.pid" -exec rm -f {} \;
 fi
 
 echo "Choosing container start method from:"

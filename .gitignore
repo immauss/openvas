@@ -20,3 +20,4 @@ gvm-tools
 gsa.dev
 *not
 .DS_Store
+db.base.sql

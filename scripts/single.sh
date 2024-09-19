@@ -7,7 +7,7 @@ cleanup() {
 }
 
 #Trap SIGTERM
-trap 'cleanup' SIGTERM
+trap 'cleanup' EXIT
 
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
@@ -79,18 +79,19 @@ if [ ! -f "/setup" ]; then
 	# Need to look at restricting this. Maybe to localhost ?
 	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
 	echo "port = 5432" >> /data/database/postgresql.conf
+	echo "max_wal_size = 4GB" >> /data/database/postgresql.conf
 	# This probably tooooo open.
 	echo -e "host\tall\tall\t0.0.0.0/0\tmd5" >> /data/database/pg_hba.conf
 	echo -e "host\tall\tall\t::0/0\tmd5" >> /data/database/pg_hba.conf
 	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
-        echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
-        echo "logging_collector = on" >> /data/database/postgresql.conf
-        echo "log_directory = '/data/var-log/postgresql/'" >> /data/database/postgresql.conf
-        echo "log_filename = 'postgresql-gvmd.log'" >> /data/database/postgresql.conf
-        echo "log_file_mode = 0666" >> /data/database/postgresql.conf
-        echo "log_truncate_on_rotation = off" >> /data/database/postgresql.conf
-        echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
-        echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
+	echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
+	echo "logging_collector = on" >> /data/database/postgresql.conf
+	echo "log_directory = '/data/var-log/postgresql/'" >> /data/database/postgresql.conf
+	echo "log_filename = 'postgresql-gvmd.log'" >> /data/database/postgresql.conf
+	echo "log_file_mode = 0666" >> /data/database/postgresql.conf
+	echo "log_truncate_on_rotation = off" >> /data/database/postgresql.conf
+	echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
+	echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	chown postgres:postgres -R /data/database
 fi
 PGFAIL=0
@@ -137,7 +138,9 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
-	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	xzcat /usr/lib/globals.sql.xz > /data/globals.sql
+	xzcat /usr/lib/base.sql.xz  > /data/base-db.sql
 	# the dump is putting this command in the backup even though the value is null. 
 	# this causes errors on start up as with the value as a null, it looks like a syntax error.
 	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
@@ -145,13 +148,17 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 		sed -i '/CREATE AGGREGATE public\.group_concat()/,+4d' /data/base-db.sql
 		sed -i '/^ALTER AGGREGATE public\.group_concat()/d' /data/base-db.sql
 	fi
-	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	# Removing this dbupdate mess as it is really no longer needed. 16 Sep 2024
+	# echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	# echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	# echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	# chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
-	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
-	su -c "/usr/lib/postgresql/13/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	# su -c "/usr/lib/postgresql/13/bin/psql  < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	# su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+	su -c "createdb -O gvm gvmd" postgres
+	su -c "/usr/lib/postgresql/13/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/13/bin/pg_restore  -d gvmd -j 4 /data/base-db.sql" postgres  > /usr/local/var/log/db-restore.log
 	rm /data/base-db.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -172,10 +179,10 @@ if [ $NEWDB = "true" ]; then
 	echo "Creating Greenbone Vulnerability Manager database"
 	su -c "createuser -DRS gvm" postgres
 	su -c "createdb -O gvm gvmd" postgres
-	su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
-	su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
-	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
-	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
+	#su -c "psql --dbname=gvmd --command='create role dba with superuser noinherit;'" postgres
+	#su -c "psql --dbname=gvmd --command='grant dba to gvm;'" postgres
+	#su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
+	#su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
 	chown postgres:postgres -R /data/database
 	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
 
@@ -315,7 +322,12 @@ if [ $SKIPSYNC == "false" ]; then
 fi
 
 echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000 \"$GVMD_ARGS\"" gvm
+su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \
+			--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
+			--max-email-attachment-size=64000000 \
+			--max-email-include-size=64000000 \
+			--max-email-message-size=64000000 \
+			\"$GVMD_ARGS\"" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -401,7 +413,7 @@ sleep 5
 # Prep the gpg keys
 export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
 export GNUPGHOME=/etc/openvas-gnupg
-if ! [ -f tmp/GBCommunitySigningKey.asc ]; then
+if ! [ -f /etc/GBCommunitySigningKey.asc ]; then
 	echo " Get the Greenbone public Key"
 	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /etc/GBCommunitySigningKey.asc
 	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /etc/ownertrust.txt
