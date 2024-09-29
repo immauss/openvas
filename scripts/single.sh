@@ -125,7 +125,7 @@ if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
     	su -c "gvm-manage-certs -afv" gvm 
 fi
 # if there is no existing DB, and there is no base db archive, then we need to create a new DB.
-if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/base.sql.xz ]; then
+if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/gvmd.sql.xz ]; then
 		echo "Looks like we need to create an empty databse."
 		NEWDB="true"
 		# Set SKIPSYNC to true so we pull new feeds
@@ -140,7 +140,7 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
 	xzcat /usr/lib/globals.sql.xz > /data/globals.sql
-	xzcat /usr/lib/base.sql.xz  > /data/base-db.sql
+	xzcat /usr/lib/gvmd.sql.xz  > /data/gvmd.sql
 	# the dump is putting this command in the backup even though the value is null. 
 	# this causes errors on start up as with the value as a null, it looks like a syntax error.
 	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
@@ -156,10 +156,14 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	touch /usr/local/var/log/db-restore.log
 	# su -c "/usr/lib/postgresql/13/bin/psql  < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
 	# su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
-	su -c "createdb -O gvm gvmd" postgres
+
+	echo "Restoring Globals."
 	su -c "/usr/lib/postgresql/13/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/13/bin/pg_restore  -d gvmd -j 4 /data/base-db.sql" postgres  > /usr/local/var/log/db-restore.log
-	rm /data/base-db.sql
+	echo "Creating gvmd Database."
+	su -c "createdb -O gvm gvmd" postgres
+	echo "Restoring gvmd database."
+	su -c "/usr/lib/postgresql/13/bin/pg_restore  -d gvmd -j 4 /data/gvmd.sql" postgres  > /usr/local/var/log/db-restore.log
+	rm /data/gvmd.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz
