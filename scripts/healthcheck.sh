@@ -67,13 +67,18 @@ case  $FUNC in
 		;;
 	single)
 		FAIL=0
-		# openvas
-		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
-		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || FAIL=1 
-			if [ $FAIL -eq 1 ]; then SERVICE="openvas\n"; fi
 		# gvmd
-		nmap -p 9390 localhost| grep -qs "9390.*open" || FAIL=2 
-			if [ $FAIL -eq 2 ]; then SERVICE="$SERVICE gvmd\n"; fi
+		nmap -p 9390 localhost| grep -qs "9390.*open" || FAIL=1 
+			if [ $FAIL -eq 1 ]; then SERVICE="gvmd\n"; fi
+		# openvas
+		# Only check openvas if gvmd is running. Otherwise it hangs and then gvmd can't start.
+		if [ $FAIL -eq 0 ]; then
+			UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
+			su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || FAIL=2 
+			if [ $FAIL -eq 2 ]; then SERVICE="$SERVICE openvas\n"; fi	
+		else 
+			SERVICE="$SERVICE openvas\n"
+		fi	
 		# gsad
 		curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || FAIL=3 
 			if [ $FAIL -eq 3 ]; then SERVICE="$SERVICE gsad\n"; fi
