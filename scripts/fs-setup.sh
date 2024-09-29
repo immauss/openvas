@@ -143,8 +143,9 @@ fi
 # Defaults should be in /usr/local/etc/
 # Configs live in sub dirs gvm & openvas
 # gvm logging
-echo "Handling config files"
-if [ -d /etc/gvm ]; then
+
+if ! [ -L /etc/gvm ]; then
+	echo "Handling config files"
 	cp -rpn /etc/gvm/* /usr/local/etc/gvm/* /data/local-etc/gvm/ 
 	rm -rf /etc/gvm /usr/local/etc/gvm
 	ln -s /data/local-etc/gvm /etc/gvm
