@@ -390,6 +390,13 @@ fi
 echo "Starting Postfix for report delivery by email"
 # Configure postfix
 sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main.cf
+# Make postfix more secureish thanks @rkoosaar
+echo "disable_vrfy_command=yes
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1" >> /etc/postfix/main.cf
+
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
