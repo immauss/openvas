@@ -88,6 +88,7 @@ COPY build.rc /gvm-versions
 COPY branding/* /branding/
 RUN bash /branding/branding.sh
 COPY scripts/* /scripts/
+COPY ver.current /
 #RUN apt update && apt install libcap2-bin net-tools -y 
 # allow openvas to access raw sockets and all kind of network related tasks
 #RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas

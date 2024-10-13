@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #set -Eeuo pipefail
-echo "starting container at: $(date)"
+echo "starting container ver $(cat /ver.current) at: $(date)"
 if ! [ -f /.fs-setup-complete ]; then
 	echo "Setting up container filesystem"
 	/scripts/fs-setup.sh

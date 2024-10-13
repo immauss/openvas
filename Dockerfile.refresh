@@ -12,6 +12,7 @@ COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY base.sql.xz /usr/lib/base.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
+COPY ver.current /
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
