@@ -17,7 +17,11 @@ else
 fi
 
 echo "Choosing container start method from:"
-echo "$@"
+if [ "$@" == ""] || ["$@" == " *"]; then
+	echo " Nothing ... so we start in the default of single container mode"
+else
+	echo "$@"
+fi
 # We'll use this later to know how to check container health
 echo "$1" > /usr/local/etc/running-as
 

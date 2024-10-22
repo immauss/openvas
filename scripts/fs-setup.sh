@@ -146,11 +146,11 @@ fi
 
 if ! [ -L /etc/gvm ]; then
 	echo "Handling config files"
-	cp -rpn /etc/gvm/* /usr/local/etc/gvm/* /data/local-etc/gvm/ 
+	cp -rpn /etc/gvm/* /usr/local/etc/gvm/* /data/local-etc/gvm/  2> /dev/null 
 	rm -rf /etc/gvm /usr/local/etc/gvm
 	ln -s /data/local-etc/gvm /etc/gvm
 	ln -s /data/local-etc/gvm /usr/local/etc/gvm
-	cp -rpn /etc/openvas/* /usr/local/etc/openvas/* /data/local-etc/openvas/ 
+	cp -rpn /etc/openvas/* /usr/local/etc/openvas/* /data/local-etc/openvas/ 2> /dev/null
 	rm -rf /etc/openvas /usr/local/etc/openvas
 	ln -s /data/local-etc/openvas /etc/openvas
 	ln -s /data/local-etc/openvas /usr/local/etc/openvas
