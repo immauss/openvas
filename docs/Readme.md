@@ -157,8 +157,7 @@ docker volume create new-openvas-volume
 ```
 Then extract the backup into the volume with alpine.
 ```
-docker run --rm -it -v <path to backup file>:/backup.tar.gz -v openvas:/mnt alpine /bin/sh -c "cd /mnt; tar xvf /backup.tar.gz"
-```
+docker run -it --rm -v openvas:/opt -v $(pwd):/mnt alpine /bin/sh -c "cd /data; tar -c --exclude proc --exclude sys -jvf /mnt/openvas.full.tar.gz *"```
 # Scripting
 
 It's possible to interact with gvmd via custom scripts and scripts provided by Greenbone. If you are running openvas/gvmd on a single machine, then the scripts will usually communicate with gvmd via socket. With it running in the container, you would need to copy the scripts into the container to run them. Alternatively, your scripts can communicate with gvmd via tcp on port 9390.  The easiest way to do this is to tell docker to expose the port by adding ''' -p 9390:9390 ''' to the start command. This forwards port 9390 on your host machine to port 9390 on the container. Now you should be able to send the connection to the IP of your host computer and and script will connect to the container.
