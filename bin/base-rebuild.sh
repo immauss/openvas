@@ -177,12 +177,12 @@ FINALSTART=$(date +%s)
 docker buildx build $PUBLISH --platform $arch -f Dockerfile \
    --target final -t immauss/openvas:${tag} \
    -f $DOCKERFILE .
-FINALFIN=$(date +%s)
-if [ "x$PUBLISH" == "x--push" ]; then
-	docker buildx build $PUBLISH --platform $arch -f Dockerfile \
-   	--target final -t ghcr.io/immauss/openvas:${tag} \
-	-f $DOCKERFILE .
-fi
+# FINALFIN=$(date +%s)
+# if [ "x$PUBLISH" == "x--push" ]; then
+# 	docker buildx build $PUBLISH --platform $arch -f Dockerfile \
+#    	--target final -t ghcr.io/immauss/openvas:${tag} \
+# 	-f $DOCKERFILE .
+# fi
 
 #Clean up temp file
 rm $DOCKERFILE
