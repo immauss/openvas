@@ -1,4 +1,4 @@
-FROM debian:stable
+FROM debian:12
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 COPY scripts /scripts
