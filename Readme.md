@@ -13,6 +13,9 @@
 [Sponsor immauss on GitHub](https://github.com/sponsors/immauss)
 OR
 [Sponsor by PayPal](https:/www.immauss.com/container_subscriptions)
+# A big THANK YOU to Absolute Ops, our newest Platinum Sponsor
+
+[![AbsoluteOps](https://raw.githubusercontent.com/immauss/openvas/master/images/absolute-ops.png)](https://www.absoluteops.com/ "AbsoluteOps") 
 
 ## Current Silver Sponsors ##
 [![NOS Informatica](https://raw.githubusercontent.com/immauss/openvas/master/images/NOSinformatica.png)](https://nosinformatica.com/ "NOS Informatica")
