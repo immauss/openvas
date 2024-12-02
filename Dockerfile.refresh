@@ -9,7 +9,7 @@ LABEL maintainer="scott@immauss.com" \
       source="https://github.com/immauss/openvas"
 # Add the archives.
 COPY globals.sql.xz /usr/lib/globals.sql.xz
-COPY base.sql.xz /usr/lib/base.sql.xz
+COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
 # Healthcheck needs be an on image script that will know what service is running and check it. 
