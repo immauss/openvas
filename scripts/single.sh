@@ -26,6 +26,7 @@ GSATIMEOUT=${GSATIMEOUT:-15}
 GVMD_ARGS=${GVMD_ARGS:-blank}
 GSAD_ARGS=${GSAD_ARGS:-blank}
 REPORT_LINES=${REPORT_LINES:-1000}
+SKIPGSAD=${SKIPGSAD:-false}
 if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
@@ -472,16 +473,19 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
 chgrp gvm /var/run/ospd/ospd-openvas.sock
-
-echo "Starting Greenbone Security Assistant..."
-#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
-if [ $HTTPS == "true" ]; then
-	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
-		    --gnutls-priorities=SECURE128:+SECURE192:-VERS-TLS-ALL:+VERS-TLS1.2 \
-		    --no-redirect \
-		    --port=9392 $GSAD_ARGS" gvm
+if [ SKIPGSAD="false"]; then
+	echo "Starting Greenbone Security Assistant..."
+	#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
+	if [ $HTTPS == "true" ]; then
+		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
+				--gnutls-priorities=SECURE128:+SECURE192:-VERS-TLS-ALL:+VERS-TLS1.2 \
+				--no-redirect \
+				--port=9392 $GSAD_ARGS" gvm
+	else
+		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392 $GSAD_ARGS" gvm
+	fi
 else
-	su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392 $GSAD_ARGS" gvm
+	echo "Skipping GSAD start because SKIPGSAD=$SKIPGSAD"
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
