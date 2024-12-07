@@ -30,7 +30,7 @@ For docs on the web interface and scanning, use Greenbone's docs [here](https://
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-24.10.1 | This is the latest based on GVMd 23 available on x86_64 and arm64.
+24.12.01 | This is the latest based on GVMd 23 available on x86_64 and arm64.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 

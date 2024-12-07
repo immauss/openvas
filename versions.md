@@ -6,5 +6,5 @@ Component | Version | | Component | Version
 | notus_scanner | v22.6.5 | | gsa | v24.0.1 |
 | gsad | v24.0.0 | | ospd | v21.4.4 |
 | ospd_openvas | v22.7.1 | | pg_gvm | v22.6.5 |
-| python_gvm | v24.11.0 | | gvm_tools | v24.11.0 |
+| python_gvm | v24.11.0 | | gvm_tools | v24.12.0 |
 | greenbone_feed_sync | v24.9.0 |
