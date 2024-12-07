@@ -16,7 +16,7 @@ SMTPPORT=${SMTPPORT:-25}
 REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
 # use this to rebuild the DB from scratch instead of using the one in the image.
-NEWDB=${NEWDB:-false}
+CREATE_EMPTY_DATABASE=${NEWDB:-false}
 SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
@@ -30,7 +30,7 @@ if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
 if [ "$DEBUG" == "true" ]; then
-	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET NEWDB SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
 		echo "$var = ${var}"
 	done
 fi
@@ -127,13 +127,16 @@ fi
 # if there is no existing DB, and there is no base db archive, then we need to create a new DB.
 if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/gvmd.sql.xz ]; then
 		echo "Looks like we need to create an empty databse."
-		NEWDB="true"
-		# Set SKIPSYNC to true so we pull new feeds
+		CREATE_EMPTY_DATABASE="true"
+		# Set SKIPSYNC to false so we pull new feeds
 		SKIPSYNC="false"
+		# Set LOADDEFAULT to false because we don't have the DB.
+		LOADDEFAULT="false"
 fi
-echo -e "NEWDB=$NEWDB\nLOADDEFAULT=$LOADDEFAULT"
+echo -e "CREATE_EMPTY_DATABASE=$CREATE_EMPTY_DATABASE\nLOADDEFAULT=$LOADDEFAULT"
 
-if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
+# Here we load the DB from the image, but only if there is a DB file on the image.
+if [ $LOADDEFAULT = "true" ] && [ $CREATE_EMPTY_DATABASE = "false" ] ; then
 	echo "########################################"
 	echo "Creating a base DB from /usr/lib/base-db.xz"
 	echo "########################################"
@@ -173,8 +176,8 @@ if [ $LOADDEFAULT = "true" ] && [ $NEWDB = "false" ] ; then
 	stat -c %Y  /data/var-lib/update.ts  > /data/var-lib/FeedDate 
 fi
 
-# If NEWDB is true, then we need to create an empty database. 
-if [ $NEWDB = "true" ]; then
+# If CREATE_EMPTY_DATABASE is true, then we need to create an empty database. 
+if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	if [ $(DBCheck) -eq 1 ]; then
 		echo " It looks like there is already a gvmd database."
 		echo " Failing out to prevent overwriting the existing DB"
@@ -225,7 +228,7 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
-
+# This is likely no longer needed.
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
 	echo "Creating dir structure for feed sync"
 	for dir in configs port_lists report_formats; do 
@@ -251,7 +254,7 @@ fi
 # So we need to grok the database or the migration will fail. . . . 
 # We also look for a failed sync at startup on a slim image here because that wil cause
 # the psql command to fail and crash the container. 
-if [ "$NEWDB" == "false" ] && ! [ -f /data/feed-syncing ]; then
+if [ "$CREATE_EMPTY_DATABASE" == "false" ] && ! [ -f /data/feed-syncing ]; then
 	echo "Checking DB Version"
 	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
 else 
@@ -270,7 +273,7 @@ if [ $DB -lt 250 ]; then
 	su -c "gvmd --migrate" gvm
 	echo "Migration complete!!"
 	date
-else 
+elif [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
 
 	echo "Migrate the database if needed."
 	su -c "gvmd --migrate" gvm 
@@ -363,7 +366,7 @@ elif [ "$USERNAME" != "admin" ] ; then
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 	# Now ... we need to remove the "admin" account ...
 	su -c "gvmd --delete-user=admin" gvm 
-elif [ $NEWDB = "true" ]; then
+elif [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	echo "Creating Greenbone Vulnerability Manager admin user $USERNAME"
 	su -c "gvmd --role=\"Super Admin\" --create-user=\"$USERNAME\" --password=\"$PASSWORD\"" gvm
 	echo "admin user created"
