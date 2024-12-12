@@ -1,4 +1,5 @@
 #!/bin/bash 
+SKIPGSAD=${SKIPGSAD:-false}
 FUNC=$(cat /usr/local/etc/running-as)
 ContainerShutdown() {
 	# Flush logs;
@@ -39,8 +40,10 @@ case  $FUNC in
 		nmap -p 9390 localhost| grep -qs "9390.*open" || exit 1
 	;;
 	gsad)
-		#gsad should be listening on 9392
-		curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || exit 1
+		if [ "$SKIPGSAD" == "false" ]; then
+			#gsad should be listening on 9392
+			curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || exit 1
+		fi
 	;;
 	redis)
 		redis-cli -s /run/redis/redis.sock ping || exit 1
@@ -80,8 +83,10 @@ case  $FUNC in
 			SERVICE="$SERVICE openvas\n"
 		fi	
 		# gsad
-		curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || FAIL=3 
+		if [ "$SKIPGSAD" == "false" ]; then
+			curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || FAIL=3 
 			if [ $FAIL -eq 3 ]; then SERVICE="$SERVICE gsad\n"; fi
+		fi
 		# redis
 		redis-cli -s /run/redis/redis.sock ping || FAIL=4 
 			if [ $FAIL -eq 4 ]; then SERVICE="$SERVICE redis\n"; fi

@@ -31,7 +31,7 @@ if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
 if [ "$DEBUG" == "true" ]; then
-	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT ; do 
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT SKIPGSAD; do 
 		echo "$var = ${var}"
 	done
 fi
@@ -44,8 +44,6 @@ function DBCheck {
 		echo 0
         fi
 }
-# Need something new here to check for existing 'old' /data and fix all the links.
-# maybe an option passed to fs-setup?
 
 # 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
 if [ -f /data/var-log/gvmd.log ]; then
@@ -473,7 +471,8 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
 chgrp gvm /var/run/ospd/ospd-openvas.sock
-if [ SKIPGSAD="false"]; then
+
+if [ SKIPGSAD == "false" ]; then
 	echo "Starting Greenbone Security Assistant..."
 	#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 	if [ $HTTPS == "true" ]; then
