@@ -19,7 +19,7 @@ for repo in python-gvm gvm-tools greenbone-feed-sync; do
 	echo "$VAR=$python_gvm" >> $RC
 done
 
-DIFF=$(diff /home/scott/Projects/openvas/build.rc $RC)
+DIFF=$(diff ~/Projects/openvas/build.rc $RC)
 if [ $? -ne 0 ]; then
 	echo "Something changed"
 	echo -e "$DIFF"
