@@ -472,7 +472,7 @@ echo "Starting Open Scanner Protocol daemon for OpenVAS..."
 chgrp gvm /var/run/ospd/ospd.sock
 chgrp gvm /var/run/ospd/ospd-openvas.sock
 
-if [ SKIPGSAD == "false" ]; then
+if [ $SKIPGSAD == "false" ]; then
 	echo "Starting Greenbone Security Assistant..."
 	#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 	if [ $HTTPS == "true" ]; then
