@@ -49,8 +49,8 @@ case  $FUNC in
 		redis-cli -s /run/redis/redis.sock ping || exit 1
 	;;
 	postgresql)
-		# There's probably a pg_ctl command that is better for this.
-		nmap -p 5432 localhost| grep -qs "5432.*open" || exit 1
+		
+		pg_isready -U postgres || exit 1
 	;;
 	remote)
 		FAIL=0		
@@ -91,7 +91,7 @@ case  $FUNC in
 		redis-cli -s /run/redis/redis.sock ping || FAIL=4 
 			if [ $FAIL -eq 4 ]; then SERVICE="$SERVICE redis\n"; fi
 		# postgresql
-		nmap -p 5432 localhost| grep -qs "5432.*open" || FAIL=5 
+		pg_isready -U postgres|| FAIL=5 
 			if [ $FAIL -eq 5 ]; then SERVICE="$SERVICE postgresql\n"; fi
 
 		if [ $FAIL -ne 0 ]; then
