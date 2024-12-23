@@ -7,6 +7,8 @@ cd /build
 wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz
 tar -zxf $openvas.tar.gz
 cd /build/*/
+# Install dev dependency
+apt install -y libkrb5-dev
 if [ $(arch) == "armv7l" ]; then
 	sed -i "s/%lu/%i/g" src/attack.c
 fi

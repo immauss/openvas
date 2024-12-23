@@ -13,8 +13,14 @@ sed -i "s/const uint16 COM_MINOR_VERSION = 1/const uint16 COM_MINOR_VERSION = 7/
 cd /build/*/
 mkdir build
 cd build
+# install the needed dev dependancy.
+# which is not needed elsewhere.
+apt install heimdal-dev -y
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j$(nproc)
 make install
 cd /build
 rm -rf *
+# Remove build dependancies so they dont' conflict others.
+grep "Commandline: apt install" /var/log/apt/history.log | tail -1 | \
+    sed 's/Commandline: apt install //' | xargs apt remove -y
