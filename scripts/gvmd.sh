@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+#set -Eeuo pipefail
 sleep 2
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
@@ -78,30 +78,42 @@ fi
 
 LOADDEFAULT=$(cat /run/loaddefault)
 echo "LOADDEFAULT is $LOADDEFAULT" 
-if [ $LOADDEFAULT = "true" ] ; then
-	DBCheck
-	echo "########################################"
-	echo "Creating a base DB from /usr/lib/base-db.xz"
-	echo "########################################"
+if ! [ -f /run/default.loaded ] && [ $LOADDEFAULT = "true" ] ; then
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
-	xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
-	echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-	echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-	echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
+	xzcat /usr/lib/globals.sql.xz > /data/globals.sql
+	xzcat /usr/lib/gvmd.sql.xz  > /data/gvmd.sql
+	# the dump is putting this command in the backup even though the value is null. 
+	# this causes errors on start up as with the value as a null, it looks like a syntax error.
+	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
+	if grep -qs "^CREATE AGGREGATE public\.group_concat()" /data/base-db.sql; then
+		sed -i '/CREATE AGGREGATE public\.group_concat()/,+4d' /data/base-db.sql
+		sed -i '/^ALTER AGGREGATE public\.group_concat()/d' /data/base-db.sql
+	fi
+	# Removing this dbupdate mess as it is really no longer needed. 16 Sep 2024
+	# echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
+	# echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
+	# echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
+	# chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
-	chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
-	su -c "/usr/lib/postgresql/13/bin/psql < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
-	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
-	# need this to prevent a loop if gvmd restarts before postgres.
-	echo "false" > /run/loaddefault
-	rm /data/base-db.sql
+	# su -c "/usr/lib/postgresql/13/bin/psql  < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
+	# su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
+
+	echo "Restoring Globals."
+	su -c "/usr/lib/postgresql/13/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
+	echo "Creating gvmd Database."
+	su -c "createdb -O gvm gvmd" postgres
+	echo "Restoring gvmd database."
+	su -c "/usr/lib/postgresql/13/bin/pg_restore  -d gvmd  /data/gvmd.sql" postgres  > /usr/local/var/log/db-restore.log
+	rm /data/gvmd.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
-	tar xf /usr/lib/var-lib.tar.xz 
-	if [ -f /data/var-lib/update.ts ]; then
-		echo "Initial Image DB creation date:"
-		cat /data/var-lib/update.ts
-	fi
+	tar xf /usr/lib/var-lib.tar.xz
+	echo "Base DB and feeds collected on:"
+	cat /data/var-lib/update.ts
+	# Store the date of the Feeds archive for later start ups. 
+	stat -c %Y  /data/var-lib/update.ts  > /data/var-lib/FeedDate 
+	touch /run/default.loaded
 fi
 
 
@@ -218,10 +230,10 @@ sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
-tail -f /usr/local/var/log/gvm/gvmd.log &
-#WTF ???? Why did I do this?
-pkill gvmd
-su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
+tail -f /usr/local/var/log/gvm/gvmd.log 
+#WTF ???? Why did I do this? So that gvmd is holding the container up. 
+#pkill gvmd
+#su -c "exec gvmd -f $GMP --listen-group=gvm  --osp-vt-update=/var/run/ospd/ospd-openvas.sock --max-email-attachment-size=64000000 --max-email-include-size=64000000 --max-email-message-size=64000000" gvm
  
 
 

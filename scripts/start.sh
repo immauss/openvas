@@ -3,8 +3,10 @@
 echo "starting container ver $(cat /ver.current) at: $(date)"
 if ! [ -f /.fs-setup-complete ]; then
 	echo "Setting up container filesystem"
-	/scripts/fs-setup.sh
-else
+	/scripts/fs-setup.sh $1   # passing this here so only single & postgresql mv the DB files.
+elif [ -z $1 ]; then  # We check for this as in multi-container or kubernets, 
+                # this will nuke the sockets on the shared volume
+				# Which is bad. 
 	echo "Looks like this container has already been started once."
 	echo "Just doing a little cleanup instead of the whole fs-setup."
 	ls -l /.fs-setup-complete
@@ -17,7 +19,7 @@ else
 fi
 
 echo "Choosing container start method from:"
-if [ "$@" == ""] || ["$@" == " *"]; then
+if [ -z $1 ] ; then
 	echo " Nothing ... so we start in the default of single container mode"
 else
 	echo "$@"

@@ -74,7 +74,7 @@ echo "DB is $DB"
 ls -l /usr/lib/*.xz 
 if [ "$DB" = "gvmd" ]; then
 	LOADDEFAULT="false"
-elif ! [ -f /usr/lib/base.sql.xz ]; then
+elif ! [ -f /usr/lib/gvmd.sql.xz ]; then
 	LOADDEFAULT="false"
 else
 	LOADDEFAULT="true"

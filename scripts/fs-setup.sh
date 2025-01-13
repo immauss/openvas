@@ -39,11 +39,13 @@ fi
 
 # Link the database to the /data folder where the volume should be mounted
 echo "Setting up soft links"
-if ! [ -d /data/database/base ]; then
+if ! [ -d /data/database/base ] && { [ "$1" == "single" ] || [ "$1" == "postgresql" ]; }; then
 	echo "Database"
 	mv /var/lib/postgresql/13/main/* /data/database/ 
 	rm -rf /var/lib/postgresql/13/main
 	ln -s /data/database /var/lib/postgresql/13/main
+	chown postgres /data/database
+	chmod 0700 /data/database
 else 
 	echo "/data/database/base already exists ..."
 	echo " NOT moving data from image to /data"
@@ -126,7 +128,7 @@ if ! [ -L /var/lib/notus ]; then
 fi
 
 # Fix up /var/lib/openvas
-if ! [ -L /var/lib/openvas ]; then 
+if ! [ -L /var/lib/openvas ] && { [ "$1" == "gvmd" ] || [ "$1" == "postgresql" ]; };  then 
 	echo "Fixing /var/lib/openvas"
 	if [ -d /var/lib/openvas ]; then
 		echo "Preserving contents of /var/lib/openvas"
