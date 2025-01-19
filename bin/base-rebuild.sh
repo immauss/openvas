@@ -52,6 +52,9 @@ while ! [ -z "$1" ]; do
 	--push)
 	shift
 	PUBLISH="--push"
+	GSABUILD=true
+	NOBASE=true
+	echo "Publishing to docker hub. Forcing GSA Build and NOBASE."
 	;;
 	--load)
 	shift
@@ -153,6 +156,7 @@ if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then
 			-v $(pwd)/tmp/build:/build \
 			-v $(pwd):/build.d \
 			-v $(pwd)/gsa-final:/final \
+			-v $(pwd)/ver.current:/ver.current \
 			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh $tag"
 else
 	echo "Looks like we have already built gsa $gsa"

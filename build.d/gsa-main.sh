@@ -20,7 +20,15 @@ apt update && apt install patch -y
 echo "BUILDDIR $BUILDDIR"
 patch -p1 < /ics-gsa/ics-gsa.patch
 #/ics-gsa/scripts/gsa-mods.sh $BUILDDIR $tag
-sed -i s/XXXXXXX/$tag/ "$BUILDDIR/src/web/pages/login/loginform.jsx"
+if ! [ -f /ver.current ]; then
+    echo "Where is /ver.curent?" 
+    exit 1
+else 
+    CVersion=$(cat /ver.current)
+    echo "Current Container version is $CVersion . "
+fi
+CVersion=$(cat /ver.current)
+sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/loginform.jsx"
 
 apt update && apt install npm -y 
 #update npm and the browserlist

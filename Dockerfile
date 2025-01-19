@@ -15,6 +15,7 @@ RUN mkdir /build.d
 COPY build.rc /
 COPY package-list-build /
 COPY build.d/build-prereqs.sh /build.d/
+COPY ver.current /
 RUN bash /build.d/build-prereqs.sh
 COPY build.d/update-certs.sh /build.d/
 RUN bash /build.d/update-certs.sh
@@ -112,6 +113,7 @@ COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
+
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
