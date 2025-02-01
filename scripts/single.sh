@@ -3,6 +3,8 @@ set -Eeuo pipefail
 #Define  proper shutdown 
 cleanup() {
     echo "Container stopped, performing shutdown"
+	pkill gvmd
+	sleep 1
     su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
 }
 
