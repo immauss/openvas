@@ -33,8 +33,8 @@ TimeMath() {
 PullArchives() {
 
 	cp /var/lib/openvas/*.xz .
-    if [ $(ls -l base.sql.xz | awk '{print $5}') -lt 1200 ]; then 
-		echo "base.sql.xz size is invalid."
+    if [ $(ls -l gvmd.sql.xz | awk '{print $5}') -lt 1200 ]; then 
+		echo "gvmd.sql.xz size is invalid."
 		exit 1
 	fi 
     if [ $(ls -l var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then 
@@ -122,7 +122,7 @@ VER=$(cat ver.current)
 # yes if it doesn't already exists
 # Yes if the existing is < 7 days old.
 echo "Checking Archive age"
-if [ -f base.sql.xz ]; then
+if [ -f gvmd.sql.xz ]; then
 	DBAGE=$(expr $(date +%s) - $(stat $STAT var-lib.tar.xz) )
 else
 	PullArchives
