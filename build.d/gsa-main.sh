@@ -28,7 +28,7 @@ else
     echo "Current Container version is $CVersion . "
 fi
 CVersion=$(cat /ver.current)
-sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/loginform.jsx"
+sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.jsx"
 
 apt update && apt install npm -y 
 #update npm and the browserlist
