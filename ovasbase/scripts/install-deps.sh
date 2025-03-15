@@ -20,6 +20,7 @@ apt-get install -yq --no-install-recommends $PACKAGES
 /usr/sbin/update-ca-certificates --fresh
 # Newer version of impacket than available via apt
 python3 -m pip install --break-system-packages impacket
+ln -s /usr/local/bin/wmiexec.py /usr/local/bin/impacket-wmiexec
 #Clean up after apt
 rm -rf /var/lib/apt/lists/*
 

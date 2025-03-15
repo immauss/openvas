@@ -149,6 +149,7 @@ fi
 # first check to see if the current version has been built already
 
 if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then 
+  if [ "$(cat ver.current)" != "$tag" ] || [ "$tag" == "latest" ]; then
 	echo "Starting container to build GSA" 
 	    docker pull immauss/ovasbase
 		docker run -it --rm \
@@ -158,7 +159,9 @@ if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then
 			-v $(pwd)/gsa-final:/final \
 			-v $(pwd)/ver.current:/ver.current \
 			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh $tag"
-else
+  else
+	echo "Looks like we have already built for $tag"
+  fi
 	echo "Looks like we have already built gsa $gsa"
 fi
 cd $BUILDHOME
