@@ -6,7 +6,7 @@ apt update
 echo "install required packages"
 df -h
 ls -l /tmp
-PACKAGES=$(cat package-list-build)
+PACKAGES=$(cat build.d/package-list-build)
 apt-get install -yq --no-install-recommends $PACKAGES
 
 
