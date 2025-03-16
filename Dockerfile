@@ -13,7 +13,7 @@ ENV VER="$TAG"
 # Build/install gvm (by default, everything installs in /usr/local)
 RUN mkdir /build.d
 COPY build.rc /
-COPY package-list-build /
+COPY build.d/package-list-build /build.d/
 COPY build.d/build-prereqs.sh /build.d/
 COPY ver.current /
 RUN bash /build.d/build-prereqs.sh
@@ -27,7 +27,6 @@ COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
-
 COPY build.d/ospd-openvas.sh /build.d/
 RUN bash /build.d/ospd-openvas.sh
 COPY build.d/gvm-tool.sh /build.d/
