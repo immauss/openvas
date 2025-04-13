@@ -87,6 +87,11 @@ while ! [ -z "$1" ]; do
 	RUNAFTER=0
 	echo "OK, we'll skip running the image after build"
 	;;
+	-B)
+	shift
+	FORCEBASE=true
+	echo "Forcing ovasbase build"
+	;;
 	*)
         echo "I don't know what to do with $1 option"
 	echo "Sorry ...."
@@ -104,9 +109,13 @@ if [ "$tag" == "beta" ]; then
 	arch="linux/amd64"
 	PUBLISH="--load"
 	RUNOPTIONS="--volume beta:/data"
-	NOBASE=true
+	if $FORCEBASE; then
+		NOBASE=false
+		echo "Found FORCEBASE ... building ovasbase"
+	else	
+		NOBASE=true
+	fi
 elif [ -z $arch ]; then
-	#arch="linux/amd64,linux/arm64,linux/arm/v7"
 	arch="linux/amd64,linux/arm64"
 	ARM="true"
 fi
