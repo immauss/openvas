@@ -109,7 +109,7 @@ if [ "$tag" == "beta" ]; then
 	arch="linux/amd64"
 	PUBLISH="--load"
 	RUNOPTIONS="--volume beta:/data"
-	if $FORCEBASE; then
+	if [ "$FORCEBASE" == "true" ; then
 		NOBASE=false
 		echo "Found FORCEBASE ... building ovasbase"
 	else	
