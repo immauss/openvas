@@ -1,4 +1,8 @@
 #!/bin/bash
+NODE_VERSION=node_20.x
+NODE_KEYRING=/usr/share/keyrings/nodesource.gpg
+DISTRIBUTION=bookworm
+
 # for some reason, the npm commands do not exit correctly so this will break the build. 
 set -Eeuo pipefail
 # We pass the build tag as an arg here, so let's give it a meaningful name.
@@ -30,11 +34,14 @@ fi
 CVersion=$(cat /ver.current)
 sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.jsx"
 
-apt update && apt install npm -y 
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee "$NODE_KEYRING" >/dev/null && \
+    echo "deb [signed-by=$NODE_KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" | tee /etc/apt/sources.list.d/nodesource.list
+
+apt update && apt install npm nodejs -y 
 #update npm and the browserlist
 # these were recomended by npm
-echo "Updating npm"
-npm install -g npm@10.1.0
+#echo "Updating npm"
+#npm install -g npm@10.1.0
 
 echo "Updating browser list"
     yes | npx update-browserslist-db@latest || true

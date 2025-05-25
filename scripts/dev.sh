@@ -4,8 +4,10 @@ REFRESH=${REFRESH:-false}
 cd /gsa
 if [ "$REFRESH" == "true" ]; then
     echo "Copying source from gsa.latest to gsa.dev"
-    cp -rp gsa.latest/* gsa.dev/
+    ls -l /gsa/gsa.latest
+    cp -rvp gsa.latest/* gsa.dev/
     cd /gsa/gsa.dev
+    ls -l
     npm install vite
 else
     echo "Using existing code in gsa.dev"
