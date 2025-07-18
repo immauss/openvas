@@ -36,8 +36,8 @@ sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.jsx"
 
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee "$NODE_KEYRING" >/dev/null && \
     echo "deb [signed-by=$NODE_KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" | tee /etc/apt/sources.list.d/nodesource.list
-apt remove nodejs npm -y
-apt update && apt install npm nodejs -y 
+
+apt update && apt install nodejs -y 
 #update npm and the browserlist
 # these were recomended by npm
 #echo "Updating npm"
@@ -53,7 +53,7 @@ echo "Building GSA"
 npm install 
 npm run build 
 
- echo "Storing react bits for later image builds"
- cp -vr build/* /final 
+echo "Storing react bits for later image builds"
+cp -vr build/* /final 
 
 
