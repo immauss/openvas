@@ -3,7 +3,7 @@ Component | Version | | Component | Version
 ----------|----------|-|----------|---------
 | gvmd | v26.2.1 | | gvm_libs | v22.26.0 |
 | openvas | v23.23.1 | | openvas_smb | v22.5.10 |
-| notus_scanner | v22.7.2 | | gsa | v25.3.0 |
+| notus_scanner | v22.7.2 | | gsa | v25.3.1 |
 | gsad | v24.5.4 | | ospd | v21.4.4 |
 | ospd_openvas | v22.9.0 | | pg_gvm | v22.6.11 |
 | python_gvm | v26.5.0 | | gvm_tools | v25.3.3 |

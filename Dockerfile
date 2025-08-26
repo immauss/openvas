@@ -2,7 +2,7 @@
 
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest AS builder
+FROM immauss/ovasbase:trixie AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -53,7 +53,7 @@ RUN bash /build.d/links.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
-FROM immauss/ovasbase:latest AS slim
+FROM immauss/ovasbase:trixie AS slim
 LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
@@ -112,6 +112,7 @@ COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
+RUN apt update && apt install postgresql-13 postgresql-client-13 postgresql-contrib-13 -y
 
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
