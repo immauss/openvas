@@ -18,6 +18,6 @@ services:
     volumes:
       - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas:latest
+    image: gitlab.immauss.com:5050/immauss/openvas:latest
 volumes:
   openvas:
