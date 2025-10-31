@@ -1,7 +1,7 @@
 #!/bin/bash
 NODE_VERSION=node_20.x
 NODE_KEYRING=/usr/share/keyrings/nodesource.gpg
-DISTRIBUTION=bookworm
+DISTRIBUTION=nodistro
 
 # for some reason, the npm commands do not exit correctly so this will break the build. 
 set -Eeuo pipefail
@@ -34,7 +34,7 @@ fi
 CVersion=$(cat /ver.current)
 sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.jsx"
 
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | tee "$NODE_KEYRING" >/dev/null && \
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | tee "$NODE_KEYRING" >/dev/null && \
     echo "deb [signed-by=$NODE_KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" | tee /etc/apt/sources.list.d/nodesource.list
 
 apt update && apt install nodejs -y 

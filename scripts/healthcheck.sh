@@ -2,10 +2,8 @@
 SKIPGSAD=${SKIPGSAD:-false}
 FUNC=$(cat /usr/local/etc/running-as)
 ContainerShutdown() {
-	# Flush logs;
-
-	# Kill the tail that holds the container open
-	kill $(ps auxw | awk /tail/'{print $2}' )
+	# commit suicide 
+	kill 1
 }
 
 # Check the Disk Space
@@ -68,7 +66,7 @@ case  $FUNC in
 
 		fi	
 		;;
-	single)
+	single|refresh)
 		FAIL=0
 		# gvmd
 		nmap -p 9390 localhost| grep -qs "9390.*open" || FAIL=1 

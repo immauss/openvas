@@ -30,18 +30,7 @@ TimeMath() {
 
     printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
 }
-PullArchives() {
 
-	cp /var/lib/openvas/*.xz .
-    if [ $(ls -l gvmd.sql.xz | awk '{print $5}') -lt 1200 ]; then 
-		echo "gvmd.sql.xz size is invalid."
-		exit 1
-	fi 
-    if [ $(ls -l var-lib.tar.xz | awk '{print $5}') -lt 1200 ]; then 
-		echo "var-lib.tar.xz size is invalid."
-		exit 1
-	fi
-}
 
 while ! [ -z "$1" ]; do
   case $1 in
@@ -127,22 +116,10 @@ fi
 VER=$(cat ver.current)
 #
 
-# Check to see if we need to pull the latest DB. 
-# yes if it doesn't already exists
-# Yes if the existing is < 7 days old.
-echo "Checking Archive age"
-if [ -f gvmd.sql.xz ]; then
-	DBAGE=$(expr $(date +%s) - $(stat $STAT var-lib.tar.xz) )
-else
-	PullArchives
-fi
-echo "Current archive age is: $DBAGE seconds"
-if [ $DBAGE -gt 604800 ]; then
-	PullArchives
-fi
+
 echo "Building with $tag and $arch"
 
-set -Eeuo pipefail
+loadset -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
 	echo "Building new ovasbase image"
 	cd $BUILDHOME/ovasbase
@@ -158,7 +135,7 @@ fi
 # first check to see if the current version has been built already
 
 if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then 
-  if [ "$(cat ver.current)" != "$tag" ] || [ "$tag" == "latest" ]; then
+  if [ "$(cat gsa-final/ver.current)" != "$tag" ] || [ "$tag" == "latest" ]; then
 	echo "Starting container to build GSA" 
 	    docker pull immauss/ovasbase
 		docker run -it --rm \
@@ -168,6 +145,9 @@ if ! [ -f tmp/build/$gsa.tar.gz ] || [ "x$GSABUILD" == "xtrue" ] ; then
 			-v $(pwd)/gsa-final:/final \
 			-v $(pwd)/ver.current:/ver.current \
 			immauss/ovasbase -c "cd /build.d; bash build.d/gsa-main.sh $tag"
+		if [ $? -eq 0 ]; then
+			cp -f ver.current gsa-final/	
+		fi
   else
 	echo "Looks like we have already built for $tag"
   fi

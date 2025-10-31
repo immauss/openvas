@@ -30,7 +30,7 @@ For docs on the web interface and scanning, use Greenbone's docs [here](https://
 # Docker Tags  #
 tag              | Description
 ----------------|-------------------------------------------------------------------
-25.08.24.1 | This is the latest based on GVMd 24 available on x86_64 and arm64.
+25.10.30.02 | This is the latest based on GVMd 24 available on x86_64 and arm64.
 21.04.09 | This is the last 21.4 build.  
 20.08.04.6 | The last 20.08 image
 pre-20.08   | This is the last image from before the 20.08 update. 
@@ -39,13 +39,13 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v26.2.1 | | gvm_libs | v22.26.0 |
-| openvas | v23.23.1 | | openvas_smb | v22.5.10 |
-| notus_scanner | v22.7.2 | | gsa | v25.3.0 |
-| gsad | v24.5.4 | | ospd | v21.4.4 |
+| gvmd | v26.5.0 | | gvm_libs | v22.29.3 |
+| openvas | v23.28.0 | | openvas_smb | v22.5.10 |
+| notus_scanner | v22.7.2 | | gsa | v26.1.0 |
+| gsad | v24.6.0 | | ospd | v21.4.4 |
 | ospd_openvas | v22.9.0 | | pg_gvm | v22.6.11 |
-| python_gvm | v26.5.0 | | gvm_tools | v25.3.3 |
-| greenbone_feed_sync | v25.1.0 |
+| python_gvm | v26.7.0 | | gvm_tools | v25.4.1 |
+| greenbone_feed_sync | v25.1.5 |
 
 # 25 August 2023 #
 ## Discussions!!! ##

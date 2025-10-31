@@ -39,7 +39,10 @@ fi
 
 # Link the database to the /data folder where the volume should be mounted
 echo "Setting up soft links"
-if ! [ -d /data/database/base ] && { [ -z $1] || [ "$1" == "postgresql" ]; }; then
+ls -l /var /var/lib 
+if [[ ! -d /data/database/base ]] && \
+   ([[ -z "$1" ]] || [[ "$1" == "postgresql" ]] || [[ "$1" == "refresh" ]]); then
+
 	echo "Database"
 	mv /var/lib/postgresql/13/main/* /data/database/ 
 	rm -rf /var/lib/postgresql/13/main
@@ -128,7 +131,7 @@ if ! [ -L /var/lib/notus ]; then
 fi
 
 # Fix up /var/lib/openvas
-if ! [ -L /var/lib/openvas ] && { [ "$1" == "gvmd" ] || [ -z $1 ]; };  then 
+if ! [ -L /var/lib/openvas ] && { [ "$1" == "gvmd" ] || [ -z $1 ] || [ $1 == "refresh" ]; };  then 
 	echo "Fixing /var/lib/openvas"
 	if [ -d /var/lib/openvas ]; then
 		echo "Preserving contents of /var/lib/openvas"

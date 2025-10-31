@@ -9,7 +9,7 @@
 # Set start dir
 WorkDir=$(pwd)
 # Tag to work with. Normally latest but might be using new tag during upgrades.
-TAG="beta"
+TAG="latest"
 SQLBU="${TAG}.base.sql"
 TAR="${TAG}.var-lib.tar.xz"
 VER=$(cat ver.current)
@@ -17,7 +17,7 @@ DOCKERFILE=$(mktemp)
 sed "s/\$VER/$VER/" Dockerfile.refresh > $DOCKERFILE
 # Temp working directory ... needs enough space to pull the entire feed and then compress it. ~2G
 TWD="/var/lib/openvas/" # Must have a trailing "/"
-STIME="10m" # time between resync and archiving.
+STIME="20m" # time between resync and archiving.
 # First, clean TWD and  make sure there's enough storage available before doing anything.
 if [ -d $TWD ]; then # Make sure the TWD exists and is a directory so we don't accidently destroy the system.
 	echo " Cleaning $TWD "

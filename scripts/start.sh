@@ -72,6 +72,12 @@ case $1 in
 	echo "Starting bash shell!!"
 	/bin/bash -c "sleep 30d"
 ;;
+	refresh)
+	echo "Starting gvmd & openvas for data update"
+	/scripts/single.sh $@ 
+	echo "Updating data feeds"
+	exec /scripts/feed-refresh.sh
+;;
 	*)
 	echo "Starting gvmd & openvas in a single container !!"
 	echo "single" > /usr/local/etc/running-as

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+MODE="$1"
 #Define  proper shutdown 
 cleanup() {
     echo "Container stopped, performing shutdown"
@@ -9,7 +9,11 @@ cleanup() {
 }
 
 #Trap SIGTERM
-trap 'cleanup' EXIT
+if [ -z $1 ] || [ "$1" != "refresh" ]; then
+	trap 'cleanup' EXIT
+fi
+
+set -Eeuo pipefail
 
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
@@ -143,7 +147,7 @@ if [ $LOADDEFAULT = "true" ] && [ $CREATE_EMPTY_DATABASE = "false" ] ; then
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
-	xzcat /usr/lib/globals.sql.xz > /data/globals.sql
+	xzcat /usr/lib/globals.sql.xz  | grep -v "CREATE ROLE postgres" > /data/globals.sql
 	xzcat /usr/lib/gvmd.sql.xz  > /data/gvmd.sql
 	# the dump is putting this command in the backup even though the value is null. 
 	# this causes errors on start up as with the value as a null, it looks like a syntax error.
@@ -229,20 +233,20 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
-# This is likely no longer needed.
+ #This is likely no longer needed.
 if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
-	echo "Creating dir structure for feed sync"
-	for dir in configs port_lists report_formats; do 
-		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/21.04/${dir}" gvm
-	done
+ 	echo "Creating dir structure for feed sync"
+ 	for dir in configs port_lists report_formats; do 
+ 		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/21.04/${dir}" gvm
+ 	done
 fi
 
 # And it should be empty. (Thanks felimwhiteley )
-if [ -f /usr/local/var/run/feed-update.lock ]; then
-        # If NVT updater crashes it does not clear this up without intervention
-        echo "Removing feed-update.lock"
-	rm /usr/local/var/run/feed-update.lock
-fi
+# if [ -f /usr/local/var/run/feed-update.lock ]; then
+#         # If NVT updater crashes it does not clear this up without intervention
+#         echo "Removing feed-update.lock"
+# 	rm /usr/local/var/run/feed-update.lock
+# fi
 
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
@@ -275,7 +279,7 @@ if [ $DB -lt 250 ]; then
 	echo "Migration complete!!"
 	date
 elif [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
-
+	#chown -R gvm:gvm /data/var-lib/gvm 
 	echo "Migrate the database if needed."
 	su -c "gvmd --migrate" gvm 
 fi
@@ -507,5 +511,11 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 tail -F /usr/local/var/log/gvm/* &
+echo "Log tail started" 
 # This is part of making sure we shutdown postgres properly on container shutdown.
-wait $!
+
+if [ "x$MODE" != "xrefresh" ]; then
+	echo "Waiting for container to exit"
+	wait $!
+fi
+echo "Not waiting .... "

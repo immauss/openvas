@@ -1,0 +1,32 @@
+services:
+  openvas:
+    ports:
+      - "8080:9392"
+    environment:
+      - "PASSWORD=admin"
+      - "USERNAME=admin"
+      - "RELAYHOST=172.17.0.1"
+      - "SMTPPORT=25"
+      - "REDISDBS=512" # number of Redis DBs to use
+      - "QUIET=false"  # dump feed sync noise to /dev/null
+      - "NEWDB=false"  # only use this for creating a blank DB 
+      - "SKIPSYNC=false" # Skips the feed sync on startup.
+      - "RESTORE=false"  # This probably not be used from compose... see docs.
+      - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
+      - "HTTPS=false"  # wether to use HTTPS or not
+      - "GMP=9390"    # to enable see docs
+    volumes:
+      - "openvas:/data"
+      - "/home/scott/Projects/openvas:/mnt/output"
+      - "/home/scott/Projects/openvas/bin/feed-refresh.sh:/scripts/feed-refresh.sh"
+      - "/home/scott/Projects/openvas/bin/gvm_wait_feeds.sh:/scripts/gvm_wait_feeds.sh"
+      - "/home/scott/Projects/openvas/scripts/start.sh:/scripts/start.sh"
+      - "/home/scott/Projects/openvas/scripts/fs-setup.sh:/scripts/fs-setup.sh"
+      - "/home/scott/Projects/openvas/scripts/healthcheck.sh:/scripts/healthcheck.sh"
+      - "/home/scott/Projects/openvas/scripts/single.sh:/scripts/single.sh"
+    container_name: updater
+    image: immauss/openvas:latest
+    command: ["refresh"] 
+volumes:
+  openvas:
+
