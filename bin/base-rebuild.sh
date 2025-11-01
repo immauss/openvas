@@ -119,7 +119,7 @@ VER=$(cat ver.current)
 
 echo "Building with $tag and $arch"
 
-loadset -Eeuo pipefail
+set -Eeuo pipefail
 if  [ "$NOBASE" == "false" ]; then
 	echo "Building new ovasbase image"
 	cd $BUILDHOME/ovasbase

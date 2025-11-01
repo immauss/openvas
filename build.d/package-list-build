@@ -14,6 +14,7 @@ libical-dev
 libjson-glib-dev 
 libksba-dev 
 libldap2-dev 
+libmagic-dev
 libmicrohttpd-dev 
 libnet1-dev 
 libpaho-mqtt-dev

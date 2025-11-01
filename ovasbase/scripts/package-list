@@ -35,6 +35,7 @@ libkafs0-heimdal
 libkdb5-10
 libkdc2-heimdal
 liblerc4
+libmagic-mgc
 libmicrohttpd12 
 libnet1 
 libnuma1
