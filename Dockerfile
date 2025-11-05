@@ -10,12 +10,14 @@ ENV LANG=C.UTF-8
 ARG TAG
 ENV VER="$TAG"
 
-# Build/install gvm (by default, everything installs in /usr/local)
+# Build everything that requires a compiler here and install to /artifacts for copy to 2nd stage.
+# we don't care about layer count here, in fact multiple layers helps when there are problems witha build
+# as the previous layers will be cached and reduce build time when troubleshooing issues
 RUN mkdir /build.d
-COPY build.rc /
+COPY build.rc ver.current /
 COPY build.d/package-list-build /build.d/
+COPY build.d/env.sh /build.d
 COPY build.d/build-prereqs.sh /build.d/
-COPY ver.current /
 RUN bash /build.d/build-prereqs.sh
 COPY build.d/update-certs.sh /build.d/
 RUN bash /build.d/update-certs.sh
@@ -27,29 +29,11 @@ COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
-COPY build.d/ospd-openvas.sh /build.d/
-RUN bash /build.d/ospd-openvas.sh
-COPY build.d/gvm-tool.sh /build.d/
-RUN bash /build.d/gvm-tool.sh
-COPY build.d/notus-scanner.sh /build.d/
-RUN bash /build.d/notus-scanner.sh
 COPY build.d/pg-gvm.sh /build.d/
 RUN bash /build.d/pg-gvm.sh
-COPY build.d/gb-feed-sync.sh /build.d/
-RUN bash /build.d/gb-feed-sync.sh
-
-#COPY build.d/gsa.sh /build.d/
 COPY ics-gsa /ics-gsa
-#RUN bash /build.d/gsa.sh
 COPY build.d/gsad.sh /build.d
 RUN bash /build.d/gsad.sh
-
-COPY build.d/links.sh /build.d/
-RUN bash /build.d/links.sh
-#RUN mkdir /branding 
-#COPY build.d/coallate.sh /
-#RUN bash /coallate.sh 
-
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
@@ -60,24 +44,29 @@ LABEL maintainer="scott@immauss.com" \
       source="https://github.com/immauss/openvas"     
 EXPOSE 9392
 ENV LANG=C.UTF-8
-# Copy the install from stage 0
-# Move all of this to a sinlge "build" folder and reduce the number of layers by copying the 
-# entire folder in one line to root/ 
-COPY --from=0 etc/gvm/pwpolicy.conf /usr/local/etc/gvm/pwpolicy.conf
-COPY --from=0 etc/logrotate.d/gvmd /etc/logrotate.d/gvmd
-COPY --from=0 lib/systemd/system /lib/systemd/system
-COPY --from=0 usr/local/bin /usr/local/bin
-COPY --from=0 usr/local/include /usr/local/include
-COPY --from=0 usr/local/lib /usr/local/lib
-COPY --from=0 usr/local/sbin /usr/local/sbin
-COPY --from=0 usr/local/share /usr/local/share
-COPY --from=0 usr/share/postgresql /usr/share/postgresql
-COPY --from=0 usr/lib/postgresql /usr/lib/postgresql
-#COPY --from=0 /final .
+# Copy the just built from stage 0
+COPY --from=0 artifacts/ /
 
+# The python bits. 
+# these need to be rolled into a single layer that removes any excess bits. 
+# create a single script that installs all the python stuffs and then deletes all the source.
+# the gain for this will be minimal in size but will reduce layer count.
+COPY build.rc ver.current /
+RUN mkdir -p /build
+COPY build.d/ospd-openvas.sh /build.d/. 
+RUN bash /build.d/ospd-openvas.sh
+COPY build.d/gvm-tool.sh /build.d/
+RUN bash /build.d/gvm-tool.sh
+COPY build.d/notus-scanner.sh /build.d/
+RUN bash /build.d/notus-scanner.sh
+COPY build.d/gb-feed-sync.sh /build.d/
+RUN bash /build.d/gb-feed-sync.sh
+# library links
+COPY build.d/links.sh /build.d/
+RUN bash /build.d/links.sh
 
-
-COPY confs/* /usr/local/etc/gvm/
+# This needs consolidation
+COPY confs/ /usr/local/etc/gvm/
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /
@@ -85,9 +74,9 @@ RUN bash /gpg-keys.sh
 # Copy in the prebuilt gsa react code.
 COPY gsa-final/ /usr/local/share/gvm/gsad/web/
 COPY build.rc /gvm-versions
-COPY branding/* /branding/
+COPY branding/ /branding/
 RUN bash /branding/branding.sh
-COPY scripts/* /scripts/
+COPY scripts/ /scripts/
 COPY ver.current /
 #RUN apt update && apt install libcap2-bin net-tools -y 
 # allow openvas to access raw sockets and all kind of network related tasks

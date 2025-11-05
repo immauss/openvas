@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
+. build.d/env.sh
 
 echo "Building openvas_smb"
 cd /build
@@ -19,3 +20,5 @@ cd /build
 rm -rf *
 echo "Build openvas_smb complete"
 echo "Cleaning up"
+# Copy these to / because gvmd and openvas depend on gvm-libs and openvas-smb
+cp -rp /artifacts/* / || true

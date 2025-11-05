@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
+. build.d/env.sh
 echo "Building gvmd"
 cd /build
 wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd.tar.gz

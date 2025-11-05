@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
+. build.d/env.sh
 echo "Building openvas_scanner"   
 cd /build
 wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz

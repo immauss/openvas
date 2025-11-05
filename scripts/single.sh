@@ -10,6 +10,7 @@ cleanup() {
 
 #Trap SIGTERM
 if [ -z $1 ] || [ "$1" != "refresh" ]; then
+	echo "Starting trap for clean db exit."
 	trap 'cleanup' EXIT
 fi
 

@@ -3,6 +3,7 @@ INSTALL_DIR="/usr/local/"
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
+. build.d/env.sh
 #apt install git -y 
 echo "Building pg-gvm"  
 cd /build

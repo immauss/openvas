@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
-
+. /build.d/env.sh
 rm -rf /build
 mkdir -p /build
 cd /build
@@ -13,7 +13,7 @@ cd /build/*/
 sed -i '/^.*-D_DEFAULT_SOURCE.*/i \ \ \ \ -D_FILE_OFFSET_BITS=64 \\' CMakeLists.txt
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release  ..
 make -j$(nproc)
 make install
 cd /build

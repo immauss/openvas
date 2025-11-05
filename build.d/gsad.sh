@@ -5,6 +5,7 @@ INSTALL_PREFIX="/usr/local/"
 set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
+. build.d/env.sh
 cd /build
 # Now we build gsad
 GSAD_VERSION=$(echo $gsad| sed "s/^v\(.*$\)/\1/")
