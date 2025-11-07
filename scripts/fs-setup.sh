@@ -142,20 +142,20 @@ if ! [ -L /var/lib/openvas ] && { [ "$1" == "gvmd" ] || [ -z $1 ] || [ $1 == "re
 fi
 
 
-# Handle the config files for loggin and pw-policy properly
+# Handle the config files for logging and pw-policy properly
 # If there is is version already in /data, then just link to it.
 # If no existing config, copy the default there.
 # Defaults should be in /usr/local/etc/
 # Configs live in sub dirs gvm & openvas
 # gvm logging
 
-if ! [ -L /etc/gvm ]; then
+if ! [ -L /usr/local/etc/gvm ]; then
 	echo "Handling config files"
-	cp -rpn /etc/gvm/* /usr/local/etc/gvm/* /data/local-etc/gvm/  2> /dev/null 
+	cp -rpn  /usr/local/etc/gvm/* /data/local-etc/gvm/  2> /dev/null 
 	rm -rf /etc/gvm /usr/local/etc/gvm
 	ln -s /data/local-etc/gvm /etc/gvm
 	ln -s /data/local-etc/gvm /usr/local/etc/gvm
-	cp -rpn /etc/openvas/* /usr/local/etc/openvas/* /data/local-etc/openvas/ 2> /dev/null
+	cp -rpn /usr/local/etc/openvas/* /data/local-etc/openvas/ 2> /dev/null
 	rm -rf /etc/openvas /usr/local/etc/openvas
 	ln -s /data/local-etc/openvas /etc/openvas
 	ln -s /data/local-etc/openvas /usr/local/etc/openvas

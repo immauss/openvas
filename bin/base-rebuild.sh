@@ -170,7 +170,7 @@ SLIMFIN=$(date +%s)
 
 
 FINALSTART=$(date +%s)
-docker buildx build $PUBLISH --platform $arch -f Dockerfile \
+docker buildx build $PUBLISH --platform $arch \
    --target final -t immauss/openvas:${tag} \
    -f $DOCKERFILE .
 FINALFIN=$(date +%s)
