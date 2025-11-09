@@ -32,7 +32,7 @@ wait_for_gsa() {
 }
 
 
-for config in vol no-vol; do 
+for config in no-vol; do 
   if [ "$config" == "no-vol" ]; then
     port="8088"
   else 
@@ -51,7 +51,6 @@ for config in vol no-vol; do
   docker exec -itu gvm openvas-$config bash -c "/scripts/create-and-scan.sh $config"
 done
 
-echo "Ready to shut them down?"
+echo "Ready to shut it down?"
 read junk
 export config="no-vol";export CONFIG="$config";  docker compose -f docker-compose-${config}.yml -p $config rm -svf
-export config="vol";export CONFIG="$config";  docker compose -f docker-compose-${config}.yml -p $config rm -svf

@@ -11,14 +11,14 @@
 #   ./create-and-scan-gmp.sh -n "Hosts Scan - Full and fast"
 #
 set -euo pipefail
-
 HOST=${GVM_HOST:-127.0.0.1}
+CONFIG="$1"
 PORT=${GVM_PORT:-9390}
 USER=${GVM_USERNAME:-admin}
 PASS=${GVM_PASSWORD:-admin}
 TASK_NAME="Hosts Scan - Full and fast"
 TARGET_NAME="Hosts Scan - Target"
-HOSTS=(slack rocky debian suse ubuntu)
+HOSTS=(slack-${CONFIG} rocky-${CONFIG} debian-${CONFIG} suse-${CONFIG} ubuntu-${CONFIG})
 QUIET=0
 
 # SSH credential values requested

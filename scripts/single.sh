@@ -382,7 +382,7 @@ elif [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 fi
 
-echo "reset "
+echo "resetting pipefail"
 set -Eeuo pipefail
 touch /setup
 

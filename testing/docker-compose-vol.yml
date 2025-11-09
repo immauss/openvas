@@ -1,0 +1,40 @@
+services:
+  openvas:
+    ports:
+      - "8080:9392"
+    environment:
+      - "PASSWORD=admin"
+      - "USERNAME=admin"
+      - "RELAYHOST=172.17.0.1"
+      - "SMTPPORT=25"
+      - "REDISDBS=512" # number of Redis DBs to use
+      - "QUIET=false"  # dump feed sync noise to /dev/null
+      - "NEWDB=false"  # only use this for creating a blank DB 
+      - "SKIPSYNC=true" # Skips the feed sync on startup.
+      - "RESTORE=false"  # This probably not be used from compose... see docs.
+      - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
+      - "HTTPS=false"  # wether to use HTTPS or not
+    volumes:
+      - "openvas:/data"
+    cap_add:
+      - NET_ADMIN # for capturing packages in promiscuous mode
+      - NET_RAW # for raw sockets e.g. used for the boreas alive detection
+    container_name: openvas-${CONFIG}
+    image: immauss/openvas:${TAG}
+  scannable-ubuntu:
+    container_name: ubuntu-${CONFIG}
+    image: immauss/scannable
+  scannable-debian:
+    container_name: debian-${CONFIG}
+    image: immauss/scannable:debian
+  scannable-rocky:
+    container_name: rocky-${CONFIG}
+    image: immauss/scannable:rocky
+  scannable-slack:
+    container_name: slack-${CONFIG}
+    image: immauss/scannable:slack
+  scannable-suse:
+    container_name: suse-${CONFIG}
+    image: immauss/scannable:suse
+volumes:
+  openvas:
