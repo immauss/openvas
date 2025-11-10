@@ -57,8 +57,6 @@ COPY build.d/ospd-openvas.sh /build.d/.
 RUN bash /build.d/ospd-openvas.sh
 COPY build.d/gvm-tool.sh /build.d/
 RUN bash /build.d/gvm-tool.sh
-COPY build.d/notus-scanner.sh /build.d/
-RUN bash /build.d/notus-scanner.sh
 COPY build.d/gb-feed-sync.sh /build.d/
 RUN bash /build.d/gb-feed-sync.sh
 # library links

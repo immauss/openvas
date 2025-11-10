@@ -58,12 +58,3 @@ wget
 xsltproc
 xz-utils
 zip
-dpkg
-fakeroot
-gpgsm
-nsis
-openssh-client
-rpm
-texlive-fonts-recommended
-texlive-latex-extra
-xmlstarlet

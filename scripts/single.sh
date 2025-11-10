@@ -242,13 +242,6 @@ if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
  	done
 fi
 
-# And it should be empty. (Thanks felimwhiteley )
-# if [ -f /usr/local/var/run/feed-update.lock ]; then
-#         # If NVT updater crashes it does not clear this up without intervention
-#         echo "Removing feed-update.lock"
-# 	rm /usr/local/var/run/feed-update.lock
-# fi
-
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
 if [ "$DEBUG" == "true" ]; then
@@ -333,6 +326,29 @@ if [ $SKIPSYNC == "false" ]; then
    # if the feed-sync fails, the container will exit and this will not be run.
    rm /data/feed-syncing
 fi
+echo "Starting ospd-openvas"
+su -c "/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
+	--pid-file /run/ospd/ospd-openvas.pid \
+	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
+	--lock-file-dir /var/lib/openvas \
+	--socket-mode 0o770 \
+	--notus-feed-dir /var/lib/notus/advisories \
+	--disable-notus-hashsum-verification true" gvm
+
+# setup and start openvasd
+mkdir -p /etc/openvasd
+echo "[server]
+listen_address = \"127.0.0.1:3000\"" | tee /etc/openvasd/openvasd.toml
+
+echo "Starting openvasd"
+openvasd -c /etc/openvasd/openvasd.toml &
+# wait until openvasd answers HTTP
+echo "Waiting for openvasd to be ready"
+until code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/) && [ "$code" != "000" ]; do
+  echo -n "."
+  sleep 1
+done
+
 
 echo "Starting Greenbone Vulnerability Manager..."
 su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \
@@ -340,7 +356,7 @@ su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \
 			--max-email-attachment-size=64000000 \
 			--max-email-include-size=64000000 \
 			--max-email-message-size=64000000 \
-			\"$GVMD_ARGS\"" gvm
+			$GVMD_ARGS" gvm
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -410,26 +426,6 @@ smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1" >> /etc/postfix/main.cf
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
-# Start the mqtt 
-
-chmod  777 /run/mosquitto
-# This should be in fs-setup or the log should be moved in the conf to /var/log/gvm
-if ! [ -f /var/log/gvm/mosquitto.log ]; then
-	touch /var/log/gvm/mosquitto.log
-fi
-chmod 777 /var/log/gvm/mosquitto.log	
-echo "listener 1883
-pid_file /run/mosquitto/mosquitto.pid
-persistence true
-persistence_location /var/lib/mosquitto/
-include_dir /etc/mosquitto/conf.d
-log_dest none # file /var/log/gvm/mosquitto.log
-allow_anonymous true" > /etc/mosquitto/mosquitto.conf
-/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
-
-echo "Sleeping for mosquitto"
-sleep 5
-
 # Prep the gpg keys
 export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
 export GNUPGHOME=/etc/openvas-gnupg
@@ -447,32 +443,12 @@ if ! [ -f /etc/GBCommunitySigningKey.asc ]; then
 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 fi
 
-# Create openvas.conf 
-echo "table_driven_lsc = yes
-mqtt_server_uri = tcp://localhost:1883" > /etc/openvas/openvas.conf
 
-echo "Starting Open Scanner Protocol daemon for OpenVAS..."
-/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
-	--pid-file /run/ospd/ospd-openvas.pid \
-	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
-	--lock-file-dir /var/lib/openvas \
-	--socket-mode 0o770 \
-	--mqtt-broker-address localhost \
-	--mqtt-broker-port 1883 \
-	--notus-feed-dir /var/lib/notus/advisories \
-	--disable-notus-hashsum-verification true
 
 # wait for ospd to start by looking for the socket creation.
 #while  [ ! -S /var/run/ospd/ospd-openvas.sock]; do
 	#sleep 1
 #done
-
-
-# start notus-scanner 
-
-/usr/local/bin/notus-scanner # --products-directory /var/lib/notus/products \
-#    --log-level DEBUG
-#	--log-file /var/log/gvm/notus-scanner.log
 
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.

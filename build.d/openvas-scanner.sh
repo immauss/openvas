@@ -20,5 +20,19 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 #cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-g3" -DCMAKE_CXX_FLAGS="-g3" ..
 make #-j$(nproc)
 make install
+# install rust to build openvas
+cd ..
+curl -o rustup.sh https://sh.rustup.rs
+bash ./rustup.sh -y
+. "$HOME/.cargo/env"   
+# Build openvasd
+cd rust/src/openvasd
+cargo build --release
+cd ../scannerctl
+cargo build --release
+echo "Copy openvasd binaries to $INSTALL_ROOT"
+cp -v ../../target/release/openvasd $INSTALL_ROOT/bin/
+cp -v ../../target/release/scannerctl $INSTALL_ROOT/bin/
+
 cd /build
 rm -rf *

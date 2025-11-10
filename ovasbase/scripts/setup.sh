@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeuo pipefail
-echo "install curl"
 
+# This sets up apt-get to not install any documentation.
 echo 'force-unsafe-io' > /etc/dpkg/dpkg.cfg.d/02apt-speed \
 && printf '%s\n' \
 'path-exclude /usr/share/doc/*' \
@@ -14,31 +14,38 @@ echo 'force-unsafe-io' > /etc/dpkg/dpkg.cfg.d/02apt-speed \
 'path-include /usr/share/locale/en*' \
 > /etc/dpkg/dpkg.cfg.d/01_nodoc
 
-
-
 export DEBIAN_FRONTEND=noninteractive
 export LANG=C.UTF-8
 
 apt-get update
-apt-get install -y --no-install-recommends gnupg curl wget apt-utils
+apt-get install -y --no-install-recommends gnupg curl apt-utils ca-certificates
+/usr/sbin/update-ca-certificates --fresh
 
-echo "Install the postgres repo"
-#echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
+gpg --import /tmp/GBCommunitySigningKey.asc
+echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
 
-apt install curl ca-certificates
+
+
 install -d /usr/share/postgresql-common/pgdg
 curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pdg.list
+echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt-get bookworm-pgdg main" > /etc/apt/sources.list.d/pdg.list
 
 apt-get update 
 apt-get upgrade --no-install-recommends -y
 echo "install required packages"
 PACKAGES=$(cat scripts/package-list)
 apt-get install -yq --no-install-recommends $PACKAGES
-/usr/sbin/update-ca-certificates --fresh
+
 # Newer version of impacket than available via apt
 python3 -m pip install --break-system-packages impacket
 ln -s /usr/local/bin/wmiexec.py /usr/local/bin/impacket-wmiexec
+
+# add the gvm users
+useradd -r -M -U -G sudo -s /usr/sbin/nologin gvm
+
+
+
 #Clean up after apt
 rm -rf /var/lib/apt/lists/*
 

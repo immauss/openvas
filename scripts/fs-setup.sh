@@ -31,11 +31,12 @@ mkdir -p /data/local-etc/openvas
 mkdir -p /data/local-etc/openvas/gnupg
 mkdir -p /data/local-etc/gvm
 
+# Moving this to ovasbase
 # Create gvm user
-echo "Create gvm user"
-if !  grep -qis gvm /etc/passwd ; then
-	useradd --home-dir /usr/local/share/gvm gvm
-fi
+#echo "Create gvm user"
+# if !  grep -qis gvm /etc/passwd ; then
+# 	useradd --home-dir /usr/local/share/gvm gvm
+# fi
 
 # Link the database to the /data folder where the volume should be mounted
 echo "Setting up soft links"

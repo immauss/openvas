@@ -163,26 +163,25 @@ cd $BUILDHOME
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
 docker buildx build $PUBLISH \
-   --platform $arch -f Dockerfile --target slim -t immauss/openvas:${tag}-slim \
+   --platform $arch -f Dockerfile \
+   --target slim \
+   -t immauss/openvas:${tag}-slim \
    -f $DOCKERFILE .
 SLIMFIN=$(date +%s)
 
 
 
 FINALSTART=$(date +%s)
-docker buildx build $PUBLISH --platform $arch \
-   --target final -t immauss/openvas:${tag} \
-   -f $DOCKERFILE .
+docker buildx build $PUBLISH \
+	--platform $arch \
+   	--target final \
+	-t immauss/openvas:${tag} \
+   	-f $DOCKERFILE .
 FINALFIN=$(date +%s)
-# if [ "x$PUBLISH" == "x--push" ]; then
-# 	docker buildx build $PUBLISH --platform $arch -f Dockerfile \
-#    	--target final -t ghcr.io/immauss/openvas:${tag} \
-# 	-f $DOCKERFILE .
-# fi
+
 
 #Clean up temp file
 rm $DOCKERFILE
-
 
 echo "Statistics:"
 # First the dependent times
