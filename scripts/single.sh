@@ -2,10 +2,18 @@
 MODE="$1"
 #Define  proper shutdown 
 cleanup() {
-    echo "Container stopped, performing shutdown"
+	echo "Container stopped, performing shutdown"
+	echo "#################################"
+	echo "Dumping all logs"
+	echo "#################################"
+    tail /var/log/gvm/*
+	echo "Log dump complete"
+	echo "killing gvmd"
 	pkill gvmd
 	sleep 1
+	echo "Stopping postgresql"
     su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
+	
 }
 
 #Trap SIGTERM
@@ -61,7 +69,8 @@ if [ -f /data/var-log/gvmd.log ]; then
 fi
 
 # Fire up redis
-redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 \
+
+redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 777 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
              --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /data/var-log/gvm/redis-server.log
 
@@ -81,23 +90,6 @@ echo "Redis ready."
 
 # Postgres config should be tighter.
 if [ ! -f "/setup" ]; then
-	echo "Creating postgresql.conf and pg_hba.conf"
-	# Need to look at restricting this. Maybe to localhost ?
-	echo "listen_addresses = '*'" >> /data/database/postgresql.conf
-	echo "port = 5432" >> /data/database/postgresql.conf
-	echo "max_wal_size = 4GB" >> /data/database/postgresql.conf
-	# This probably tooooo open.
-	echo -e "host\tall\tall\t0.0.0.0/0\tmd5" >> /data/database/pg_hba.conf
-	echo -e "host\tall\tall\t::0/0\tmd5" >> /data/database/pg_hba.conf
-	echo -e "local\tall\tall\ttrust"  >> /data/database/pg_hba.conf
-	echo "log_destination = 'stderr'" >> /data/database/postgresql.conf
-	echo "logging_collector = on" >> /data/database/postgresql.conf
-	echo "log_directory = '/data/var-log/postgresql/'" >> /data/database/postgresql.conf
-	echo "log_filename = 'postgresql-gvmd.log'" >> /data/database/postgresql.conf
-	echo "log_file_mode = 0666" >> /data/database/postgresql.conf
-	echo "log_truncate_on_rotation = off" >> /data/database/postgresql.conf
-	echo "log_line_prefix = '%m [%p] %q%u@%d '" >> /data/database/postgresql.conf
-	echo "log_timezone = 'Etc/UTC'" >> /data/database/postgresql.conf
 	chown postgres:postgres -R /data/database
 fi
 PGFAIL=0
@@ -326,28 +318,56 @@ if [ $SKIPSYNC == "false" ]; then
    # if the feed-sync fails, the container will exit and this will not be run.
    rm /data/feed-syncing
 fi
+
+# # Start the mqtt 
+
+# chmod  777 /run/mosquitto
+# # This should be in fs-setup or the log should be moved in the conf to /var/log/gvm
+# if ! [ -f /var/log/gvm/mosquitto.log ]; then
+# 	touch /var/log/gvm/mosquitto.log
+# fi
+# chmod 777 /var/log/gvm/mosquitto.log
+# /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
+
+# echo "Sleeping for mosquitto"
+# sleep 5
+mkdir -p /etc/openvas
+cat >/etc/openvas/openvas.conf <<'EOF'
+table_driven_lsc = yes
+openvasd_server = http://127.0.0.1:3000
+EOF
+
+export OPENVASD_MODE="service_notus"
+echo "Starting openvasd"
+openvasd --mode service_notus \
+	--feed-path /var/lib/openvas \
+	--advisories /var/lib/notus/advisories \
+	--products /var/lib/notus/products \
+	--redis-url redis://127.0.0.1/ \
+	--ospd-socket /var/run/ospd/ospd-openvas.sock \
+	--auto_enable_dependencies true \
+	--table_driven_lsc true \
+	--listening 127.0.0.1:3000 &
+
+# wait until openvasd answers HTTP
+echo "Waiting for openvasd to be ready"
+sleep 3
+until code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/) && [ "$code" != "000" ]; do
+  echo -n "."
+  sleep 1
+done
+
 echo "Starting ospd-openvas"
-su -c "/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
+/usr/local/bin/ospd-openvas --unix-socket /var/run/ospd/ospd-openvas.sock \
+	--foreground \
 	--pid-file /run/ospd/ospd-openvas.pid \
 	--log-file /usr/local/var/log/gvm/ospd-openvas.log \
 	--lock-file-dir /var/lib/openvas \
 	--socket-mode 0o770 \
 	--notus-feed-dir /var/lib/notus/advisories \
-	--disable-notus-hashsum-verification true" gvm
+	--disable-notus-hashsum-verification true &
 
-# setup and start openvasd
-mkdir -p /etc/openvasd
-echo "[server]
-listen_address = \"127.0.0.1:3000\"" | tee /etc/openvasd/openvasd.toml
 
-echo "Starting openvasd"
-openvasd -c /etc/openvasd/openvasd.toml &
-# wait until openvasd answers HTTP
-echo "Waiting for openvasd to be ready"
-until code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/) && [ "$code" != "000" ]; do
-  echo -n "."
-  sleep 1
-done
 
 
 echo "Starting Greenbone Vulnerability Manager..."
@@ -356,7 +376,8 @@ su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \
 			--max-email-attachment-size=64000000 \
 			--max-email-include-size=64000000 \
 			--max-email-message-size=64000000 \
-			$GVMD_ARGS" gvm
+			--broker-address='' \
+			\"$GVMD_ARGS\"" gvm
 
 
 until su -c "gvmd --get-users" gvm; do

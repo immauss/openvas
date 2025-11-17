@@ -6,6 +6,10 @@ else
     export TAG="$1"
 fi
 set -Eeuo pipefail
+DOCKERFILE=$(mktemp)
+cp docker-compose-single.tmpl $DOCKERFILE
+sed -i "s/XXTAGXX/$TAG/" $DOCKERFILE
+
 wait_for_gsa() {
   local port="${1:-8080}"  
   local host="${2:-127.0.0.1}"
@@ -40,7 +44,8 @@ for config in no-vol; do
   fi
   echo "Starting the $config test environment"
   export CONFIG="$config"
-  docker compose -p $CONFIG  -f docker-compose-$CONFIG.yml up -d 
+  echo "Using docker-compose file $DOCKERFILE"
+  docker compose -p $CONFIG  -f $DOCKERFILE up -d 
   #docker compose -f docker-compose-$config.yml up -d 
   echo "Installing needed dependancy"
   docker exec -it openvas-$config bash -c "apt update && apt install libxml2-utils -y "
@@ -53,4 +58,6 @@ done
 
 echo "Ready to shut it down?"
 read junk
-export config="no-vol";export CONFIG="$config";  docker compose -f docker-compose-${config}.yml -p $config rm -svf
+export config="no-vol";export CONFIG="$config";  docker compose -f $DOCKERFILE -p $config rm -svf
+
+rm $DOCKERFILE

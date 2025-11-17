@@ -16,8 +16,8 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
       - "GMP=9390"    # to enable see docs
     volumes:
-      - "openvas-current:/data"
+      - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas:current
+    image: immauss/openvas:beta
 volumes:
-  openvas-current:
+  openvas:

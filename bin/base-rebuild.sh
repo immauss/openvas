@@ -204,17 +204,6 @@ FULL=$(expr $FINALFIN - $STARTTIME )
 echo "Slim Image build time: $(TimeMath $SLIM)" | tee -a timing
 echo "Final Image build time: $(TimeMath $FINAL)" | tee -a timing
 echo "Total run time: $(TimeMath $FULL)" | tee -a timing
-
-if [ $RUNAFTER -eq 1 ]; then
-	docker rm -f $tag
-	# If the tag is beta, then we used --load locally, so no need to pull it. 
-	if [ "$tag" != "beta" ]; then
-		docker pull immauss/openvas:$tag
-	fi
-	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS immauss/openvas:$tag 
-	docker logs -f $tag
-fi
-
 # Update the versions in the Readme.md 
 if [ "$PUBLISH" != " " ]; then
 	echo "Updating Readme.md with current versions"
@@ -231,3 +220,15 @@ if [ "$PUBLISH" != " " ]; then
 		}" "${READMETMP}" > Readme.md
 	sed -i "s/XYXYXYXYXYX/$(cat ver.current)/" Readme.md
 fi
+
+if [ $RUNAFTER -eq 1 ]; then
+	docker rm -f $tag
+	# If the tag is beta, then we used --load locally, so no need to pull it. 
+	if [ "$tag" != "beta" ]; then
+		docker pull immauss/openvas:$tag
+	fi
+	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS immauss/openvas:$tag 
+	docker logs -f $tag
+fi
+
+

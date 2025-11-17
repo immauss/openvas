@@ -33,6 +33,7 @@ cargo build --release
 echo "Copy openvasd binaries to $INSTALL_ROOT"
 cp -v ../../target/release/openvasd $INSTALL_ROOT/bin/
 cp -v ../../target/release/scannerctl $INSTALL_ROOT/bin/
-
+mkdir -p ${INSTALL_ROOT}etc/redis/
+cp -v ../../../config/redis-openvas.conf $INSTALL_ROOT/etc/redis/
 cd /build
 rm -rf *

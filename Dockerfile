@@ -64,7 +64,7 @@ COPY build.d/links.sh /build.d/
 RUN bash /build.d/links.sh
 
 # This needs consolidation
-COPY confs/ /usr/local/etc/gvm/
+COPY confs/ /
 COPY build.d/links.sh /
 RUN bash /links.sh 
 COPY build.d/gpg-keys.sh /

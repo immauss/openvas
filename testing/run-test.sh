@@ -5,6 +5,7 @@ if [ -z $1 ]; then
 else
     export TAG="$1"
 fi
+echo "TAG=\"$TAG\"" > .env
 set -Eeuo pipefail
 wait_for_gsa() {
   local port="${1:-8080}"  
