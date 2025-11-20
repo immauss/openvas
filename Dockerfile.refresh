@@ -2,9 +2,8 @@
 FROM immauss/openvas:latest-slim AS final
 ENV LANG=C.UTF-8
 ARG TAG
-ENV VER="$TAG"
 LABEL maintainer="scott@immauss.com" \
-      version="$VER-full" \
+      version="$TAG-full" \
       url="https://hub.docker.com/r/immauss/openvas" \
       source="https://github.com/immauss/openvas"
 # Add the archives.

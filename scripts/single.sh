@@ -69,7 +69,6 @@ if [ -f /data/var-log/gvmd.log ]; then
 fi
 
 # Fire up redis
-
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 777 \
              --timeout 0 --databases $REDISDBS --maxclients 4096 --daemonize yes \
              --port 6379 --bind 127.0.0.1 --loglevel warning --logfile /data/var-log/gvm/redis-server.log
@@ -319,19 +318,8 @@ if [ $SKIPSYNC == "false" ]; then
    rm /data/feed-syncing
 fi
 
-# # Start the mqtt 
-
-# chmod  777 /run/mosquitto
-# # This should be in fs-setup or the log should be moved in the conf to /var/log/gvm
-# if ! [ -f /var/log/gvm/mosquitto.log ]; then
-# 	touch /var/log/gvm/mosquitto.log
-# fi
-# chmod 777 /var/log/gvm/mosquitto.log
-# /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf  &
-
-# echo "Sleeping for mosquitto"
-# sleep 5
-mkdir -p /etc/openvas
+# This works for now, but needs to move to the "confs" 
+mkdir -p /etc/openvas 
 cat >/etc/openvas/openvas.conf <<'EOF'
 table_driven_lsc = yes
 openvasd_server = http://127.0.0.1:3000
@@ -366,9 +354,6 @@ echo "Starting ospd-openvas"
 	--socket-mode 0o770 \
 	--notus-feed-dir /var/lib/notus/advisories \
 	--disable-notus-hashsum-verification true &
-
-
-
 
 echo "Starting Greenbone Vulnerability Manager..."
 su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \

@@ -8,6 +8,8 @@
 # it needs to run with the output files going to a bind mount @ /home/scott/Projects/openvas/
 # it should bind mount the gvm_wait_feeds.sh to /scripts/ 
 # need to find a way to make it log 
+# we'll use this 
+touch /mnt/output/feed-update-running
 apt update && apt install libxml2-utils -y
 
 GLOBALS="globals.sql"
@@ -65,3 +67,4 @@ cp $GVMDB.xz /mnt/output/
 echo "Feeds"
 cp $TAR.xz /mnt/output/
 echo " !!! Done !!!"
+rm /mnt/output/feed-update-running

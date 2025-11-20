@@ -1,7 +1,5 @@
 services:
   openvas:
-    ports:
-      - "8080:9392"
     environment:
       - "PASSWORD=admin"
       - "USERNAME=admin"
@@ -15,15 +13,16 @@ services:
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "HTTPS=false"  # wether to use HTTPS or not
       - "GMP=9390"    # to enable see docs
+      - "SKIPGSAD=true" # No need for gsa 
     volumes:
       - "openvas:/data"
       - "/home/scott/Projects/openvas:/mnt/output"
       - "/home/scott/Projects/openvas/bin/feed-refresh.sh:/scripts/feed-refresh.sh"
       - "/home/scott/Projects/openvas/bin/gvm_wait_feeds.sh:/scripts/gvm_wait_feeds.sh"
-      - "/home/scott/Projects/openvas/scripts/start.sh:/scripts/start.sh"
-      - "/home/scott/Projects/openvas/scripts/fs-setup.sh:/scripts/fs-setup.sh"
-      - "/home/scott/Projects/openvas/scripts/healthcheck.sh:/scripts/healthcheck.sh"
-      - "/home/scott/Projects/openvas/scripts/single.sh:/scripts/single.sh"
+      # - "/home/scott/Projects/openvas/scripts/start.sh:/scripts/start.sh"
+      # - "/home/scott/Projects/openvas/scripts/fs-setup.sh:/scripts/fs-setup.sh"
+      # - "/home/scott/Projects/openvas/scripts/healthcheck.sh:/scripts/healthcheck.sh"
+      # - "/home/scott/Projects/openvas/scripts/single.sh:/scripts/single.sh"
     container_name: updater
     image: immauss/openvas:latest
     command: ["refresh"] 
