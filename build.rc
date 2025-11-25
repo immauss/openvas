@@ -1,10 +1,10 @@
-gvmd=v26.8.0
+gvmd=v26.9.0
 gvm_libs=v22.31.1
-openvas=v23.31.4
+openvas=v23.31.5
 openvas_smb=v22.5.10
 notus_scanner=v22.7.2
-gsa=v26.4.1
-gsad=v24.9.0
+gsa=v26.5.0
+gsad=v24.10.0
 ospd=v21.4.4
 ospd_openvas=v22.9.0
 pg_gvm=v22.6.11

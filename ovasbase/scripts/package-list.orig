@@ -4,14 +4,14 @@ gnupg
 gnutls-bin
 libbrotli1
 libbsd0
-libcurl4
 libcurl3-gnutls
-libhdb9-heimdal
+libcurl4
 libgcrypt20
 libglib2.0-0
 libgnutls30
 libgpgme11
 libgssapi3-heimdal
+libhdb9-heimdal
 libhiredis0.14
 libical3
 libjson-glib-1.0-0
@@ -51,8 +51,8 @@ rsync
 smbclient
 snmp
 socat
-sudo
 sshpass
+sudo
 uuid-runtime
 wget
 xsltproc

@@ -9,6 +9,8 @@
 # it should bind mount the gvm_wait_feeds.sh to /scripts/ 
 # need to find a way to make it log 
 # we'll use this 
+echo "Starting Feed Refresh"
+date
 touch /mnt/output/feed-update-running
 apt update && apt install libxml2-utils -y
 
@@ -21,16 +23,13 @@ chmod 777 $WD
 # source the wait function.
 . /scripts/gvm_wait_feeds.sh
 # Run a feed sync
-#/scripts/sync.sh 
+/scripts/sync.sh 
 
 gvm_wait_feeds --host $(hostname) --interval 120 --timeout 3600
 if [ $? -ne 0 ]; then
     echo "Feeds did not finish synchroninzg within timeout"
 	exit
 fi
-
-
-
 
 cd $WD
 echo "First copy the feeds from the container"

@@ -25,11 +25,15 @@ curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommuni
 gpg --import /tmp/GBCommunitySigningKey.asc
 echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
 
+# Add the PostgreSQL APT repo for your Debian release
+# Import PGDG key
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+  | gpg --dearmor > /usr/share/keyrings/postgresql.gpg
 
-
-install -d /usr/share/postgresql-common/pgdg
-curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt-get bookworm-pgdg main" > /etc/apt/sources.list.d/pdg.list
+# Add PGDG repo for Debian 12 "bookworm"
+echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] \
+http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+  > /etc/apt/sources.list.d/pgdg.list
 
 apt-get update 
 apt-get upgrade --no-install-recommends -y
@@ -42,9 +46,8 @@ python3 -m pip install --break-system-packages impacket
 ln -s /usr/local/bin/wmiexec.py /usr/local/bin/impacket-wmiexec
 
 # add the gvm users
-useradd -r -M -U -G sudo -s /usr/sbin/nologin gvm
-
-
+echo "Creating GVM system user and group"
+useradd -r -M -U -G sudo  gvm
 
 #Clean up after apt
 rm -rf /var/lib/apt/lists/*

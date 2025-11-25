@@ -6,6 +6,7 @@
 BUILDHOME=$(pwd)
 STARTTIME=$(date +%s)
 NOBASE="false"
+FORCEBASE="false"
 RUNAFTER="1"
 ARM="false"
 ARMSTART=true
@@ -120,7 +121,8 @@ VER=$(cat ver.current)
 echo "Building with $tag and $arch"
 
 set -Eeuo pipefail
-if  [ "$NOBASE" == "false" ]; then
+
+if  [ "$NOBASE" == "false" ] || [ "$FORCEBASE" == "true" ] ; then
 	echo "Building new ovasbase image"
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
