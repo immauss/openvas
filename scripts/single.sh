@@ -12,7 +12,7 @@ cleanup() {
 	pkill gvmd
 	sleep 1
 	echo "Stopping postgresql"
-    su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
+    su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database stop" postgres
 	
 }
 
@@ -23,7 +23,7 @@ if [ -z $1 ] || [ "$1" != "refresh" ]; then
 fi
 
 set -Eeuo pipefail
-
+PGVER=${PGVER:-13}
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
@@ -94,18 +94,19 @@ fi
 PGFAIL=0
 PGUPFAIL=0
 echo "Starting PostgreSQL..."
-su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
+su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
 echo "pg exit with $PGFAIL ." 
 if [ $PGFAIL -ne 0 ]; then
 	echo "It looks like postgres failed to start. ( Exit code: \"$?\" "
 	echo "Assuming this is due to different database version and starting upgrade."
-	/scripts/db-upgrade.sh || PGUPFAIL=$?
+	#/scripts/db-upgrade.sh || PGUPFAIL=$?
+	/scripts/pg13-2-15.sh || PGUPFAIL=$?
 	if [ $PGUPFAIL -ne 0 ]; then
 		echo "Looks like this is either not an upgrade problem, or the upgrade failed."
 		exit
 	else
-		echo " DB Upgrade was a success. Starting postgresql 13"
-		su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres
+		echo " DB Upgrade was a success. Starting postgresql $PGVER"
+		su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database start" postgres
 	fi
 fi
 echo "Checking for existing DB"
@@ -148,21 +149,14 @@ if [ $LOADDEFAULT = "true" ] && [ $CREATE_EMPTY_DATABASE = "false" ] ; then
 		sed -i '/CREATE AGGREGATE public\.group_concat()/,+4d' /data/base-db.sql
 		sed -i '/^ALTER AGGREGATE public\.group_concat()/d' /data/base-db.sql
 	fi
-	# Removing this dbupdate mess as it is really no longer needed. 16 Sep 2024
-	# echo "CREATE TABLE IF NOT EXISTS vt_severities (id SERIAL PRIMARY KEY,vt_oid text NOT NULL,type text NOT NULL, origin text,date integer,score double precision,value text);" >> /data/dbupdate.sql
-	# echo "SELECT create_index ('vt_severities_by_vt_oid','vt_severities', 'vt_oid');" >> /data/dbupdate.sql
-	# echo "ALTER TABLE vt_severities OWNER TO gvm;" >> /data/dbupdate.sql
-	# chown postgres /data/base-db.sql /usr/local/var/log/db-restore.log /data/dbupdate.sql
 	touch /usr/local/var/log/db-restore.log
-	# su -c "/usr/lib/postgresql/13/bin/psql  < /data/base-db.sql " postgres > /usr/local/var/log/db-restore.log
-	# su -c "/usr/lib/postgresql/13/bin/psql gvmd < /data/dbupdate.sql " postgres >> /usr/local/var/log/db-restore.log
 
 	echo "Restoring Globals."
-	su -c "/usr/lib/postgresql/13/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/${PGVER}/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
 	echo "Creating gvmd Database."
 	su -c "createdb -O gvm gvmd" postgres
 	echo "Restoring gvmd database."
-	su -c "/usr/lib/postgresql/13/bin/pg_restore  -d gvmd -j 4 /data/gvmd.sql" postgres  > /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/${PGVER}/bin/pg_restore  -d gvmd -j 4 /data/gvmd.sql" postgres  > /usr/local/var/log/db-restore.log
 	rm /data/gvmd.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
@@ -188,7 +182,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	su -c "psql --dbname=gvmd --command='create extension \"uuid-ossp\";'" postgres
 	su -c "psql --dbname=gvmd --command='create extension \"pgcrypto\";'" postgres
 	chown postgres:postgres -R /data/database
-	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database restart" postgres
+	su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database restart" postgres
 
 	su -c "gvm-manage-certs -V" gvm 
 	NOCERTS=$?
@@ -214,11 +208,11 @@ if [ $RESTORE = "true" ] ; then
 	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
 	echo "DROP DATABASE IF EXISTS gvmd" > /tmp/dropdb.sql 
-	su -c "/usr/lib/postgresql/13/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
-        su -c "/usr/lib/postgresql/13/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
+	su -c "/usr/lib/postgresql/${PGVER}/bin/psql < /tmp/dropdb.sql" postgres &> /usr/local/var/log/restore.log
+        su -c "/usr/lib/postgresql/${PGVER}/bin/psql < /usr/lib/db-backup.sql " postgres &>> /usr/local/var/log/restore.log
 	echo "Rebuilding report formats"
 	su -c "gvmd --rebuild-gvmd-data=report_formats" gvm
-	su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
+	su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database stop" postgres
 	echo " Your database backup from /usr/lib/db-backup.sql has been restored." 
 	echo " You should NOT keep the container running with the RESTORE env var set"
 	echo " as a restart of the container will overwrite the database again." 
@@ -256,7 +250,7 @@ if [ $DB -lt 250 ]; then
 	date
 	echo "Groking the database so migration won't fail"
 	echo "This could take a while. (10-15 minutes). "
-	su -c "/usr/lib/postgresql/13/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
+	su -c "/usr/lib/postgresql/${PGVER}/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
 	date
 	echo "Grock complete."
 	echo "Now the long part, migrating the databse."

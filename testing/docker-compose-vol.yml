@@ -1,8 +1,11 @@
 services:
   openvas:
+    mem_limit: "8g"
+    cpus: "3"
     ports:
       - "8080:9392"
     environment:
+      - "PGVER=15"
       - "PASSWORD=admin"
       - "USERNAME=admin"
       - "RELAYHOST=172.17.0.1"

@@ -31,23 +31,23 @@ mkdir -p /data/local-etc/openvas
 mkdir -p /data/local-etc/openvas/gnupg
 mkdir -p /data/local-etc/gvm
 
-# Moving this to ovasbase
-#Create gvm user
-echo "Create gvm user"
-if !  grep -qis gvm /etc/passwd ; then
-	useradd --home-dir /usr/local/share/gvm gvm
-fi
+# set /data permissions so postgres can create a new DB directory on /data
+chmod 775 /data 
+usermod -G ssl-cert,postgres,root postgres
+
 
 # Link the database to the /data folder where the volume should be mounted
 echo "Setting up soft links"
 
 if [[ ! -d /data/database/base ]] && \
    ([[ -z "$1" ]] || [[ "$1" == "postgresql" ]] || [[ "$1" == "refresh" ]]); then
-
 	echo "Database"
-	mv /var/lib/postgresql/13/main/* /data/database/ 
-	rm -rf /var/lib/postgresql/13/main
-	ln -s /data/database /var/lib/postgresql/13/main
+	if ! [ -d /var/lib/postgresql/${PGVER} ]; then
+		pg_createcluster ${PGVER} main
+	fi
+	mv /var/lib/postgresql/${PGVER}/main/* /data/database/ 
+	rm -rf /var/lib/postgresql/${PGVER}/main
+	ln -s /data/database /var/lib/postgresql/${PGVER}/main
 	chown postgres /data/database
 	chmod 0700 /data/database
 else 

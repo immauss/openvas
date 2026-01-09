@@ -50,7 +50,12 @@ echo "Creating GVM system user and group"
 useradd -r -M -U -G sudo  gvm
 
 #Clean up after apt
-rm -rf /var/lib/apt/lists/*
+apt-get clean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/info/* /usr/share/lintian/* /usr/share/locale/*
+
+#Remove the blank database
+rm -rf /var/lib/postgresql/*
 
 
 

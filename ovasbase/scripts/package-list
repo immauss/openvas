@@ -41,6 +41,8 @@ openssh-client
 postfix
 postgresql-13
 postgresql-client-13
+postgresql-15
+postgresql-client-15
 procps
 python3
 python3-cffi

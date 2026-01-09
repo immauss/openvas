@@ -1,5 +1,7 @@
 services:
   openvas:
+    mem_limit: "8g"
+    cpus: "3"
     ports:
       - "8088:9392"
     environment:

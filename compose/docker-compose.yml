@@ -15,9 +15,10 @@ services:
       - "DEBUG=false"  # This will cause the container to stop and not actually start gvmd
       - "HTTPS=false"  # wether to use HTTPS or not
       - "GMP=9390"    # to enable see docs
+      - "PGVER=15" # Set postgresql version ... either 13 or 15
     volumes:
       - "openvas:/data"
     container_name: openvas
-    image: immauss/openvas:beta
+    image: immauss/openvas:$TAG
 volumes:
   openvas:

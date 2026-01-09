@@ -7,7 +7,7 @@ BUILDHOME=$(pwd)
 STARTTIME=$(date +%s)
 NOBASE="false"
 FORCEBASE="false"
-RUNAFTER="1"
+RUNAFTER="true"
 ARM="false"
 ARMSTART=true
 PRUNESTART=true
@@ -16,6 +16,7 @@ PUBLISH=" "
 RUNOPTIONS=" "
 GSABUILD="false"
 OS=$(uname)
+TEST="false"
 echo "OS is $OS"
 if [ "$OS" == "Darwin" ]; then
 	STAT="-f %a"
@@ -74,13 +75,19 @@ while ! [ -z "$1" ]; do
 	;;
 	-n)
 	shift
-	RUNAFTER=0
+	RUNAFTER="false"
 	echo "OK, we'll skip running the image after build"
 	;;
 	-B)
 	shift
 	FORCEBASE=true
 	echo "Forcing ovasbase build"
+	;;
+	-T)
+	shift
+	echo "OK ... Will run testing if build successfull"
+	TEST="true"
+	RUNAFTER="false"
 	;;
 	*)
         echo "I don't know what to do with $1 option"
@@ -121,9 +128,13 @@ VER=$(cat ver.current)
 echo "Building with $tag and $arch"
 
 set -Eeuo pipefail
+echo "NOBASE: $NOBASE FORCEBASE: $FORCEBASE"
+echo 
+sleep 5
 
 if  [ "$NOBASE" == "false" ] || [ "$FORCEBASE" == "true" ] ; then
 	echo "Building new ovasbase image"
+	sleep 5
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
 	# Always build all archs for ovasbase.
@@ -223,7 +234,7 @@ if [ "$PUBLISH" != " " ]; then
 	sed -i "s/XYXYXYXYXYX/$(cat ver.current)/" Readme.md
 fi
 
-if [ $RUNAFTER -eq 1 ]; then
+if [ $RUNAFTER == "true" ]; then
 	docker rm -f $tag
 	# If the tag is beta, then we used --load locally, so no need to pull it. 
 	if [ "$tag" != "beta" ]; then
@@ -232,5 +243,13 @@ if [ $RUNAFTER -eq 1 ]; then
 	docker run -d --name $tag -e SKIPSYNC=true -p 8080:9392 $RUNOPTIONS immauss/openvas:$tag 
 	docker logs -f $tag
 fi
+
+if [ "$TEST" == "true" ]; then
+	cd /home/scott/Projects/openvas/testing
+	echo "Starting full scan testing"
+	./run-test.sh $tag
+fi
+
+
 
 
