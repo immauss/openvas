@@ -93,7 +93,18 @@ if [ ! -f "/setup" ]; then
 fi
 PGFAIL=0
 PGUPFAIL=0
+INITFAIL=0
 echo "Starting PostgreSQL..."
+# if ! [ -d /data/database/base ]; then
+# 	ls -l /data/database
+# 	echo "Looks like there is no initial DB"
+# 	echo "Initializing /data/database for postgresql use."
+# 	su -c "/usr/lib/postgresql/${PGVER}/bin/initdb -D /data/database" postgres || INITFAIL=$?
+# 	if [ $INITFAIL -ne 0 ]; then
+# 		echo "Looks like databse init failed. \"$INITFAIL\" Bailing out."
+# 		exit
+# 	fi
+# fi
 su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
 echo "pg exit with $PGFAIL ." 
 if [ $PGFAIL -ne 0 ]; then

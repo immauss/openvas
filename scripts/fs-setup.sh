@@ -1,4 +1,5 @@
 #!/bin/bash 
+PGVER=${PGVER:-13}
 # This will setup all the links and directories required by the image. 
 echo "Creating needed Directories"
 mkdir -p /run/gvm
@@ -31,6 +32,22 @@ mkdir -p /data/local-etc/openvas
 mkdir -p /data/local-etc/openvas/gnupg
 mkdir -p /data/local-etc/gvm
 
+#Initialize the database
+# First relocate the confs
+if ! [ -d /data/database/base ]; then
+	mkdir /tmp/db-confs/
+	mv /data/database/*.conf /tmp/db-confs/
+	chown postgres:postgres /data/database
+	Initialize the database
+	su -c "/usr/lib/postgresql/${PGVER}/bin/initdb -D /data/database" postgres || INITFAIL=$?
+	if [ $INITFAIL -ne 0 ]; then
+		echo "Looks like databse init failed. \"$INITFAIL\" Bailing out."
+		exit
+	fi
+	# Put the confs back
+	mv /tmp/db-confs/* /data/database 
+fi
+
 # set /data permissions so postgres can create a new DB directory on /data
 chmod 775 /data 
 usermod -G ssl-cert,postgres,root postgres
@@ -39,21 +56,21 @@ usermod -G ssl-cert,postgres,root postgres
 # Link the database to the /data folder where the volume should be mounted
 echo "Setting up soft links"
 
-if [[ ! -d /data/database/base ]] && \
-   ([[ -z "$1" ]] || [[ "$1" == "postgresql" ]] || [[ "$1" == "refresh" ]]); then
-	echo "Database"
-	if ! [ -d /var/lib/postgresql/${PGVER} ]; then
-		pg_createcluster ${PGVER} main
-	fi
-	mv /var/lib/postgresql/${PGVER}/main/* /data/database/ 
-	rm -rf /var/lib/postgresql/${PGVER}/main
-	ln -s /data/database /var/lib/postgresql/${PGVER}/main
-	chown postgres /data/database
-	chmod 0700 /data/database
-else 
-	echo "/data/database/base already exists ..."
-	echo " NOT moving data from image to /data"
-fi
+# if [[ ! -d /data/database/base ]] && \
+#    ([[ -z "$1" ]] || [[ "$1" == "postgresql" ]] || [[ "$1" == "refresh" ]]); then
+# 	echo "Database"
+# 	if ! [ -d /var/lib/postgresql/${PGVER} ]; then
+# 		pg_createcluster ${PGVER} main
+# 	fi
+# 	mv /var/lib/postgresql/${PGVER}/main/* /data/database/ 
+# 	rm -rf /var/lib/postgresql/${PGVER}/main
+# 	ln -s /data/database /var/lib/postgresql/${PGVER}/main
+# 	chown postgres /data/database
+# 	chmod 0700 /data/database
+# else 
+# 	echo "/data/database/base already exists ..."
+# 	echo " NOT moving data from image to /data"
+# fi
 
 # Fix up var/lib 
 if ! [ -L /usr/local/var/lib ]; then

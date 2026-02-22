@@ -14,6 +14,7 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
       - "GMP=9390"    # to enable see docs
       - "SKIPGSAD=true" # No need for gsa 
+      - "PGVER=13" 
     volumes:
       - "openvas:/data"
       - "/home/scott/Projects/openvas:/mnt/output"
