@@ -34,6 +34,7 @@ mkdir -p /data/local-etc/gvm
 
 #Initialize the database
 # First relocate the confs
+INITFAIL=0
 if ! [ -d /data/database/base ]; then
 	mkdir /tmp/db-confs/
 	mv /data/database/*.conf /tmp/db-confs/

@@ -39,12 +39,12 @@ v1.0             | old out of date image for posterity. (Dont` use this one. . .
 # Greenbone Versions in Latest image: #
 Component | Version | | Component | Version
 ----------|----------|-|----------|---------
-| gvmd | v26.15.0 | | gvm_libs | v22.35.5 |
-| openvas | v23.39.3 | | openvas_smb | v22.5.10 |
-| notus_scanner | v22.7.2 | | gsa | v26.10.1 |
-| gsad | v24.14.2 | | ospd | v21.4.4 |
+| gvmd | v26.16.0 | | gvm_libs | v22.35.7 |
+| openvas | v23.40.2 | | openvas_smb | v22.5.10 |
+| notus_scanner | v22.7.2 | | gsa | v26.11.0 |
+| gsad | v24.15.0 | | ospd | v21.4.4 |
 | ospd_openvas | v22.10.1 | | pg_gvm | v22.6.14 |
-| python_gvm | v26.9.1 | | gvm_tools | v25.4.5 |
+| python_gvm | v26.10.0 | | gvm_tools | v25.4.6 |
 | greenbone_feed_sync | v25.2.0 |
 
 # 25 August 2023 #

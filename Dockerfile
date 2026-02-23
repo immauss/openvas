@@ -2,7 +2,7 @@
 
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest AS builder
+FROM immauss/ovasbase:25.12 AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -37,7 +37,7 @@ RUN bash /build.d/gsad.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
-FROM immauss/ovasbase:latest AS slim
+FROM immauss/ovasbase:25.12 AS slim
 LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
@@ -45,7 +45,7 @@ LABEL maintainer="scott@immauss.com" \
 EXPOSE 9392
 ENV LANG=C.UTF-8
 # Copy the just built from stage 0
-COPY --from=0 artifacts/ /
+COPY --from=builder /artifacts/. /
 
 # The python bits. 
 # these need to be rolled into a single layer that removes any excess bits. 
@@ -99,6 +99,7 @@ COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
+RUN apt-get update && apt-get install -y capnproto
 
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as

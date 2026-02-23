@@ -5,6 +5,7 @@
 # then rebuild latest for both archs.
 # The image will be pushed to the Immauss Registry Daily 
 # and to docker hub bi-weekly
+# This needs to call something (TBR) from ics-gsa to customize for gitlab.
 set -Eeuo pipefail
 StartTime=$(date +%s)
 logger -t updater "Starting Data-Refresh"

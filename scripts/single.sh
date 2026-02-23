@@ -131,7 +131,7 @@ echo "Running first start configuration..."
 
 if ! [ -f /data/var-lib/gvm/private/CA/cakey.pem ]; then
 	echo "Generating certs..."
-    	su -c "gvm-manage-certs -afv" gvm 
+    	su -c "/usr/local/bin/gvm-manage-certs -afv" gvm 
 fi
 # if there is no existing DB, and there is no base db archive, then we need to create a new DB.
 if [ $(DBCheck) -eq 0 ] && ! [ -f /usr/lib/gvmd.sql.xz ]; then

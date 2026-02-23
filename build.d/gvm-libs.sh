@@ -4,6 +4,7 @@ set -Eeuo pipefail
 . build.rc
 . /build.d/env.sh
 rm -rf /build
+echo "Building GVM Libs"
 mkdir -p /build
 cd /build
 curl -L -o $gvm_libs.tar.gz https://github.com/greenbone/gvm-libs/archive/$gvm_libs.tar.gz
