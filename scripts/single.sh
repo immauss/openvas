@@ -28,6 +28,9 @@ USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}
 SMTPPORT=${SMTPPORT:-25}
+MTA_AUTH=${MTA_AUTH:-false}
+MTA_USER=${MTA_USER:-blank}
+MTA_PASSWORD=${MTA_PASSWORD:-blank}
 REDISDBS=${REDISDBS:-512}
 QUIET=${QUIET:-false}
 # use this to rebuild the DB from scratch instead of using the one in the image.
@@ -46,7 +49,7 @@ if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
 if [ "$DEBUG" == "true" ]; then
-	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT SKIPGSAD; do 
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT MTA_AUTH MTA_USER MTA_PASSWORD REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT SKIPGSAD; do 
 		echo "$var = ${var}"
 	done
 fi
@@ -432,7 +435,21 @@ smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1" >> /etc/postfix/main.cf
-
+if [ ${MTA_AUTH} == "TRUE" ] || [ ${MTA_AUTH} == "true"  ]; then
+    echo "Enabling SMTP authentication"
+    echo "smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_sasl_tls_security_options = noanonymous" >> /etc/postfix/main.cf
+    if ! [ -f /etc/postfix/sasl_passwd ]; then
+        touch /etc/postfix/sasl_passwd
+        echo "${RELAYHOST}:${SMTPPORT} ${MTA_USER}:${MTA_PASSWORD}" > /etc/postfix/sasl_passwd
+    elif ! grep -Fxq "${RELAYHOST}:${SMTPPORT} ${MTA_USER}:${MTA_PASSWORD}" /etc/postfix/sasl_passwd; then
+        echo "${RELAYHOST}:${SMTPPORT} ${MTA_USER}:${MTA_PASSWORD}" >> /etc/postfix/sasl_passwd
+    fi
+    chmod 600 /etc/postfix/sasl_passwd
+    postmap /etc/postfix/sasl_passwd
+fi
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
