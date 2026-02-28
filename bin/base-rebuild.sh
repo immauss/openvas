@@ -139,6 +139,7 @@ if  [ "$NOBASE" == "false" ] || [ "$FORCEBASE" == "true" ] ; then
 	BASESTART=$(date +%s)
 	# Always build all archs for ovasbase.
 	#docker buildx build --push  --platform  linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t immauss/ovasbase  .
+	docker buildx build --push  --platform  linux/amd64,linux/arm64 -f Dockerfile -t immauss/ovasbase:$tag  .
 	docker buildx build --push  --platform  linux/amd64,linux/arm64 -f Dockerfile -t immauss/ovasbase:latest  .
 	BASEFIN=$(date +%s)
 	cd ..

@@ -31,13 +31,13 @@ logger -t updater "Container run successful."
 # if the day of the year is divisible by 14, then push to docker hub
 # otherwise, only push to Immauss Registry
 DOY=$(date +%j)
+echo "DOY is $DOY"
 cd /home/scott/Projects/openvas/
-if  [ $(($DOY % 14)) -eq 0 ]; then
+if  [ $(( 10#$DOY % 14)) -eq 0 ]; then
     logger -t updater "Building images for DockerHub & Immauss"
-    docker buildx build -t immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh .
-    docker buildx build -t gitlab.immauss.com:5050/immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh .
+    docker buildx build -t immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh . --push 
+    docker buildx build -t gitlab.immauss.com:5050/immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh . --push 
 else
     logger -t updater "Building images for Immauss"
-    docker buildx build -t gitlab.immauss.com:5050/immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh .
+    docker buildx build -t gitlab.immauss.com:5050/immauss/openvas:latest --platform amd64,arm64 -f Dockerfile.refresh . --push 
 fi
-

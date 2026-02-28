@@ -2,7 +2,7 @@
 
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:25.12 AS builder
+FROM immauss/ovasbase:latest AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -37,7 +37,7 @@ RUN bash /build.d/gsad.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
-FROM immauss/ovasbase:25.12 AS slim
+FROM immauss/ovasbase:latest AS slim
 LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \

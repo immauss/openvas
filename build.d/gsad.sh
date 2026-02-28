@@ -15,9 +15,9 @@ cd /build/*/
 # Implement ICS GSA Mods
 BUILDDIR=$(pwd)
 echo "BUILDDIR $BUILDDIR"
+patch -p1 < /ics-gsa/ics-gsad.patch
 
-
-/ics-gsa/scripts/gsad-mods.sh $BUILDDIR
+#/ics-gsa/scripts/gsad-mods.sh $BUILDDIR
 
 cmake /build/gsad-$GSAD_VERSION \
 	-DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX \
