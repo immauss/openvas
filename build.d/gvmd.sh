@@ -4,6 +4,8 @@ set -Eeuo pipefail
 . build.rc
 . build.d/env.sh
 echo "Building gvmd"
+rm -rf /build
+mkdir /build
 cd /build
 wget --no-verbose https://github.com/greenbone/gvmd/archive/$gvmd.tar.gz
 tar -zxf $gvmd.tar.gz

@@ -8,8 +8,14 @@ cd /build
 wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz
 tar -zxf $openvas.tar.gz
 cd /build/*/
+
+
+
 # Install dev dependency
-apt install -y libkrb5-dev libmagic-dev capnproto 
+apt install -y libkrb5-dev libkdb5-10 libmagic-dev \
+            capnproto libclang-dev libpcap-dev \
+            libsnmp-dev libssl-dev libgcrypt20-dev libgcrypt20 \
+            libgpg-error-dev dpkg-dev libssh-gcrypt-dev
 
 mkdir build
 cd build
@@ -20,18 +26,32 @@ make #-j$(nproc)
 make install
 # install rust to build openvas
 cd ..
+export RUST_BACKTRACE=full
+export CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true 
+CFLAGS="-fcommon"
+CPPFLAGS="-fcommon"
 curl -o rustup.sh https://sh.rustup.rs
 bash ./rustup.sh -y
 . "$HOME/.cargo/env"   
+
+# OK ... the AI recommended I add this bit here to fix the FUP from Greenbone in the rust build. 
+# most likely because they are using older versions of something from their rust build platform
+# and I'm pulling the most recent. 
+# BUILDDIR=$(pwd)
+# cd rust/crates/nasl-c-lib/libcrypt-sys
+# cargo build --release -vv 
+# cd $BUILDDIR
+
 # Build openvasd
-cd rust/src/openvasd
-cargo build --release
-cd ../scannerctl
-cargo build --release
+cd rust/ #src/openvasd
+cargo build --release -vv
+#cd ../scannerctl
+#cargo build --release
 echo "Copy openvasd binaries to $INSTALL_ROOT"
-cp -v ../../target/release/openvasd $INSTALL_ROOT/bin/
-cp -v ../../target/release/scannerctl $INSTALL_ROOT/bin/
+cp -v ../target/release/openvasd $INSTALL_ROOT/bin/
+cp -v ../target/release/scannerctl $INSTALL_ROOT/bin/
 mkdir -p ${INSTALL_ROOT}etc/redis/
-cp -v ../../../config/redis-openvas.conf $INSTALL_ROOT/etc/redis/
+cp -v ../../config/redis-openvas.conf $INSTALL_ROOT/etc/redis/
 cd /build
 rm -rf *
+

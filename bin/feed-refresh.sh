@@ -23,7 +23,7 @@ chmod 777 $WD
 # source the wait function.
 . /scripts/gvm_wait_feeds.sh
 # Run a feed sync
-/scripts/sync.sh 
+#/scripts/sync.sh 
 
 gvm_wait_feeds --host $(hostname) --interval 120 --timeout 3600
 if [ $? -ne 0 ]; then
