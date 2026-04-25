@@ -15,9 +15,9 @@ cd /build/*/
 apt install -y libkrb5-dev libkdb5-10 libmagic-dev \
             capnproto libclang-dev libpcap-dev \
             libsnmp-dev libssl-dev libgcrypt20-dev libgcrypt20 \
-            libgpg-error-dev dpkg-dev libssh-gcrypt-dev
+            libgpg-error-dev dpkg-dev 
 
-mkdir build
+mkdir -p build
 cd build
 
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -26,21 +26,14 @@ make #-j$(nproc)
 make install
 # install rust to build openvas
 cd ..
-export RUST_BACKTRACE=full
-export CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true 
-CFLAGS="-fcommon"
-CPPFLAGS="-fcommon"
+#export RUST_BACKTRACE=full
+#export CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true 
+#CFLAGS="-fcommon"
+#CPPFLAGS="-fcommon"
+apt install -y libcurl4-gnutls-dev
 curl -o rustup.sh https://sh.rustup.rs
 bash ./rustup.sh -y
 . "$HOME/.cargo/env"   
-
-# OK ... the AI recommended I add this bit here to fix the FUP from Greenbone in the rust build. 
-# most likely because they are using older versions of something from their rust build platform
-# and I'm pulling the most recent. 
-# BUILDDIR=$(pwd)
-# cd rust/crates/nasl-c-lib/libcrypt-sys
-# cargo build --release -vv 
-# cd $BUILDDIR
 
 # Build openvasd
 cd rust/ #src/openvasd
