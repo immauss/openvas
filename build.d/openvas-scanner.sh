@@ -36,9 +36,15 @@ bash ./rustup.sh -y
 . "$HOME/.cargo/env"   
 
 # Build openvasd
-cd rust/ #src/openvasd
-cargo build --release -vv
-#cd ../scannerctl
+cd rust/src/openvasd
+cargo fetch --locked
+cargo build --frozen --release -vv
+#cargo build --release -vv
+
+cd ../scannerctl
+cargo fetch --locked
+cargo build --frozen --release -vv
+
 #cargo build --release
 echo "Copy openvasd binaries to $INSTALL_ROOT"
 cp -v ../target/release/openvasd $INSTALL_ROOT/bin/
