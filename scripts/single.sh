@@ -36,6 +36,8 @@ SKIPSYNC=${SKIPSYNC:-false}
 RESTORE=${RESTORE:-false}
 DEBUG=${DEBUG:-false}
 HTTPS=${HTTPS:-false}
+CERTIFICATE=${CERTIFICATE:-none}
+CERTIFICATE_KEY=${CERTIFICATE_KEY:-none}
 #GMP=${GMP:-9390}
 GSATIMEOUT=${GSATIMEOUT:-15}
 GVMD_ARGS=${GVMD_ARGS:-blank}
@@ -46,7 +48,7 @@ if [ $GVMD_ARGS == "blank" ]; then
 	GVMD_ARGS='--'
 fi
 if [ "$DEBUG" == "true" ]; then
-	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT SKIPGSAD; do 
+	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS CERTIFICATE CERTIFICATE_KEY GSATIMEOUT SKIPGSAD; do 
 		echo "$var = ${var}"
 	done
 fi
@@ -471,8 +473,11 @@ if [ $SKIPGSAD == "false" ]; then
 	#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 	if [ $HTTPS == "true" ]; then
 		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
-				--gnutls-priorities=SECURE128:+SECURE192:-VERS-TLS-ALL:+VERS-TLS1.2 \
+                        	--gnutls-priorities=SECURE128:-AES-128-CBC:-CAMELLIA-128-CBC:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1 \
+                        	--ssl-certificate=$CERTIFICATE \
+                        	--ssl-private-key=$CERTIFICATE_KEY \
 				--no-redirect \
+				--http-sts \
 				--port=9392 $GSAD_ARGS" gvm
 	else
 		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392 $GSAD_ARGS" gvm
