@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -Eeuo pipefail
+set -Eeuo pipefail
 # Source this for the latest release versions
 . build.rc
 . build.d/env.sh

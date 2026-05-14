@@ -27,6 +27,7 @@ if ! [ -z $HIGHDATA ]; then
 		ContainerShutdown
 	fi
 fi
+GMPPASS="$(cat /etc/gvm/healthcheck.pass)"
 
 case  $FUNC in
 	openvas)
@@ -34,8 +35,7 @@ case  $FUNC in
 		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || exit 1
 	;;
 	gvmd)
-		#gvmd listens on 9390, but not http
-		nmap -p 9390 localhost| grep -qs "9390.*open" || exit 1
+		gvmd-cli --gmp-username="healthcheck" --gmp-password="$GMPPASS" socket --xml "<get_version/>" || exit 1
 	;;
 	gsad)
 		if [ "$SKIPGSAD" == "false" ]; then
@@ -69,8 +69,7 @@ case  $FUNC in
 	single|refresh)
 		FAIL=0
 		# gvmd
-		nmap -p 9390 localhost| grep -qs "9390.*open" || FAIL=1 
-			if [ $FAIL -eq 1 ]; then SERVICE="gvmd\n"; fi
+		su -c "gvm-cli --gmp-username=\"healthcheck\" --gmp-password=\"$GMPPASS\" socket --xml \"<get_version/>\" || FAIL=1" gvm
 		# openvas
 		# Only check openvas if gvmd is running. Otherwise it hangs and then gvmd can't start.
 		if [ $FAIL -eq 0 ]; then
@@ -82,7 +81,7 @@ case  $FUNC in
 		fi	
 		# gsad
 		if [ "$SKIPGSAD" == "false" ]; then
-			curl -f http://localhost:9392/ || curl -kf https://localhost:9392/ || FAIL=3 
+			curl -f http://localhost:9392/ -o /dev/null || curl -kf https://localhost:9392/ -o /dev/null || FAIL=3 
 			if [ $FAIL -eq 3 ]; then SERVICE="$SERVICE gsad\n"; fi
 		fi
 		# redis
