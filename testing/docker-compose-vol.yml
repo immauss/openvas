@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:9392"
     environment:
-      - "PGVER=15"
+      - "PGVER=13"
       - "PASSWORD=admin"
       - "USERNAME=admin"
       - "RELAYHOST=172.17.0.1"

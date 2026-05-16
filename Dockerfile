@@ -82,7 +82,6 @@ COPY ver.current /
 # allow nmap to send e.g. UDP or TCP SYN probes without root permissions
 #ENV NMAP_PRIVILEGED=1
 #RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap
-
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
 HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \

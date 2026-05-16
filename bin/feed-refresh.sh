@@ -36,8 +36,8 @@ echo "First copy the feeds from the container"
 cp -rpf /data/var-lib .
 
 echo "Now dump the db from postgres"
-su -c "/usr/lib/postgresql/13/bin/pg_dumpall --globals-only" postgres | xz -1 > ./$GLOBALS.xz
-su -c "/usr/lib/postgresql/13/bin/pg_dump -Fc -f ./$GVMDB gvmd" postgres
+su -c "/usr/lib/postgresql/$PGVER/bin/pg_dumpall --globals-only" postgres | xz -1 > ./$GLOBALS.xz
+su -c "/usr/lib/postgresql/$PGVER/bin/pg_dump -Fc -f ./$GVMDB gvmd" postgres
 date > var-lib/update.ts
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
