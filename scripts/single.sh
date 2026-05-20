@@ -334,7 +334,7 @@ echo "Starting ospd-openvas"
 	--socket-mode 0o770 \
 	--notus-feed-dir /var/lib/notus/advisories \
 	--disable-notus-hashsum-verification true &
-echo "Waiting of ospd socket"
+echo "Waiting for ospd socket"
 while ! [ -S /var/run/ospd/ospd-openvas.sock ]; do
 	sleep 1
 done
@@ -362,8 +362,8 @@ until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
 
-if ! [ -L /var/run/ospd/ospd-openvas.sock ]; then
-	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock
+if ! [ -L /var/run/ospd/ospd.sock ]; then
+	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock 
 fi
 
 echo "Time to fixup the gvm accounts."

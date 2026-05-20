@@ -23,6 +23,7 @@
 #   3 = required command missing
 #   4 = gvm-cli query failed
 #   5 = timeout (not ready within TIMEOUT)
+GVMD_SOCKET="${GVMD_SOCKET:-/run/gvmd/gvmd.sock}"
 
 gvm_wait_feeds() {
   # shellcheck disable=SC2034
@@ -34,8 +35,8 @@ gvm_wait_feeds() {
   local INTERVAL=10
   local TIMEOUT=1800
   local QUIET=0
-
-  _gvmwf_usage() {
+}
+_gvmwf_usage() {
     cat <<USAGE
 Usage: gvm_wait_feeds [options]
   -H, --host HOST         gvmd host (default: ${HOST})
@@ -73,13 +74,12 @@ USAGE
   # Build gvm-cli command with global opts, then connection type `tls`, then its opts
   # shellcheck disable=SC2206
   local GVM_CMD=( \
+    echo " Running gvm-cli as $(whoami)"
     su -c \
     "gvm-cli \
     --gmp-username "$USER" \
     --gmp-password "$PASS" \
-    tls \
-    --hostname "$HOST" \
-    --port "$PORT" \
+    socket \
     -X '<get_feeds/>'" gvm
   )
 
