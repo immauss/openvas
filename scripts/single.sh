@@ -183,7 +183,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	if [ $(DBCheck) -eq 1 ]; then
 		echo " It looks like there is already a gvmd database."
 		echo " Failing out to prevent overwriting the existing DB"
-		exit 
+		exit 1
 	fi
 	echo "Creating Greenbone Vulnerability Manager database"
 	su -c "createuser -DRS gvm" postgres

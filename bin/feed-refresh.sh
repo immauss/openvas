@@ -34,6 +34,7 @@ chmod 777 $WD
 . /scripts/gvm_wait_feeds.sh
 # Run a feed sync
 #/scripts/sync.sh 
+#sleep 1h
 
 gvm_wait_feeds --host $(hostname) --interval 120 --timeout 3600
 if [ $? -ne 0 ]; then
