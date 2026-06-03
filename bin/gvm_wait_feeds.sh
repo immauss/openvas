@@ -53,7 +53,9 @@ USAGE
   _gvmwf_log() { [ "$QUIET" -eq 1 ] || echo "$@"; }
 
   # Parse args
+  echo "Parsing args"
   while [ $# -gt 0 ]; do
+    echo "$1, $2"
     case "$1" in
       -H|--host) HOST="$2"; shift 2;;
       -p|--port) PORT="$2"; shift 2;;
@@ -66,7 +68,7 @@ USAGE
       *) echo "${PROG}: unknown option: $1" >&2; _gvmwf_usage >&2; return 2;;
     esac
   done
-
+echo "Done parsing args"
   _gvmwf_need_cmd gvm-cli || return 3
   _gvmwf_need_cmd xmllint || return 3
 
@@ -80,6 +82,8 @@ USAGE
     socket \
     -X '<get_feeds/>'" gvm
   )
+  echo "Using gvm-cli command:"
+  echo "$GVM_CDM"
 
   local start_ts end_ts now
   start_ts=$(date +%s)
@@ -105,6 +109,7 @@ USAGE
 
   # Compute counts: total feeds and how many are currently syncing
   _gvmwf_counts() {
+    
     # $1: XML → echo "syncing total status_text"
     local xml="$1" total syncing status_text
     total=$(printf '%s' "$xml" | xmllint --xpath 'string(count(/get_feeds_response/feed))' - 2>/dev/null || echo 0)
@@ -113,7 +118,9 @@ USAGE
     echo "$syncing $total $status_text"
   }
 
+ echo "Getting Feed sync counts"
   while :; do
+    date
     local XML_OUT
     if ! XML_OUT=$("${GVM_CMD[@]}" 2>/dev/null); then
       echo "${PROG}: failed to query gvmd via gvm-cli" >&2

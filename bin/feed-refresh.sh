@@ -30,13 +30,20 @@ TAR="var-lib.tar"
 WD="$(mktemp -d)"
 chmod 777 $WD
 
+echo "Sourcing gvm_wait_feeds.sh"
 # source the wait function.
 . /scripts/gvm_wait_feeds.sh
 # Run a feed sync
 #/scripts/sync.sh 
 #sleep 1h
+echo " Done sourcing ... "
+if [ "$NEWDB" == "true" ]; then 
+	TIMEOUT="7200"
+else
+	TIMEOUT="3600"
+fi
 
-gvm_wait_feeds --host $(hostname) --interval 120 --timeout 3600
+gvm_wait_feeds --host $(hostname) --interval 120 --timeout $TIMEOUT
 if [ $? -ne 0 ]; then
     echo "Feeds did not finish synchroninzg within timeout"
 	clean_exit
@@ -80,4 +87,5 @@ echo " !!! Done !!!"
 rm /mnt/output/feed-update-running
 if [ -f /data/database/postmaster.pid ]; then
 	clean_exit
-exit
+	exit
+fi

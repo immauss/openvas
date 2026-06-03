@@ -6,6 +6,7 @@ cleanup() {
 	echo "#################################"
 	echo "Dumping all logs"
 	echo "#################################"
+	rm -f /running
     tail /var/log/gvm/*
 	echo "Log dump complete"
 	echo "killing gvmd"
@@ -60,13 +61,9 @@ function DBCheck {
         fi
 }
 
-# 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
-if [ -f /data/var-log/gvmd.log ]; then
-	echo " Correcting Volume dir structure"
-	mkdir -p /data/var-log/gvm
-	mv /data/var-log/*.log /data/var-log/gvm
-	chown -R gvm:gvm /data/var-log/gvm 
-fi
+# Make sure the gvmd.pid is not there to ensure healthcheck doesn't start early. 
+rm -f /run/gvmd/gvmd.pid
+rm -f /running
 
 # Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 777 \
@@ -202,7 +199,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 		su -c "gvm-manage-certs -V " gvm 
 		NOCERTS=$?
 	done
-
+ --rebuild-gvmd-data=report_formats
 
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
@@ -214,7 +211,7 @@ if [ $RESTORE = "true" ] ; then
 		echo "You have set the RESTORE env varible to true, but there is no db to restore from."
 		echo "Make sure you include \" -v <path to your backup.sql>:/usr/lib/db-backup.sql\""
 		echo "on the command line to start the container."
-		exit 
+		exit 1
 	fi
 	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
@@ -230,14 +227,6 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
- #This is likely no longer needed.
-if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
- 	echo "Creating dir structure for feed sync"
- 	for dir in configs port_lists report_formats; do 
- 		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/21.04/${dir}" gvm
- 	done
-fi
-
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
 if [ "$DEBUG" == "true" ]; then
@@ -246,6 +235,8 @@ if [ "$DEBUG" == "true" ]; then
 fi
 if [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
 	echo "Migrate the database if needed."
+	# ps auxw | grep gvmd
+	# pkill -KILL gvmd || true # damn healthcheck
 	su -c "gvmd --migrate" gvm 
 fi
 
@@ -345,16 +336,29 @@ chown gvm:gvm /var/run/ospd/ospd-openvas.sock
 ls -l  /var/run/ospd/ospd-openvas.sock 
 
 # Just incase the boot took too long and there are already gvmd procs running from healthcheck
-pkill gvmd || true
-echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd --listen-group=gvm  \
-			--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
-			--max-email-attachment-size=64000000 \
-			--max-email-include-size=64000000 \
-			--max-email-message-size=64000000 \
-			--broker-address='' \
-			--unix-socket=/run/gvmd/gvmd.sock \
-			\"$GVMD_ARGS\"" gvm 
+
+# GVMSTATUS=1
+# STARTCOUNT=0
+# while [ $GVMSTATUS -ne 0 ] && [ $STARTCOUNT -lt 2 ]; do
+# 	pkill gvmd || true
+# 	sleep 1
+# 	pkill gvmd || true
+	echo "Starting Greenbone Vulnerability Manager..."
+	su -c "gvmd --listen-group=gvm  \
+				--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
+				--max-email-attachment-size=64000000 \
+				--max-email-include-size=64000000 \
+				--max-email-message-size=64000000 \
+				--broker-address='' \
+				--unix-socket=/run/gvmd/gvmd.sock \
+				\"$GVMD_ARGS\"" gvm 
+# 	GVMSTATUS="$?"
+	
+# 	STARTCOUNT=$(( $STARTCOUNT + 1 ))
+# 	echo -e "GVMSTATUS = $GVMSTATUS\n\tSTARTCOUNT = $STARTCOUNT\n"
+# done
+
+
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -398,6 +402,9 @@ elif [ $CREATE_EMPTY_DATABASE = "true" ]; then
 fi
 # Check to see if the HealthCheck user exists. If not, create it and set a new random password.
 echo "Checking for/creating healthcheck user."
+touch /etc/healthcheck.pass 
+chown gvm:gvm /etc/healthcheck.pass
+chmod 600 /etc/healthcheck.pass
 su -c "/scripts/create-hc-user.sh \"$PASSWORD\"" gvm  || true
 
 
@@ -453,6 +460,7 @@ else
 	echo "Skipping GSAD start because SKIPGSAD=$SKIPGSAD"
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
+touch /running
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ Your GVM/openvas/postgresql container is now ready to use! +"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

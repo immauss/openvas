@@ -28,12 +28,21 @@ if ! [ -z $HIGHDATA ]; then
 		ContainerShutdown
 	fi
 fi
+
+if ! [ -f /running ]; then
+	echo "Not running yet"
+	exit
+fi
+
 GMPPASS="$(cat /etc/gvm/healthcheck.pass)"
+
 
 case  $FUNC in
 	openvas)
-		UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
-		su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || exit 1
+		if [ -f /run/gvmd/gvmd.pid ]; then
+			UUID=$( su -c "gvmd --get-scanners" gvm | awk /OpenVAS/'{print  $1}' )
+			su -c "gvmd --verify-scanner=$UUID" gvm | grep OpenVAS || exit 1
+		fi
 	;;
 	gvmd)
 		gvmd-cli --gmp-username="healthcheck" --gmp-password="$GMPPASS" socket --xml "<get_version/>" || exit 1
@@ -101,7 +110,6 @@ case  $FUNC in
 			echo "$TS  Healthchecks completed with no issues." >> /usr/local/var/log/gvm/healthchecks.log
 
 		fi	
-		
 
 
 esac
