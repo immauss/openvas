@@ -25,7 +25,7 @@ services:
       # - "/home/scott/Projects/openvas/scripts/healthcheck.sh:/scripts/healthcheck.sh"
       # - "/home/scott/Projects/openvas/scripts/single.sh:/scripts/single.sh"
     container_name: updater
-    image: immauss/openvas:beta
+    image: immauss/openvas:latest
     command: ["refresh"] 
 volumes:
   openvas:
