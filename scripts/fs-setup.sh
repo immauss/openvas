@@ -109,7 +109,7 @@ for log in gvmd.log  healthchecks.log  notus-scanner.log  openvas.log  ospd-open
 	touch /var/log/gvm/$log
 done 
 chmod 644 /var/log/gvm/*
-chown gvm:gvm /var/log/gvm/gvmd.log
+chown gvm:gvm /var/log/gvm/gvmd.log /data/local-etc/gvm
 
 # Fix up local/share
 echo "Fixing local/share"

@@ -11,9 +11,10 @@
 #   ./create-and-scan-gmp.sh -n "Hosts Scan - Full and fast"
 #
 set -euo pipefail
-HOST=${GVM_HOST:-127.0.0.1}
+#HOST=${GVM_HOST:-127.0.0.1}
+SOCKET=${GVM_SOCKET:-/run/gvmd/gvmd.sock}
 CONFIG="$1"
-PORT=${GVM_PORT:-9390}
+#PORT=${GVM_PORT:-9390}
 USER=${GVM_USERNAME:-admin}
 PASS=${GVM_PASSWORD:-admin}
 TASK_NAME="Hosts Scan - Full and fast"
@@ -57,16 +58,24 @@ need(){ command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1" >&2; exi
 need gvm-cli; need xmllint;
 
 log(){ [ "$QUIET" -eq 1 ] || echo "$@"; }
+# run_gmp(){
+#   gvm-cli \
+#     --gmp-username "$USER" \
+#     --gmp-password "$PASS" \
+#     tls \
+#     --hostname "$HOST" \
+#     --port "$PORT" \
+#     -X "$1"
+# }
 run_gmp(){
+  # global opts first, then connection type 'socket', then its opts, then -X
   gvm-cli \
     --gmp-username "$USER" \
     --gmp-password "$PASS" \
-    tls \
-    --hostname "$HOST" \
-    --port "$PORT" \
+    socket \
+    --socketpath "$SOCKET" \
     -X "$1"
 }
-
 first_or_empty(){ xmllint --xpath "string(($1)[1])" - 2>/dev/null || true; }
 
 # 1) Resolve scan config id for name "Full and fast"

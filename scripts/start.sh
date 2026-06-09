@@ -74,8 +74,8 @@ case $1 in
 ;;
 	refresh)
 	echo "Starting gvmd & openvas for data update"
-	/scripts/single.sh $@ 
-	echo "Updating data feeds"
+	/scripts/single.sh $@ && \
+	echo "Updating data feeds" && \
 	exec /scripts/feed-refresh.sh
 ;;
 	*)

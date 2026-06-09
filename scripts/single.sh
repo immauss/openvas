@@ -6,6 +6,7 @@ cleanup() {
 	echo "#################################"
 	echo "Dumping all logs"
 	echo "#################################"
+	rm -f /running
     tail /var/log/gvm/*
 	echo "Log dump complete"
 	echo "killing gvmd"
@@ -60,13 +61,9 @@ function DBCheck {
         fi
 }
 
-# 21.4.4-01 and up uses a slightly different structure on /data, so we look for the old, and correct if we find it. 
-if [ -f /data/var-log/gvmd.log ]; then
-	echo " Correcting Volume dir structure"
-	mkdir -p /data/var-log/gvm
-	mv /data/var-log/*.log /data/var-log/gvm
-	chown -R gvm:gvm /data/var-log/gvm 
-fi
+# Make sure the gvmd.pid is not there to ensure healthcheck doesn't start early. 
+rm -f /run/gvmd/gvmd.pid
+rm -f /running
 
 # Fire up redis
 redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 777 \
@@ -75,7 +72,7 @@ redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 777 \
 
 echo "Wait for redis socket to be created..."
 while  [ ! -S /run/redis/redis.sock ]; do
-        sleep 1
+       sleep 1
 done
 
 echo "Testing redis status..."
@@ -183,7 +180,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	if [ $(DBCheck) -eq 1 ]; then
 		echo " It looks like there is already a gvmd database."
 		echo " Failing out to prevent overwriting the existing DB"
-		exit 
+		exit 1
 	fi
 	echo "Creating Greenbone Vulnerability Manager database"
 	su -c "createuser -DRS gvm" postgres
@@ -202,7 +199,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 		su -c "gvm-manage-certs -V " gvm 
 		NOCERTS=$?
 	done
-
+ --rebuild-gvmd-data=report_formats
 
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
@@ -214,7 +211,7 @@ if [ $RESTORE = "true" ] ; then
 		echo "You have set the RESTORE env varible to true, but there is no db to restore from."
 		echo "Make sure you include \" -v <path to your backup.sql>:/usr/lib/db-backup.sql\""
 		echo "on the command line to start the container."
-		exit 
+		exit 1
 	fi
 	touch /usr/local/var/log/restore.log
         chown postgres /usr/lib/db-backup.sql
@@ -230,47 +227,16 @@ if [ $RESTORE = "true" ] ; then
 	exit
 fi
 
- #This is likely no longer needed.
-if [ ! -d /usr/local/var/lib/gvm/data-objects/gvmd/21.04/report_formats ]; then
- 	echo "Creating dir structure for feed sync"
- 	for dir in configs port_lists report_formats; do 
- 		su -c "mkdir -p /usr/local/var/lib/gvm/data-objects/gvmd/21.04/${dir}" gvm
- 	done
-fi
-
 
 # Before we migrate the DB and start gvmd, this is a good place to stop for a debug
 if [ "$DEBUG" == "true" ]; then
 	echo "Sleeping here for 1d to debug"
 	sleep 1d
 fi
-
-# IF the GVMd database version is less than 250, then we must be on version 21.4. 
-# So we need to grok the database or the migration will fail. . . . 
-# We also look for a failed sync at startup on a slim image here because that wil cause
-# the psql command to fail and crash the container. 
-if [ "$CREATE_EMPTY_DATABASE" == "false" ] && ! [ -f /data/feed-syncing ]; then
-	echo "Checking DB Version"
-	DB=$(su -c "psql -tq --username=postgres --dbname=gvmd --command=\"select value from meta where name like 'database_version';\"" postgres)
-else 
-	DB=250
-fi
-
-echo "Current GVMd database version is $DB"
-if [ $DB -lt 250 ]; then
-	date
-	echo "Groking the database so migration won't fail"
-	echo "This could take a while. (10-15 minutes). "
-	su -c "/usr/lib/postgresql/${PGVER}/bin/psql gvmd < /scripts/21.4-to-22.4-prep.sql" postgres >> /usr/local/var/log/db-restore.log
-	date
-	echo "Grock complete."
-	echo "Now the long part, migrating the databse."
-	su -c "gvmd --migrate" gvm
-	echo "Migration complete!!"
-	date
-elif [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
-	#chown -R gvm:gvm /data/var-lib/gvm 
+if [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
 	echo "Migrate the database if needed."
+	# ps auxw | grep gvmd
+	# pkill -KILL gvmd || true # damn healthcheck
 	su -c "gvmd --migrate" gvm 
 fi
 
@@ -359,15 +325,40 @@ echo "Starting ospd-openvas"
 	--socket-mode 0o770 \
 	--notus-feed-dir /var/lib/notus/advisories \
 	--disable-notus-hashsum-verification true &
+echo "Waiting for ospd socket"
+while ! [ -S /var/run/ospd/ospd-openvas.sock ]; do
+	sleep 1
+done
+ls -l  /var/run/ospd/ospd-openvas.sock 
 
-echo "Starting Greenbone Vulnerability Manager..."
-su -c "gvmd  -a 0.0.0.0 -p 9390 --listen-group=gvm  \
-			--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
-			--max-email-attachment-size=64000000 \
-			--max-email-include-size=64000000 \
-			--max-email-message-size=64000000 \
-			--broker-address='' \
-			\"$GVMD_ARGS\"" gvm
+# Ensure gvmd can read from the ospd socket.
+chown gvm:gvm /var/run/ospd/ospd-openvas.sock
+ls -l  /var/run/ospd/ospd-openvas.sock 
+
+# Just incase the boot took too long and there are already gvmd procs running from healthcheck
+
+# GVMSTATUS=1
+# STARTCOUNT=0
+# while [ $GVMSTATUS -ne 0 ] && [ $STARTCOUNT -lt 2 ]; do
+# 	pkill gvmd || true
+# 	sleep 1
+# 	pkill gvmd || true
+	echo "Starting Greenbone Vulnerability Manager..."
+	su -c "gvmd --listen-group=gvm  \
+				--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
+				--max-email-attachment-size=64000000 \
+				--max-email-include-size=64000000 \
+				--max-email-message-size=64000000 \
+				--broker-address='' \
+				--unix-socket=/run/gvmd/gvmd.sock \
+				\"$GVMD_ARGS\"" gvm 
+# 	GVMSTATUS="$?"
+	
+# 	STARTCOUNT=$(( $STARTCOUNT + 1 ))
+# 	echo -e "GVMSTATUS = $GVMSTATUS\n\tSTARTCOUNT = $STARTCOUNT\n"
+# done
+
+
 
 
 until su -c "gvmd --get-users" gvm; do
@@ -375,11 +366,12 @@ until su -c "gvmd --get-users" gvm; do
 	sleep 1
 done
 
-if ! [ -L /var/run/ospd/ospd-openvas.sock ]; then
-	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock
+if ! [ -L /var/run/ospd/ospd.sock ]; then
+	ln -s /var/run/ospd/ospd-openvas.sock /var/run/ospd/ospd.sock 
 fi
 
 echo "Time to fixup the gvm accounts."
+
 
 if [ "$USERNAME" == "admin" ] && [ "$PASSWORD" != "admin" ] ; then
 	# Change the admin password
@@ -408,9 +400,14 @@ elif [ $CREATE_EMPTY_DATABASE = "true" ]; then
 	echo "Granting admin access to defaults"
 	su -c "gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $ADMINUUID" gvm
 fi
+# Check to see if the HealthCheck user exists. If not, create it and set a new random password.
+echo "Checking for/creating healthcheck user."
+touch /etc/healthcheck.pass 
+chown gvm:gvm /etc/healthcheck.pass
+chmod 600 /etc/healthcheck.pass
+su -c "/scripts/create-hc-user.sh \"$PASSWORD\"" gvm  || true
 
-echo "resetting pipefail"
-set -Eeuo pipefail
+
 touch /setup
 
 # Set number of lines in reports
@@ -437,50 +434,33 @@ smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1" >> /etc/postfix/main.cf
 #/usr/lib/postfix/sbin/master -w
 service postfix start
 
-# Prep the gpg keys
-# export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
-# export GNUPGHOME=/etc/openvas-gnupg
-# if ! [ -f /etc/GBCommunitySigningKey.asc ]; then
-# 	echo " Get the Greenbone public Key"
-# 	#curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /etc/GBCommunitySigningKey.asc
-# 	#echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" > /etc/ownertrust.txt
-# 	echo "Setup environment"
-# 	mkdir -m 0600 -p $GNUPGHOME $OPENVAS_GNUPG_HOME
-# 	echo "Import the key "
-# 	gpg --import /etc/GBCommunitySigningKey.asc
-# 	gpg --import-ownertrust < /etc/ownertrust.txt
-# 	echo "Setup key for openvas .."
-# 	cp -vr /etc/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
-# 	chown -R gvm:gvm $OPENVAS_GNUPG_HOME
-# fi
 
-
-
-# wait for ospd to start by looking for the socket creation.
-#while  [ ! -S /var/run/ospd/ospd-openvas.sock]; do
-	#sleep 1
-#done
 
 # We run ospd-openvas in the container as root. This way we don't need sudo.
 # But if we leave the socket owned by root, gvmd can not communicate with it.
 chgrp gvm /var/run/ospd/ospd.sock
-chgrp gvm /var/run/ospd/ospd-openvas.sock
 
 if [ $SKIPGSAD == "false" ]; then
 	echo "Starting Greenbone Security Assistant..."
 	#su -c "gsad --verbose --http-only --no-redirect --port=9392" gvm
 	if [ $HTTPS == "true" ]; then
-		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT \
+			# removed --mlisten 127.0.0.1 -m 9390 
+			su -c "gsad --verbose --timeout=$GSATIMEOUT \
+				--munix-socket=/run/gvmd/gvmd.sock \
 				--gnutls-priorities=SECURE128:+SECURE192:-VERS-TLS-ALL:+VERS-TLS1.2 \
 				--no-redirect \
 				--port=9392 $GSAD_ARGS" gvm
 	else
-		su -c "gsad --mlisten 127.0.0.1 -m 9390 --verbose --timeout=$GSATIMEOUT --http-only --no-redirect --port=9392 $GSAD_ARGS" gvm
+		su -c "gsad --verbose --timeout=$GSATIMEOUT \
+		--munix-socket=/run/gvmd/gvmd.sock \
+		   --http-only --no-redirect --port=9392 \
+		   $GSAD_ARGS" gvm
 	fi
 else
 	echo "Skipping GSAD start because SKIPGSAD=$SKIPGSAD"
 fi
 GVMVER=$(su -c "gvmd --version" gvm ) 
+touch /running
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+ Your GVM/openvas/postgresql container is now ready to use! +"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"

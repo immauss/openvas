@@ -16,9 +16,9 @@ services:
       - "HTTPS=false"  # wether to use HTTPS or not
       - "GMP=9390"    # to enable see docs
       - "PGVER=15" # Set postgresql version ... either 13 or 15
-    volumes:
-      - "openvas:/data"
+        #volumes:
+        #- "openvas:/data"
     container_name: openvas
     image: immauss/openvas:$TAG
-volumes:
-  openvas:
+      #volumes:
+      #openvas:

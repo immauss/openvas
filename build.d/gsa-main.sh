@@ -32,7 +32,7 @@ else
     echo "Current Container version is $CVersion . "
 fi
 CVersion=$(cat /ver.current)
-sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.jsx"
+sed -i s/XXXXXXX/$CVersion/ "$BUILDDIR/src/web/pages/login/LoginForm.tsx"
 
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor | tee "$NODE_KEYRING" >/dev/null && \
     echo "deb [signed-by=$NODE_KEYRING] https://deb.nodesource.com/$NODE_VERSION $DISTRIBUTION main" | tee /etc/apt/sources.list.d/nodesource.list

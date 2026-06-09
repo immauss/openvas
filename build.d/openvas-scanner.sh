@@ -9,8 +9,13 @@ wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.
 tar -zxf $openvas.tar.gz
 cd /build/*/
 
-
-
+# OK ... the AI recommended I add this bit here to fix the FUP from Greenbone in the rust build. 
+# most likely because they are using older versions of something from their rust build platform
+# and I'm pulling the most recent. 
+# BUILDDIR=$(pwd)
+# cd rust/crates/nasl-c-lib/libgcrypt-sys
+# sh -x ./install-gcrypt.sh
+# cd $BUILDDIR
 # Install dev dependency
 apt install -y libkrb5-dev libkdb5-10 libmagic-dev \
             capnproto libclang-dev libpcap-dev \
@@ -46,11 +51,19 @@ cargo fetch --locked
 cargo build --frozen --release -vv
 
 #cargo build --release
+echo "#####################################################"
+echo "#####################################################"
+echo "#####################################################"
+find / -name openvasd
+find / -name scannerctl
+find / -name redis-openvas.conf
+echo "#####################################################"
+echo "#####################################################"
+echo "#####################################################"
 echo "Copy openvasd binaries to $INSTALL_ROOT"
-cp -v ../target/release/openvasd $INSTALL_ROOT/bin/
-cp -v ../target/release/scannerctl $INSTALL_ROOT/bin/
+cp -v ./target/release/openvasd $INSTALL_ROOT/bin/
+cp -v ./target/release/scannerctl $INSTALL_ROOT/bin/
 mkdir -p ${INSTALL_ROOT}etc/redis/
-cp -v ../../config/redis-openvas.conf $INSTALL_ROOT/etc/redis/
+cp -v ../config/redis-openvas.conf $INSTALL_ROOT/etc/redis/
 cd /build
 rm -rf *
-

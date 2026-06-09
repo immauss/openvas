@@ -9,7 +9,17 @@
 # it should bind mount the gvm_wait_feeds.sh to /scripts/ 
 # need to find a way to make it log 
 # we'll use this 
+clean_exit() {
+	pkill gvmd
+	sleep 5
+	su -c "/usr/lib/postgresql/$PGVER/bin/pg_ctl -D /data/database stop " postgres 
+	sleep 3
+	exit
+}
+trap 'clean_exit' EXIT
+
 echo "Starting Feed Refresh"
+echo "Get Busy"
 date
 touch /mnt/output/feed-update-running
 apt update && apt install libxml2-utils -y
@@ -20,15 +30,23 @@ TAR="var-lib.tar"
 WD="$(mktemp -d)"
 chmod 777 $WD
 
+echo "Sourcing gvm_wait_feeds.sh"
 # source the wait function.
 . /scripts/gvm_wait_feeds.sh
 # Run a feed sync
 #/scripts/sync.sh 
+#sleep 1h
+echo " Done sourcing ... "
+if [ "$NEWDB" == "true" ]; then 
+	TIMEOUT="7200"
+else
+	TIMEOUT="3600"
+fi
 
-gvm_wait_feeds --host $(hostname) --interval 120 --timeout 3600
+gvm_wait_feeds --host $(hostname) --interval 120 --timeout $TIMEOUT
 if [ $? -ne 0 ]; then
     echo "Feeds did not finish synchroninzg within timeout"
-	exit
+	clean_exit
 fi
 
 cd $WD
@@ -36,8 +54,8 @@ echo "First copy the feeds from the container"
 cp -rpf /data/var-lib .
 
 echo "Now dump the db from postgres"
-su -c "/usr/lib/postgresql/13/bin/pg_dumpall --globals-only" postgres | xz -1 > ./$GLOBALS.xz
-su -c "/usr/lib/postgresql/13/bin/pg_dump -Fc -f ./$GVMDB gvmd" postgres
+su -c "/usr/lib/postgresql/$PGVER/bin/pg_dumpall --globals-only" postgres | xz -1 > ./$GLOBALS.xz
+su -c "/usr/lib/postgresql/$PGVER/bin/pg_dump -Fc -f ./$GVMDB gvmd" postgres
 date > var-lib/update.ts
 echo "Compress and archive the data"
 #Exclude the gnupg dir as this should be unique for each installation. 
@@ -56,7 +74,7 @@ echo "Check the file sizes for sanity"
 if [ $SQL_SIZE -le 2000 ] || [ $FEED_SIZE -le 2000 ]; then
 	echo "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
 	logger -t db-refresh "SQL_SIZE = $SQL_SIZE : FEED_SIZE = $FEED_SIZE: Failing out"
-	exit
+	clean_exit
 fi
 echo "Files sizes checked out ... copy them to build directory and exit"
 echo "Globals"
@@ -67,3 +85,7 @@ echo "Feeds"
 cp $TAR.xz /mnt/output/
 echo " !!! Done !!!"
 rm /mnt/output/feed-update-running
+if [ -f /data/database/postmaster.pid ]; then
+	clean_exit
+	exit
+fi
