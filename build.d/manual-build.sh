@@ -2,8 +2,8 @@
 set -Eeuo pipefail
 mkdir -p /build.d
 mkdir -p /build
-cp build.rc ver.current /
-cp build.d/* /build.d/ 
+cp -f build.rc ver.current /
+cp -f build.d/* /build.d/ 
 bash ./build.d/build-prereqs.sh
 bash ./build.d/update-certs.sh
 bash ./build.d/gvm-libs.sh

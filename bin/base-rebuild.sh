@@ -173,10 +173,26 @@ cd $BUILDHOME
 	DOCKERFILE=$(mktemp)
 	sed "s/\$VER/$VER/" Dockerfile > $DOCKERFILE
 #DOCKERFILE="Dockerfile"
-
+# Because .... rust ... I don't know why .... 
+# We build the rust crates here so we can pass them into the build container. 
+echo "Building openvas_scanner rust crates"
+rm -rf /build/*
+cd /build
+wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz
+tar -zxf $openvas.tar.gz
+cd /build/*/
+cd rust
+make
+tar cvf crates.tar crates
+mv crates.tar $BUILDHOME/rust
+cd $BUILDHOME
+sync
+echo "Working in $(pwd)"
+ls -l rust
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
 docker buildx build $PUBLISH \
+   --progress=plain \
    --platform $arch -f Dockerfile \
    --target slim \
    -t immauss/openvas:${tag}-slim \
@@ -187,6 +203,7 @@ SLIMFIN=$(date +%s)
 
 FINALSTART=$(date +%s)
 docker buildx build $PUBLISH \
+	--progress=plain \
 	--platform $arch \
    	--target final \
 	-t immauss/openvas:${tag} \
