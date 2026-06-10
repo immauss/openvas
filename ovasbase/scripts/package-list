@@ -80,6 +80,7 @@ smbclient
 snmp
 socat
 sshpass
+sudo
 texlive-fonts-recommended
 texlive-latex-extra
 uuid
