@@ -1,6 +1,6 @@
 # Respect caller overrides (Dockerfile sets these)
 export PREFIX="usr/local/"
-export DESTDIR="/artifacts/"
+DESTDIR="/artifacts/"
 export INSTALL_ROOT="${DESTDIR}/${PREFIX}"
 export CMAKE_INSTALL_PREFIX="$INSTALL_ROOT"
 
