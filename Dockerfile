@@ -2,7 +2,7 @@
 
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:latest AS builder
+FROM immauss/ovasbase:beta AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,6 +13,8 @@ ENV VER="$TAG"
 # Build everything that requires a compiler here and install to /artifacts for copy to 2nd stage.
 # we don't care about layer count here, in fact multiple layers helps when there are problems witha build
 # as the previous layers will be cached and reduce build time when troubleshooing issues
+
+COPY rust/crates.tar /rust/
 RUN mkdir /build.d
 COPY build.rc ver.current /
 COPY build.d/package-list-build /build.d/
@@ -37,7 +39,7 @@ RUN bash /build.d/gsad.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
-FROM immauss/ovasbase:latest AS slim
+FROM immauss/ovasbase:beta AS slim
 LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \
@@ -75,7 +77,7 @@ COPY build.rc /gvm-versions
 COPY branding/ /branding/
 RUN bash /branding/branding.sh
 COPY scripts/ /scripts/
-COPY ver.current /
+COPY ver.current /ver.current
 #RUN apt update && apt install libcap2-bin net-tools -y 
 # allow openvas to access raw sockets and all kind of network related tasks
 #RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
@@ -99,6 +101,7 @@ COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
 RUN apt-get update && apt-get install -y capnproto
+RUN apt remove python3-redis -y
 RUN pip3 install redis==7.1.0 --break-system-packages
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as

@@ -1,5 +1,9 @@
 #!/bin/bash
 set -Eeuo pipefail
+mkdir -p /build.d
+mkdir -p /build
+cp -f build.rc ver.current /
+cp -f build.d/* /build.d/ 
 bash ./build.d/build-prereqs.sh
 bash ./build.d/update-certs.sh
 bash ./build.d/gvm-libs.sh
@@ -12,4 +16,5 @@ bash ./build.d/ospd-openvas.sh
 bash ./build.d/gvm-tool.sh
 bash ./build.d/notus-scanner.sh
 bash ./build.d/pg-gvm.sh
+bash ./build.d/gsad.sh
 bash ./build.d/links.sh

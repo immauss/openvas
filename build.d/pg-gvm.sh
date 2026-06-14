@@ -41,7 +41,7 @@ for PGVER in 13 15; do
   cmake --build "build-pg${PGVER}"
 
   echo "=== Installing pg-gvm for PostgreSQL ${PGVER} ==="
-  cmake --install "build-pg${PGVER}"
+  DESTDIR=/artifacts cmake --install "build-pg${PGVER}"
 done
 
 cd /build

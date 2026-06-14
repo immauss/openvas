@@ -9,17 +9,13 @@ wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.
 tar -zxf $openvas.tar.gz
 cd /build/*/
 
-# OK ... the AI recommended I add this bit here to fix the FUP from Greenbone in the rust build. 
-# most likely because they are using older versions of something from their rust build platform
-# and I'm pulling the most recent. 
-# BUILDDIR=$(pwd)
-# cd rust/crates/nasl-c-lib/libgcrypt-sys
-# sh -x ./install-gcrypt.sh
-# cd $BUILDDIR
 # Install dev dependency
-apt install -y libkrb5-dev libmagic-dev capnproto libclang-dev libpcap-dev libsnmp-dev libssl-dev
+apt install -y libkrb5-dev libkdb5-10 libmagic-dev \
+            capnproto libclang-dev libpcap-dev \
+            libsnmp-dev libssl-dev libgcrypt20-dev libgcrypt20 \
+            libgpg-error-dev dpkg-dev 
 
-mkdir build
+mkdir -p build
 cd build
 
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -28,17 +24,26 @@ make #-j$(nproc)
 make install
 # install rust to build openvas
 cd ..
-export RUST_BACKTRACE=full
-export CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true 
-CFLAGS="-fcommon"
-CPPFLAGS="-fcommon"
+#export RUST_BACKTRACE=full
+#export CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true 
+#CFLAGS="-fcommon"
+#CPPFLAGS="-fcommon"
+apt install -y libcurl4-gnutls-dev
 curl -o rustup.sh https://sh.rustup.rs
 bash ./rustup.sh -y
 . "$HOME/.cargo/env"   
+cd rust
+tar xvf /rust/crates.tar
 # Build openvasd
-cd rust/ #src/openvasd
-cargo build --release -vv
-#cd ../scannerctl
+cd src/openvasd
+cargo fetch --locked
+cargo build --frozen --release -vv
+#cargo build --release -vv
+
+cd ../scannerctl
+cargo fetch --locked
+cargo build --frozen --release -vv
+cd ../..
 #cargo build --release
 echo "#####################################################"
 echo "#####################################################"

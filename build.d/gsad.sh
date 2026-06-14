@@ -28,6 +28,7 @@ cmake /build/gsad-$GSAD_VERSION \
 	-DGSAD_RUN_DIR=/run/gsad \
 	-DLOGROTATE_DIR=/etc/logrotate.d
 
-make install
+DESTDIR=/artifacts make install
+
 cd /build
 rm -rf *
