@@ -48,7 +48,7 @@ if [ $GVMD_ARGS == "blank" ]; then
 fi
 if [ "$DEBUG" == "true" ]; then
 	for var in USERNAME PASSWORD RELAYHOST SMTPPORT REDISDBS QUIET CREATE_EMPTY_DATABASE SKIPSYNC RESTORE DEBUG HTTPS GSATIMEOUT SKIPGSAD; do 
-		echo "$var = ${var}"
+		echo "$var = ${!var}"
 	done
 fi
 
@@ -105,7 +105,7 @@ echo "Starting PostgreSQL..."
 su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database start" postgres || PGFAIL=$?
 echo "pg exit with $PGFAIL ." 
 if [ $PGFAIL -ne 0 ]; then
-	echo "It looks like postgres failed to start. ( Exit code: \"$?\" "
+	echo "It looks like postgres failed to start. ( Exit code: \"$PGFAIL\" )"
 	echo "Assuming this is due to different database version and starting upgrade."
 	#/scripts/db-upgrade.sh || PGUPFAIL=$?
 	/scripts/pg13-2-15.sh || PGUPFAIL=$?
@@ -199,8 +199,6 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 		su -c "gvm-manage-certs -V " gvm 
 		NOCERTS=$?
 	done
- --rebuild-gvmd-data=report_formats
-
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
 if [ $RESTORE = "true" ] ; then
