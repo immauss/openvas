@@ -30,9 +30,9 @@ echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
   | gpg --dearmor > /usr/share/keyrings/postgresql.gpg
 
-# Add PGDG repo for Debian 12 "bookworm"
+# Add PGDG repo for Debian 13 "trixie"
 echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] \
-http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" \
   > /etc/apt/sources.list.d/pgdg.list
 
 apt-get update 

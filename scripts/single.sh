@@ -24,7 +24,7 @@ if [ -z $1 ] || [ "$1" != "refresh" ]; then
 fi
 
 set -Eeuo pipefail
-PGVER=${PGVER:-13}
+PGVER=${PGVER:-15}
 USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 RELAYHOST=${RELAYHOST:-172.17.0.1}

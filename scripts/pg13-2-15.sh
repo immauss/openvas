@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# If we need to do this now, we'll need pg13
+apt install -y postgresql-13
+
 # Main operational data dir (current cluster lives here)
 PGDATA="${PGDATA:-/data/database}"
 
