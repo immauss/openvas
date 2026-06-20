@@ -2,7 +2,7 @@
 
 # Stage 0: 
 # Start with ovasbase with running dependancies installed.
-FROM immauss/ovasbase:beta AS builder
+FROM immauss/ovasbase:latest AS builder
 
 # Ensure apt doesn't ask any questions 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -14,7 +14,6 @@ ENV VER="$TAG"
 # we don't care about layer count here, in fact multiple layers helps when there are problems witha build
 # as the previous layers will be cached and reduce build time when troubleshooing issues
 
-COPY rust/crates.tar /rust/
 RUN mkdir /build.d
 COPY build.rc ver.current /
 COPY build.d/package-list-build /build.d/
@@ -29,6 +28,7 @@ COPY build.d/openvas-smb.sh /build.d/
 RUN bash /build.d/openvas-smb.sh
 COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
+COPY rust/crates.tar /rust/
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
 COPY build.d/pg-gvm.sh /build.d/
@@ -39,7 +39,7 @@ RUN bash /build.d/gsad.sh
 # Stage 1: Start again with the ovasbase. Dependancies already installed
 # This target is for the image with no database
 # Makes rebuilds for data refresh and scripting changes faster. 
-FROM immauss/ovasbase:beta AS slim
+FROM immauss/ovasbase:latest AS slim
 LABEL maintainer="scott@immauss.com" \
       version="$VER-slim" \
       url="https://hub.docker.com/r/immauss/openvas" \

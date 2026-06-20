@@ -1,5 +1,5 @@
 #!/bin/bash 
-PGVER=${PGVER:-13}
+PGVER=${PGVER:-15}
 # This will setup all the links and directories required by the image. 
 echo "Creating needed Directories"
 mkdir -p /run/gvm
@@ -39,7 +39,7 @@ if ! [ -d /data/database/base ]; then
 	mkdir /tmp/db-confs/
 	mv /data/database/*.conf /tmp/db-confs/
 	chown postgres:postgres /data/database
-	Initialize the database
+	#Initialize the database
 	su -c "/usr/lib/postgresql/${PGVER}/bin/initdb -D /data/database" postgres || INITFAIL=$?
 	if [ $INITFAIL -ne 0 ]; then
 		echo "Looks like databse init failed. \"$INITFAIL\" Bailing out."
