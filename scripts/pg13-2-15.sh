@@ -19,6 +19,12 @@ echo "[pg-upgrade] STAGING=${STAGING}"
 echo "[pg-upgrade] OLD_BAK=${OLD_BAK}"
 echo "[pg-upgrade] SENTINEL=${SENTINEL}"
 
+# Start PG 13 once to recoever incase of unclean shutdown before update. 
+echo "Starting postgresql 13 to recover incase of bad shutdown before update"
+su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database start" postgres 
+sleep 5
+su -c "/usr/lib/postgresql/13/bin/pg_ctl -D /data/database stop" postgres
+
 # 1. Check current data dir
 if [[ ! -d "${PGDATA}" ]]; then
   echo "[pg-upgrade] ${PGDATA} not found. Nothing to upgrade."

@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 ARG TAG
 ENV VER="$TAG"
+ARG TARGETARCH
 
 # Build everything that requires a compiler here and install to /artifacts for copy to 2nd stage.
 # we don't care about layer count here, in fact multiple layers helps when there are problems witha build
@@ -28,7 +29,7 @@ COPY build.d/openvas-smb.sh /build.d/
 RUN bash /build.d/openvas-smb.sh
 COPY build.d/gvmd.sh /build.d/
 RUN bash /build.d/gvmd.sh
-COPY rust/crates.tar /rust/
+COPY rust/${TARGETARCH}/crates.tar /rust/crates.tar
 COPY build.d/openvas-scanner.sh /build.d/
 RUN bash /build.d/openvas-scanner.sh
 COPY build.d/pg-gvm.sh /build.d/
@@ -46,6 +47,15 @@ LABEL maintainer="scott@immauss.com" \
       source="https://github.com/immauss/openvas"     
 EXPOSE 9392
 ENV LANG=C.UTF-8
+# Some of this needs to be moved to ovasbase
+RUN set -eux; \
+    apt-get update; \
+    apt-get -y upgrade; \
+    apt-get install capnproto -y; \
+    apt remove python3-redis -y; \
+    apt-get -y autoremove --purge; \
+    apt-get clean
+RUN pip3 install redis==7.1.0 --break-system-packages
 # Copy the just built from stage 0
 COPY --from=builder /artifacts/. /
 
@@ -86,8 +96,10 @@ COPY ver.current /ver.current
 #RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
-HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
-  CMD /scripts/healthcheck.sh || exit 1
+HEALTHCHECK --interval=300s \
+            --start-period=300s \
+            --timeout=120s \
+            CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]
 
 FROM slim AS final
@@ -100,11 +112,11 @@ COPY globals.sql.xz /usr/lib/globals.sql.xz
 COPY gvmd.sql.xz /usr/lib/gvmd.sql.xz
 COPY var-lib.tar.xz /usr/lib/var-lib.tar.xz
 COPY scripts/* /scripts/
-RUN apt-get update && apt-get install -y capnproto
-RUN apt remove python3-redis -y
-RUN pip3 install redis==7.1.0 --break-system-packages
+
 # Healthcheck needs be an on image script that will know what service is running and check it. 
 # Current image function stored in /usr/local/etc/running-as
-HEALTHCHECK --interval=300s --start-period=300s --timeout=120s \
-  CMD /scripts/healthcheck.sh || exit 1
+HEALTHCHECK --interval=300s \
+            --start-period=300s \
+            --timeout=120s \
+            CMD /scripts/healthcheck.sh || exit 1
 ENTRYPOINT [ "/scripts/start.sh" ]

@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+ARGS="$@"
 #Get current gvm versions
 . build.rc
 # Setup some variables
@@ -17,6 +17,7 @@ RUNOPTIONS=" "
 GSABUILD="false"
 OS=$(uname)
 TEST="false"
+
 echo "OS is $OS"
 if [ "$OS" == "Darwin" ]; then
 	STAT="-f %a"
@@ -130,11 +131,11 @@ echo "Building with $tag and $arch"
 set -Eeuo pipefail
 echo "NOBASE: $NOBASE FORCEBASE: $FORCEBASE"
 echo 
-sleep 5
+sleep 2
 
 if  [ "$NOBASE" == "false" ] || [ "$FORCEBASE" == "true" ] ; then
 	echo "Building new ovasbase image"
-	sleep 5
+	sleep 2
 	cd $BUILDHOME/ovasbase
 	BASESTART=$(date +%s)
 	# Always build all archs for ovasbase.
@@ -175,20 +176,11 @@ cd $BUILDHOME
 #DOCKERFILE="Dockerfile"
 # Because .... rust ... I don't know why .... 
 # We build the rust crates here so we can pass them into the build container. 
-# We if then this, because if we don't, it forces the buildx to rebuild everything.
-if ! [ -f $BUILDHOME/rust/$openvas ]; then
-	echo "Building openvas_scanner rust crates"
-	rm -rf /build/*
-	cd /build
-	wget --no-verbose https://github.com/greenbone/openvas-scanner/archive/$openvas.tar.gz
-	tar -zxf $openvas.tar.gz
-	cd /build/*/
-	cd rust
-	make
-	tar cvf $openvas.crates.tar crates
-	mv $openvas.crates.tar $BUILDHOME/rust/crates.tar
-	touch $BUILDHOME/rust/$openvas 
-fi
+# The script will only build once for each version. If the archive already exists in
+# rust/{platform}/ , then it skips. 
+for platform in $( echo $arch | tr "," " "); do
+	bin/crates-multi-arch.sh "$platform"
+done
 cd $BUILDHOME
 sync
 echo "Working in $(pwd)"
@@ -217,10 +209,13 @@ FINALFIN=$(date +%s)
 rm $DOCKERFILE
 
 echo "Statistics:"
+echo >> timing
+date >> timing
+echo "ARGS: $ARGS" | tee -a timing
 # First the dependent times
 if ! [ $PRUNESTART ]; then
 	PRUNE=$(expr $PRUNEFIN - $PRUNESTART)
-	echo "Build Kit Cache flush: $(Timemath $PRUNE)" | tee timing
+	echo "Build Kit Cache flush: $(Timemath $PRUNE)" | tee -a timing
 fi
 if ! [ $BASESTART ]; then 
 	BASE=$(expr $BASEFIN - $BASESTART )
