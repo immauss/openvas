@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ARGS="$@"
 #Get current gvm versions
 . build.rc
@@ -16,6 +17,8 @@ PUBLISH=" "
 RUNOPTIONS=" "
 GSABUILD="false"
 OS=$(uname)
+# for the "time" command
+export TIMEFORMAT="Elapsed: %E"
 TEST="false"
 
 echo "OS is $OS"
@@ -124,11 +127,11 @@ if [ "$tag" != "latest" ] && [ "$tag" != "beta" ] && [ "$tag" != "test" ]; then
 fi
 VER=$(cat ver.current)
 #
-
+set -Eeuo pipefail
 
 echo "Building with $tag and $arch"
 
-set -Eeuo pipefail
+
 echo "NOBASE: $NOBASE FORCEBASE: $FORCEBASE"
 echo 
 sleep 2
@@ -184,7 +187,7 @@ done
 cd $BUILDHOME
 sync
 echo "Working in $(pwd)"
-ls -l rust
+ls -l rust/*/
 # Now build everything together. At this point, this will normally only be the arm7 build as the amd64 was likely built and cached as beta.
 SLIMSTART=$(date +%s)
 docker buildx build $PUBLISH \

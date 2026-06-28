@@ -16,6 +16,8 @@ cleanup() {
     su -c "/usr/lib/postgresql/${PGVER}/bin/pg_ctl -D /data/database stop" postgres
 	
 }
+# for the "time" command
+export TIMEFORMAT="Elapsed: %E"
 
 #Trap SIGTERM
 if [ -z $1 ] || [ "$1" != "refresh" ]; then
@@ -148,8 +150,10 @@ if [ $LOADDEFAULT = "true" ] && [ $CREATE_EMPTY_DATABASE = "false" ] ; then
 	echo "########################################"
 	# Remove the role creation as it already exists. Prevents an error in startup logs during db restoral.
 	#xzcat /usr/lib/base.sql.xz | grep -v "CREATE ROLE postgres" > /data/base-db.sql
-	xzcat /usr/lib/globals.sql.xz  | grep -v "CREATE ROLE postgres" > /data/globals.sql
-	xzcat /usr/lib/gvmd.sql.xz  > /data/gvmd.sql
+	echo "uncompress globals"
+	time xzcat /usr/lib/globals.sql.xz  | grep -v "CREATE ROLE postgres" > /data/globals.sql
+	echo "Uncompress gvmd.sql"
+	time xzcat /usr/lib/gvmd.sql.xz  > /data/gvmd.sql
 	# the dump is putting this command in the backup even though the value is null. 
 	# this causes errors on start up as with the value as a null, it looks like a syntax error.
 	# removing it here, but only if it exists as a null. If in the future, this is not null, it should remain.
@@ -160,17 +164,18 @@ if [ $LOADDEFAULT = "true" ] && [ $CREATE_EMPTY_DATABASE = "false" ] ; then
 	touch /usr/local/var/log/db-restore.log
 
 	echo "Restoring Globals."
-	su -c "/usr/lib/postgresql/${PGVER}/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
+	time su -c "/usr/lib/postgresql/${PGVER}/bin/psql  < /data/globals.sql " postgres > /usr/local/var/log/db-restore.log
 	echo "Creating gvmd Database."
 	su -c "createdb -O gvm gvmd" postgres
 	echo "Restoring gvmd database."
-	su -c "/usr/lib/postgresql/${PGVER}/bin/pg_restore  -d gvmd -j 4 /data/gvmd.sql" postgres  > /usr/local/var/log/db-restore.log
+	time su -c "/usr/lib/postgresql/${PGVER}/bin/pg_restore  -d gvmd -j 4 /data/gvmd.sql" postgres  >> /usr/local/var/log/db-restore.log
 	rm /data/gvmd.sql
 	cd /data 
 	echo "Unpacking base feeds data from /usr/lib/var-lib.tar.xz"
 	tar xf /usr/lib/var-lib.tar.xz
 	echo "Base DB and feeds collected on:"
 	cat /data/var-lib/update.ts
+
 	# Store the date of the Feeds archive for later start ups. 
 	stat -c %Y  /data/var-lib/update.ts  > /data/var-lib/FeedDate 
 fi
@@ -238,6 +243,7 @@ if [ "$CREATE_EMPTY_DATABASE" == "false"  ]; then
 	# ps auxw | grep gvmd
 	# pkill -KILL gvmd || true # damn healthcheck
 	su -c "gvmd --migrate" gvm 
+	echo "gvmd migration complete"
 fi
 
 
@@ -335,31 +341,15 @@ ls -l  /var/run/ospd/ospd-openvas.sock
 chown gvm:gvm /var/run/ospd/ospd-openvas.sock
 ls -l  /var/run/ospd/ospd-openvas.sock 
 
-# Just incase the boot took too long and there are already gvmd procs running from healthcheck
-
-# GVMSTATUS=1
-# STARTCOUNT=0
-# while [ $GVMSTATUS -ne 0 ] && [ $STARTCOUNT -lt 2 ]; do
-# 	pkill gvmd || true
-# 	sleep 1
-# 	pkill gvmd || true
-	echo "Starting Greenbone Vulnerability Manager..."
-	su -c "gvmd --listen-group=gvm  \
-				--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
-				--max-email-attachment-size=64000000 \
-				--max-email-include-size=64000000 \
-				--max-email-message-size=64000000 \
-				--broker-address='' \
-				--unix-socket=/run/gvmd/gvmd.sock \
-				\"$GVMD_ARGS\"" gvm 
-# 	GVMSTATUS="$?"
-	
-# 	STARTCOUNT=$(( $STARTCOUNT + 1 ))
-# 	echo -e "GVMSTATUS = $GVMSTATUS\n\tSTARTCOUNT = $STARTCOUNT\n"
-# done
-
-
-
+echo "Starting Greenbone Vulnerability Manager..."
+su -c "gvmd --listen-group=gvm  \
+			--osp-vt-update=/var/run/ospd/ospd-openvas.sock \
+			--max-email-attachment-size=64000000 \
+			--max-email-include-size=64000000 \
+			--max-email-message-size=64000000 \
+			--broker-address='' \
+			--unix-socket=/run/gvmd/gvmd.sock \
+			\"$GVMD_ARGS\"" gvm 
 
 until su -c "gvmd --get-users" gvm; do
 	echo "Waiting for gvmd"
