@@ -23,3 +23,4 @@ gsa.dev
 .DS_Store
 db.base.sql
 crates.tar
+rust
