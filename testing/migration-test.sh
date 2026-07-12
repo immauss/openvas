@@ -65,6 +65,7 @@ cleanup_success() {
     echo "Cleaning up successful test resources..."
     "$DOCKER_BIN" rm -f "$OLD_CONTAINER" "$NEW_CONTAINER" >/dev/null 2>&1 || true
     "$DOCKER_BIN" volume rm "$VOLUME_NAME" >/dev/null 2>&1 || true
+    "$DOCKER_BIN" image rm "immauss/openvas:$OLD_VERSION" || true
 }
 
 fail() {
@@ -147,7 +148,7 @@ watch_new_container() {
     local deadline
     local remaining
     local status
-
+    wait_for_gsa $NEW_CONTAINER
     deadline=$(( $(date +%s) + TEST_SECONDS ))
 
     echo "Watching new container for ${TEST_SECONDS}s..."
@@ -181,6 +182,7 @@ echo "Starting old container: ${IMAGE}:${OLD_VERSION}"
     --restart no \
     -v "${VOLUME_NAME}:${DATA_PATH}" \
     -e SKIPSYNC="true" \
+    -e PGVER="13" \
     -p 8080:9392 \
     "${IMAGE}:${OLD_VERSION}"
 
