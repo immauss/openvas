@@ -199,7 +199,7 @@ if [ $CREATE_EMPTY_DATABASE = "true" ]; then
 		su -c "gvm-manage-certs -V " gvm 
 		NOCERTS=$?
 	done
- --rebuild-gvmd-data=report_formats
+su -c "gvmd --rebuild-gvmd-data=report_formats" gvm
 
 fi
 # if RESTORE is true, hopefully the user has mounted thier database in the right place.
