@@ -36,15 +36,15 @@ cd rust
 tar xvf /rust/crates.tar
 # Build openvasd
 cd src/openvasd
-cargo fetch --locked
-cargo build --frozen --release -vv
-#cargo build --release -vv
+#cargo fetch --locked
+#cargo build --frozen --release -vv
+cargo build --release 
 
 cd ../scannerctl
-cargo fetch --locked
-cargo build --frozen --release -vv
+#cargo fetch --locked
+#cargo build --frozen --release -vv
+cargo build --release
 cd ../..
-#cargo build --release
 echo "#####################################################"
 echo "#####################################################"
 echo "#####################################################"
